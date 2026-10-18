@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN STABLE PROTOCOL</title>
+  <title>CYBERCORE: TITAN TRUE 3D & TERRARIA</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -16,6 +16,7 @@
       font-family: 'Consolas', 'Courier New', monospace;
       outline: none;
       -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
     body, html {
       width: 100vw;
@@ -48,15 +49,14 @@
       opacity: 0.45;
     }
 
-    /* MINING PROGRESS HUD */
     #mining-hud {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 120px;
-      height: 14px;
-      background: rgba(0,0,0,0.8);
+      height: 12px;
+      background: rgba(0,0,0,0.85);
       border: 1px solid #00ffcc;
       border-radius: 4px;
       display: none;
@@ -70,7 +70,6 @@
       background: linear-gradient(90deg, #ff9900, #00ffcc);
     }
 
-    /* GLOBAL HUD */
     #hud {
       position: absolute;
       top: 0;
@@ -123,7 +122,6 @@
     .nav-btn.hero { border-color: #ffcc00; color: #ffcc00; background: rgba(255, 204, 0, 0.15); }
     .nav-btn.menu { border-color: #8899aa; color: #fff; background: rgba(255, 255, 255, 0.1); }
 
-    /* STATUS BARS IN HUD */
     #status-bars {
       width: 100%;
       max-width: 860px;
@@ -174,7 +172,6 @@
       cursor: pointer;
     }
 
-    /* CONTROLS */
     .bottom-panel {
       display: flex;
       justify-content: space-between;
@@ -188,8 +185,8 @@
     .dpad-cross {
       pointer-events: auto;
       display: grid;
-      grid-template-columns: repeat(3, 48px);
-      grid-template-rows: repeat(3, 48px);
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
       gap: 4px;
     }
     .touch-btn {
@@ -203,12 +200,12 @@
       align-items: center;
       justify-content: center;
     }
-    .touch-btn:active { background: #00ffcc; color: #000; }
+    .touch-btn.active-touch { background: #00ffcc; color: #000; }
 
     .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 8px; }
     .act-btn {
-      width: 64px;
-      height: 64px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
       background: rgba(255, 204, 0, 0.15);
       border: 1px solid #ffcc00;
@@ -221,16 +218,16 @@
       justify-content: center;
       cursor: pointer;
     }
-    .act-btn:active { background: #ffcc00; color: #000; transform: scale(0.92); }
+    .act-btn.active-touch { background: #ffcc00; color: #000; transform: scale(0.92); }
     .act-btn.combat { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.2); }
+    .act-btn.combat.active-touch { background: #ff0055; color: #fff; }
     .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
 
-    /* MODALS & POPUPS */
     .modal {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(3, 5, 14, 0.96);
-      z-index: 2000; /* ВЫШЕ ЧЕМ START-MENU */
+      z-index: 2000;
       display: none;
       justify-content: center;
       align-items: center;
@@ -332,23 +329,22 @@
   <div id="canvas-container"></div>
   <div id="crt-overlay"></div>
 
-  <!-- ИНДИКАТОР ДОБЫЧИ БЛОКА (DURABILITY) -->
   <div id="mining-hud"><div id="mining-bar"></div></div>
 
-  <!-- ГЛАВНОЕ МЕНЮ -->
+  <!-- START MENU -->
   <div id="start-menu">
     <div style="font-size:26px; font-weight:900; color:#00ffcc; text-shadow:0 0 20px #00ffcc; margin-bottom:4px; text-align:center;">
       CYBERCORE: TITAN
     </div>
     <div style="font-size:11px; color:#ffcc00; margin-bottom:24px; letter-spacing:1px;">
-      TERRARIA 2D & FULL 3D BOSS PROTOCOL
+      TERRARIA 2D & TRUE 3D ARENA
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
       <span>🌍</span> <span>ОТКРЫТЫЙ МИР</span>
     </button>
     <button class="menu-btn boss" onclick="startGameMode('boss')">
-      <span>⚔️</span> <span>АРЕНА 3D-БОССА</span>
+      <span>⚔️</span> <span>АРЕНА 3D-БОССА (FULL 3D)</span>
     </button>
     <button class="menu-btn" style="border-color:#ff9900; color:#ff9900;" onclick="openCraftMenu()">
       <span>⚒️</span> <span>ВЕРСТАК КРАФТА</span>
@@ -374,7 +370,6 @@
       <button class="nav-btn" id="btn-sync" style="background:#00ffcc; color:#000;">💾</button>
     </div>
 
-    <!-- ПОЛОСКИ HP И БОССА -->
     <div id="status-bars">
       <div id="player-hp-box">
         <div style="display:flex; justify-content:space-between; font-size:10px;">
@@ -397,7 +392,7 @@
     <div id="tip-banner">⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, БЕЙ МОБОВ КНОПКОЙ «УДАР»!</div>
 
     <div class="bottom-panel">
-      <div class="dpad-cross">
+      <div class="dpad-cross" id="dpad-container">
         <div></div>
         <button class="touch-btn" id="ctrl-up">▲</button>
         <div></div>
@@ -421,7 +416,7 @@
     </div>
   </div>
 
-  <!-- КРАФТ -->
+  <!-- CRAFT MODAL -->
   <div class="modal" id="craft-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
@@ -461,7 +456,7 @@
     </div>
   </div>
 
-  <!-- ПРОФИЛЬ ГЕРОЯ -->
+  <!-- HERO PROFILE -->
   <div class="modal" id="hero-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
@@ -506,7 +501,7 @@
     </div>
   </div>
 
-  <!-- ДИАЛОГ С ХАЙЗЕНБЕРГОМ -->
+  <!-- DIALOGUE MODAL -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
@@ -617,7 +612,7 @@
 
     let mode = 'menu';
     let currentHp = 150;
-    let iFrames = 0; // Неуязвимость после получения урона
+    let iFrames = 0;
 
     function updateHeroUI() {
       document.getElementById('ui-lvl').innerText = Hero.level;
@@ -663,7 +658,7 @@
       const red = Hero.getArmorReduction() / 100;
       const finalDmg = Math.max(6, rawDmg * (1 - red));
       currentHp -= finalDmg;
-      iFrames = 35; // ~0.6 сек неуязвимости
+      iFrames = 30;
       AudioEngine.hit();
       haptic('heavy');
       updatePlayerHpBar();
@@ -750,7 +745,7 @@
       updateHeroUI();
     };
 
-    // --- THREE.JS SCENE SETUP ---
+    // --- THREE.JS SCENE ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x130a2a, 0.018);
@@ -762,7 +757,6 @@
     renderer.setClearColor(0x130a2a);
     container.appendChild(renderer.domElement);
 
-    // ФОН
     const skyGroup = new THREE.Group();
     scene.add(skyGroup);
     const moon = new THREE.Mesh(new THREE.SphereGeometry(18, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9900ff }));
@@ -782,7 +776,7 @@
     sunLight.position.set(15, 30, 20);
     scene.add(sunLight);
 
-    // МОДЕЛЬ ПЕРСОНАЖА
+    // МОДЕЛЬ ИГРОКА
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
 
@@ -841,7 +835,7 @@
     playerGroup.add(legLeftCyber);
 
     // ==========================================
-    // 2D МИР С ВЫГРУЗКОЙ ЧАНКОВ (GC)
+    // 2D ЧАНКИ И СЕТКА
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -873,7 +867,6 @@
         else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
         else if (Math.random() < 0.13) { mat = matOre; type = 'ore'; }
 
-        // Пещеры
         if (gy > -18 && gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
@@ -885,11 +878,10 @@
       }
     }
 
-    // ВЫГРУЗКА ДАЛЕКИХ БЛОКОВ (СБОРЩИК МУСОРА)
     function cleanFarChunks(playerGX) {
       for (let i = activeBlocks.length - 1; i >= 0; i--) {
         const b = activeBlocks[i];
-        if (Math.abs(b.userData.gx - playerGX) > 34) {
+        if (Math.abs(b.userData.gx - playerGX) > 32) {
           blockMap.delete(`${b.userData.gx},${b.userData.gy}`);
           generatedCols.delete(b.userData.gx);
           worldGroup.remove(b);
@@ -898,9 +890,6 @@
       }
     }
 
-    // ==========================================
-    // ВРАГИ В 2D: РАБОЧИЙ ИИ ПРЕСЛЕДОВАНИЯ И АТАКИ
-    // ==========================================
     const worldEnemies = [];
     function spawnEnemy(x, y) {
       const eg = new THREE.Group();
@@ -921,7 +910,6 @@
       worldEnemies.push(eg);
     }
 
-    // ХАЙЗЕНБЕРГ
     const heisenbergGroup = new THREE.Group();
     worldGroup.add(heisenbergGroup);
     heisenbergGroup.position.set(5.5, 3.2, 0);
@@ -933,18 +921,27 @@
     heisenbergGroup.add(hHat);
 
     // ==========================================
-    // 3D АРЕНА БОССА
+    // 3D АРЕНА БОССА С БАРЬЕРОМ
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
     scene.add(bossGroup);
 
+    const ARENA_RADIUS = 26;
+
     const arenaFloor = new THREE.Mesh(
-      new THREE.CylinderGeometry(28, 28, 0.8, 32),
+      new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 0.8, 36),
       new THREE.MeshStandardMaterial({ color: 0x0a101d, metalness: 0.85 })
     );
     arenaFloor.position.y = -0.4;
     bossGroup.add(arenaFloor);
+
+    // СВЕТЯЩИЙСЯ ФИЗИЧЕСКИЙ БАРЬЕР
+    const barrierGeo = new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 5, 36, 1, true);
+    const barrierMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.25 });
+    const arenaBarrier = new THREE.Mesh(barrierGeo, barrierMat);
+    arenaBarrier.position.y = 2.5;
+    bossGroup.add(arenaBarrier);
 
     const bossRig = new THREE.Group();
     bossGroup.add(bossRig);
@@ -961,13 +958,15 @@
     let bossShield = 600, bossMaxShield = 600;
 
     const projectiles = [];
-    const shockwaves = [];
+    let bossAttackTimer = 0;
 
-    // УПРАВЛЕНИЕ И ПЕРЕМЕЩЕНИЕ
+    // КООРДИНАТЫ И УПРАВЛЕНИЕ
     let pX = 0, pY = 4, pZ = 0;
     let pVy = 0;
     let isGrounded = false;
-    let keyUp = false, keyDown = false, keyLeft = false, keyRight = false;
+
+    // СОСТОЯНИЕ НАЖАТИЯ КЛАВИШ
+    const inputState = { up: false, down: false, left: false, right: false };
 
     window.startGameMode = function(targetMode) {
       document.getElementById('start-menu').style.display = 'none';
@@ -1002,15 +1001,15 @@
         worldGroup.visible = false;
         bossGroup.visible = true;
 
-        pX = 0; pY = 0; pZ = 18;
+        pX = 0; pY = 0; pZ = 16;
         playerGroup.position.set(pX, pY, pZ);
-        document.getElementById('tip-banner').innerText = "⚠️ ПОЛНОЕ 3D: ДВИГАЙСЯ СТРЕЛКАМИ ВОКРУГ БОССА!";
+        document.getElementById('tip-banner').innerText = "⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!";
       }
     }
     document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
     document.getElementById('btn-mode-boss').addEventListener('click', () => switchMode('boss'));
 
-    // АТАКА В 2D МИРЕ
+    // АТАКА В МИРЕ
     function doWorldAttack() {
       if (mode !== 'world') return;
       AudioEngine.slash();
@@ -1046,25 +1045,17 @@
     document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
 
     // ==========================================
-    // СИСТЕМА ДОБЫЧИ БЛОКОВ (ПРОЧНОСТЬ / ЗАЖАТИЕ)
+    // СИСТЕМА КОПАНИЯ С ФИЛЬТРОМ ТАЧА
     // ==========================================
     let miningTarget = null;
     let miningProgress = 0;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getPointerCoord(e) {
-      if (e.touches && e.touches.length > 0) {
-        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      }
-      return { x: e.clientX, y: e.clientY };
-    }
-
-    window.addEventListener('pointerdown', (e) => {
+    function checkMiningStart(clientX, clientY) {
       if (mode !== 'world') return;
-      const pt = getPointerCoord(e);
-      mouse.x = (pt.x / window.innerWidth) * 2 - 1;
-      mouse.y = -(pt.y / window.innerHeight) * 2 + 1;
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
       const hits = raycaster.intersectObjects(activeBlocks);
@@ -1077,6 +1068,12 @@
           document.getElementById('mining-hud').style.display = 'block';
         }
       }
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      // Игнорируем клики по экранным кнопкам UI
+      if (e.target.closest('#hud') || e.target.closest('.modal')) return;
+      checkMiningStart(e.clientX, e.clientY);
     });
 
     window.addEventListener('pointerup', () => {
@@ -1094,7 +1091,7 @@
       }
 
       armR.rotation.x = Math.sin(Date.now() * 0.02) * 0.5;
-      miningProgress += 0.045; // Скорость копания
+      miningProgress += 0.045;
       document.getElementById('mining-bar').style.width = `${Math.min(100, (miningProgress / miningTarget.userData.hp) * 100)}%`;
 
       if (miningProgress >= miningTarget.userData.hp) {
@@ -1131,13 +1128,45 @@
       alert(`Хайзенберг: 'Чистейший продукт!' Получено: +${reward} 🪙, опыт и энерго-чипы!`);
     };
 
-    // БИНДЫ КНОПОК
+    // ==========================================
+    // НЕЗАВИСИМЫЙ МУЛЬТИТАЧ ДЛЯ БЕГА И ПРЫЖКА
+    // ==========================================
+    function setupTouchButton(id, onDown, onUp) {
+      const el = document.getElementById(id);
+      el.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.add('active-touch');
+        onDown();
+      }, { passive: false });
+
+      el.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.remove('active-touch');
+        onUp();
+      }, { passive: false });
+
+      el.addEventListener('touchcancel', (e) => {
+        el.classList.remove('active-touch');
+        onUp();
+      });
+    }
+
+    setupTouchButton('ctrl-up', () => { inputState.up = true; }, () => { inputState.up = false; });
+    setupTouchButton('ctrl-down', () => { inputState.down = true; }, () => { inputState.down = false; });
+    setupTouchButton('ctrl-left', () => { inputState.left = true; }, () => { inputState.left = false; });
+    setupTouchButton('ctrl-right', () => { inputState.right = true; }, () => { inputState.right = false; });
+
+    setupTouchButton('btn-action', () => { doMainAction(); }, () => {});
+
+    // КЛАВИАТУРА
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keyUp = true;
-      if (k === 's' || k === 'arrowdown') keyDown = true;
-      if (k === 'a' || k === 'arrowleft') keyLeft = true;
-      if (k === 'd' || k === 'arrowright') keyRight = true;
+      if (k === 'w' || k === 'arrowup') inputState.up = true;
+      if (k === 's' || k === 'arrowdown') inputState.down = true;
+      if (k === 'a' || k === 'arrowleft') inputState.left = true;
+      if (k === 'd' || k === 'arrowright') inputState.right = true;
       if (k === ' ') doMainAction();
       if (k === 'f') doWorldAttack();
       if (k === 'c') openCraftMenu();
@@ -1147,61 +1176,42 @@
     });
     window.addEventListener('keyup', (e) => {
       const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keyUp = false;
-      if (k === 's' || k === 'arrowdown') keyDown = false;
-      if (k === 'a' || k === 'arrowleft') keyLeft = false;
-      if (k === 'd' || k === 'arrowright') keyRight = false;
+      if (k === 'w' || k === 'arrowup') inputState.up = false;
+      if (k === 's' || k === 'arrowdown') inputState.down = false;
+      if (k === 'a' || k === 'arrowleft') inputState.left = false;
+      if (k === 'd' || k === 'arrowright') inputState.right = false;
     });
-
-    function bindTouch(id, onDown, onUp) {
-      const el = document.getElementById(id);
-      el.addEventListener('touchstart', (e) => { e.preventDefault(); onDown(); });
-      el.addEventListener('touchend', (e) => { e.preventDefault(); onUp(); });
-    }
-    bindTouch('ctrl-up', () => { keyUp = true; }, () => { keyUp = false; });
-    bindTouch('ctrl-down', () => { keyDown = true; }, () => { keyDown = false; });
-    bindTouch('ctrl-left', () => { keyLeft = true; }, () => { keyLeft = false; });
-    bindTouch('ctrl-right', () => { keyRight = true; }, () => { keyRight = false; });
 
     function doMainAction() {
       if (mode === 'world') {
         if (isGrounded) {
-          pVy = 0.27;
+          pVy = 0.28;
           isGrounded = false;
           AudioEngine.jump();
           haptic('light');
         }
       } else {
+        // АВТО-ПРИЦЕЛ ПО БОССУ
         AudioEngine.laser();
         haptic('light');
-        const shootDir = new THREE.Vector3().subVectors(bossRig.position, playerGroup.position).normalize();
-        shootDir.y = 0.12;
+
+        const shootOrigin = playerGroup.position.clone();
+        shootOrigin.y += 1.0;
+
+        const bossTarget = bossRig.position.clone();
+        bossTarget.y += 3.2; // Целимся прямо в реактор босса
+
+        const shootDir = new THREE.Vector3().subVectors(bossTarget, shootOrigin).normalize();
 
         const p = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
-        p.position.copy(playerGroup.position);
-        p.position.y += 1.0;
+        p.position.copy(shootOrigin);
         bossGroup.add(p);
 
-        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(0.75), isPlayer: true });
+        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(0.85), isPlayer: true });
       }
     }
-    document.getElementById('btn-action').addEventListener('click', doMainAction);
 
-    // АТАКИ БОССА
-    setInterval(() => {
-      if (mode !== 'boss') return;
-      const aimDir = new THREE.Vector3().subVectors(playerGroup.position, bossRig.position).normalize();
-      aimDir.y = 0.05;
-
-      const bProj = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-      bProj.position.copy(bossRig.position);
-      bProj.position.y = 3.5;
-      bossGroup.add(bProj);
-
-      projectiles.push({ mesh: bProj, vel: aimDir.multiplyScalar(0.48), isPlayer: false });
-    }, 1500);
-
-    // СИНХРОНИЗАЦИЯ С PYTHON
+    // СИНХРОНИЗАЦИЯ
     document.getElementById('btn-sync').addEventListener('click', () => {
       if (tg) {
         tg.sendData(JSON.stringify({
@@ -1212,8 +1222,7 @@
           stones: stones,
           stats: { str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi },
           equipped: Hero.equipped,
-          wins: Hero.wins,
-          quest_status: 2
+          wins: Hero.wins
         }));
       } else {
         alert(`Синхронизация:\nУровень: ${Hero.level}\nМонеты: ${coins}\nОружие: ${Hero.equipped.sword}`);
@@ -1221,12 +1230,13 @@
     });
 
     // ==========================================
-    // ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ С ИСПРАВЛЕННОЙ ФИЗИКОЙ
+    // ФИЗИЧЕСКИЙ ДВИЖОК И РЕНДЕР
     // ==========================================
     const clock = new THREE.Clock();
 
     function loop() {
       requestAnimationFrame(loop);
+      const dt = clock.getDelta();
       const t = clock.getElapsedTime();
       if (iFrames > 0) iFrames--;
 
@@ -1235,17 +1245,17 @@
 
         let moveX = 0;
         let isMoving = false;
-        if (keyLeft) { moveX -= 0.11; isMoving = true; playerGroup.rotation.y = -Math.PI / 2; }
-        if (keyRight) { moveX += 0.11; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
-        if (!keyLeft && !keyRight) playerGroup.rotation.y = 0;
+        if (inputState.left) { moveX -= 0.12; isMoving = true; playerGroup.rotation.y = -Math.PI / 2; }
+        if (inputState.right) { moveX += 0.12; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
+        if (!inputState.left && !inputState.right) playerGroup.rotation.y = 0;
 
-        // ПЛАВНАЯ ГОРИЗОНТАЛЬНАЯ КОЛЛИЗИЯ БЕЗ ЗАСТРЕВАНИЯ
+        // РАЗДЕЛЬНЫЙ BOX CAST КОЛЛИЗИЙ
         if (moveX !== 0) {
-          const skin = 0.26;
-          const nextX = pX + moveX;
-          const checkGX = Math.round(nextX + (moveX > 0 ? skin : -skin));
-          const footGY = Math.floor(pY + 0.1);
-          const headGY = Math.floor(pY + 1.6);
+          const skin = 0.28;
+          const targetX = pX + moveX;
+          const checkGX = Math.round(targetX + (moveX > 0 ? skin : -skin));
+          const footGY = Math.floor(pY + 0.15);
+          const headGY = Math.floor(pY + 1.55);
 
           let blocked = false;
           for (let gy = footGY; gy <= headGY; gy++) {
@@ -1256,18 +1266,18 @@
           }
 
           if (!blocked) {
-            pX = nextX;
+            pX = targetX;
           } else {
-            // АВТО-СТУПЕНЬКА (STEP UP НА 1 БЛОК)
+            // STEP UP
             const stepGY = footGY + 1;
             if (!blockMap.has(`${checkGX},${stepGY}`) && !blockMap.has(`${Math.round(pX)},${headGY + 1}`)) {
-              pY += 0.2;
-              pX = nextX;
+              pY += 0.22;
+              pX = targetX;
             }
           }
         }
 
-        // ВЕРТИКАЛЬНАЯ ГРАВИТАЦИЯ
+        // ГРАВИТАЦИЯ
         pVy -= 0.014;
         let nextY = pY + pVy;
 
@@ -1276,7 +1286,7 @@
           const curGX = Math.round(pX);
           const bUnder = blockMap.get(`${curGX},${footGY}`);
 
-          if (bUnder && pY >= footGY + 0.8) {
+          if (bUnder && pY >= footGY + 0.75) {
             pY = footGY + 1.0;
             pVy = 0;
             isGrounded = true;
@@ -1285,7 +1295,6 @@
             isGrounded = false;
           }
         } else {
-          // Проверка потолка
           const headGY = Math.floor(nextY + 1.7);
           const curGX = Math.round(pX);
           if (blockMap.has(`${curGX},${headGY}`)) {
@@ -1296,35 +1305,26 @@
           isGrounded = false;
         }
 
-        // ПРЕДОТВРАЩЕНИЕ ПАДЕНИЯ В БЕЗДНУ (VOID SAFETY)
-        if (pY < -20) {
-          damagePlayer(500);
-        }
+        if (pY < -20) damagePlayer(500);
 
-        // ГЕНЕРАЦИЯ И ОЧИСТКА ЧАНКОВ
         const playerGX = Math.round(pX);
-        for (let x = playerGX - 18; x <= playerGX + 18; x++) {
-          generateColumn(x);
-        }
-        if (Math.abs(playerGX) % 10 === 0) cleanFarChunks(playerGX);
+        for (let x = playerGX - 18; x <= playerGX + 18; x++) generateColumn(x);
+        if (Math.abs(playerGX) % 8 === 0) cleanFarChunks(playerGX);
 
-        // СПАВН И ИИ МОБОВ
         if (worldEnemies.length < 10 && Math.random() < 0.02) {
           spawnEnemy(pX + (Math.random() > 0.5 ? 14 : -14), pY + 1.5);
         }
 
         worldEnemies.forEach(e => {
           const dist = playerGroup.position.distanceTo(e.position);
-          // Аггро-зона 14 блоков
           if (dist < 14) {
             if (e.position.x < pX) e.position.x += e.userData.speed;
             else e.position.x -= e.userData.speed;
 
-            // Нанесение урона игроку в упор
             if (dist < 1.2) {
               if (!e.userData.attackCooldown || e.userData.attackCooldown <= 0) {
                 damagePlayer(25);
-                e.userData.attackCooldown = 50; // кулдаун удара
+                e.userData.attackCooldown = 50;
               }
             }
           }
@@ -1332,7 +1332,6 @@
           e.position.y = 3.2 + Math.sin(t * 4 + e.position.x) * 0.25;
         });
 
-        // АНИМАЦИЯ ХОДЬБЫ
         if (isMoving && isGrounded) {
           legRight.rotation.x = Math.sin(t * 11) * 0.55;
           legLeftCyber.rotation.x = -Math.sin(t * 11) * 0.55;
@@ -1343,44 +1342,89 @@
 
         playerGroup.position.set(pX, pY, 0);
 
-        // КАМЕРА
         camera.position.x += (pX - camera.position.x) * 0.1;
         camera.position.y += (pY + 1.4 - camera.position.y) * 0.1;
         camera.position.z = 10;
         camera.lookAt(camera.position.x, camera.position.y, 0);
-        skyGroup.position.x = -camera.position.x * 0.12;
 
         const hDist = playerGroup.position.distanceTo(heisenbergGroup.position);
         document.getElementById('interact-prompt').style.display = hDist < 4.2 ? 'block' : 'none';
       }
       else if (mode === 'boss') {
-        // ПОЛНОЕ 3D ДВИЖЕНИЕ
+        // ==========================================
+        // TRUE 3D СВОБОДНЫЙ БЕГ С ОГРАНИЧЕНИЕМ БАРЬЕРА
+        // ==========================================
         let mX = 0, mZ = 0;
-        if (keyUp) mZ -= 0.14;
-        if (keyDown) mZ += 0.14;
-        if (keyLeft) mX -= 0.14;
-        if (keyRight) mX += 0.14;
+        let isRunning3D = false;
 
-        pX += mX; pZ += mZ;
-        const dCenter = Math.sqrt(pX * pX + pZ * pZ);
-        if (dCenter > 26) {
-          const a = Math.atan2(pZ, pX);
-          pX = Math.cos(a) * 26; pZ = Math.sin(a) * 26;
+        if (inputState.up) { mZ -= 0.15; isRunning3D = true; }
+        if (inputState.down) { mZ += 0.15; isRunning3D = true; }
+        if (inputState.left) { mX -= 0.15; isRunning3D = true; }
+        if (inputState.right) { mX += 0.15; isRunning3D = true; }
+
+        pX += mX;
+        pZ += mZ;
+
+        // ФИЗИЧЕСКИЙ БАРЬЕР АРЕНЫ
+        const distToCenter = Math.sqrt(pX * pX + pZ * pZ);
+        if (distToCenter > ARENA_RADIUS - 1.2) {
+          const angle = Math.atan2(pZ, pX);
+          pX = Math.cos(angle) * (ARENA_RADIUS - 1.2);
+          pZ = Math.sin(angle) * (ARENA_RADIUS - 1.2);
         }
 
         playerGroup.position.set(pX, 0, pZ);
-        playerGroup.lookAt(bossRig.position.x, 0, bossRig.position.z);
+
+        // ПОВОРОТ ПЕРСОНАЖА ПО ХОДУ ДВИЖЕНИЯ
+        if (isRunning3D) {
+          const moveAngle = Math.atan2(mX, mZ);
+          playerGroup.rotation.y = moveAngle;
+          legRight.rotation.x = Math.sin(t * 12) * 0.6;
+          legLeftCyber.rotation.x = -Math.sin(t * 12) * 0.6;
+        } else {
+          legRight.rotation.x = 0;
+          legLeftCyber.rotation.x = 0;
+        }
+
+        // БОСС ВСЕГДА СМОТРИТ НА ИГРОКА
         bossRig.lookAt(pX, bossRig.position.y, pZ);
 
-        camera.position.lerp(new THREE.Vector3(pX * 0.4, 7.5, pZ + 12), 0.08);
-        camera.lookAt(pX * 0.5, 2.5, pZ * 0.5);
+        // ПРИЦЕЛЬНЫЙ ЗАЛП БОССА
+        bossAttackTimer += dt;
+        if (bossAttackTimer >= 1.6) {
+          bossAttackTimer = 0;
 
-        // 3D СНАРЯДЫ
+          const bossShootOrigin = bossRig.position.clone();
+          bossShootOrigin.y += 3.5;
+
+          const playerAimTarget = playerGroup.position.clone();
+          playerAimTarget.y += 1.0;
+
+          // Точный вектор прямо в игрока
+          const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
+
+          const bProj = new THREE.Mesh(
+            new THREE.SphereGeometry(0.65, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true })
+          );
+          bProj.position.copy(bossShootOrigin);
+          bossGroup.add(bProj);
+
+          projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(0.48), isPlayer: false });
+        }
+
+        // КИНЕМАТОГРАФИЧНАЯ 3D КАМЕРА
+        const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
+        camera.position.lerp(camTarget, 0.08);
+        camera.lookAt(pX * 0.4, 2.5, pZ * 0.4);
+
+        // ОБРАБОТКА СНАРЯДОВ
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
           p.mesh.position.add(p.vel);
 
           if (p.isPlayer) {
+            // Попадание по боссу
             if (p.mesh.position.distanceTo(bossRig.position) < 3.2) {
               AudioEngine.hit();
               haptic('light');
@@ -1401,12 +1445,13 @@
 
               if (bossHp <= 0) {
                 coins += 500; Hero.addExp(250); Hero.wins++;
-                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН В 3D! +500 🪙 и +250 EXP!");
+                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН В TRUE 3D! +500 🪙 и +250 EXP!");
                 switchMode('world');
               }
               continue;
             }
           } else {
+            // Попадание босса по игроку
             if (p.mesh.position.distanceTo(playerGroup.position) < 1.4) {
               damagePlayer(35);
               bossGroup.remove(p.mesh);
