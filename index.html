@@ -3,257 +3,636 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN v1.9 APEX DYNAMICS</title>
+  <title>CYBERCORE: TITAN v1.8 ENGINE MONOLITH [PART 1]</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-      font-family: 'Consolas', 'Courier New', monospace;
-      outline: none; -webkit-tap-highlight-color: transparent;
-      touch-action: none;
-    }
-    body, html {
-      width: 100vw; height: 100vh;
-      overflow: hidden; background-color: #06030e;
-      color: #00ffcc; position: fixed; top: 0; left: 0;
-    }
-    #canvas-container {
-      width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;
-    }
-    #crt-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 2; pointer-events: none;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%), linear-gradient(90deg, rgba(255, 68, 0, 0.02), rgba(0, 255, 204, 0.01), rgba(255, 0, 85, 0.02));
-      background-size: 100% 3px, 3px 100%; opacity: 0.35;
+    :root {
+      --neon-cyan: #00ffff;
+      --neon-green: #00ff66;
+      --neon-orange: #ff7700;
+      --neon-gold: #ffd700;
+      --neon-crimson: #ff0055;
+      --neon-purple: #c56cf0;
+      --bg-dark: #080414;
+      --bg-panel: rgba(14, 10, 32, 0.96);
+      --border-panel: 1px solid rgba(255, 119, 0, 0.6);
+      --font-mono: 'Consolas', 'Courier New', monospace;
     }
 
-    /* FLOATING NUMBERS */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      font-family: var(--font-mono);
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+
+    body, html {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--neon-cyan);
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%), linear-gradient(90deg, rgba(255, 68, 0, 0.03), rgba(0, 255, 204, 0.01), rgba(255, 0, 85, 0.03));
+      background-size: 100% 3px, 3px 100%;
+      opacity: 0.35;
+    }
+
+    /* ВСПЛЫВАЮЩИЕ ЦИФРЫ УРОНА */
     #dmg-layer {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 25; pointer-events: none; overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 30;
+      pointer-events: none;
+      overflow: hidden;
     }
     .dmg-num {
-      position: absolute; font-weight: 900; font-size: 16px; color: #fff;
-      text-shadow: 0 0 6px #000; transform: translate(-50%, -50%);
-      animation: floatUp 0.75s ease-out forwards;
+      position: absolute;
+      font-weight: 900;
+      font-size: 16px;
+      color: #ffffff;
+      text-shadow: 0 0 6px #000000;
+      transform: translate(-50%, -50%);
+      animation: floatUp 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
     }
-    .dmg-crit { font-size: 22px; color: #ffd700; text-shadow: 0 0 10px #ff7700; }
-    .dmg-heal { font-size: 18px; color: #00ff66; text-shadow: 0 0 8px #00ff66; }
+    .dmg-crit {
+      font-size: 22px;
+      color: var(--neon-gold);
+      text-shadow: 0 0 10px var(--neon-orange);
+    }
+    .dmg-glitch {
+      font-size: 24px;
+      color: var(--neon-purple);
+      text-shadow: 0 0 12px var(--neon-cyan);
+    }
+    .dmg-heal {
+      font-size: 18px;
+      color: var(--neon-green);
+      text-shadow: 0 0 8px var(--neon-green);
+    }
     @keyframes floatUp {
-      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
-      30% { transform: translate(-50%, -80px) scale(1.2); }
-      100% { opacity: 0; transform: translate(-50%, -120px) scale(1); }
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.7); }
+      30% { transform: translate(-50%, -75px) scale(1.25); }
+      100% { opacity: 0; transform: translate(-50%, -110px) scale(1); }
     }
 
     #toast-banner {
-      position: absolute; top: 76px; left: 50%;
+      position: absolute;
+      top: 76px;
+      left: 50%;
       transform: translateX(-50%);
-      background: rgba(12, 6, 26, 0.96); border: 2px solid #ff7700;
-      border-radius: 8px; padding: 7px 16px; color: #fff;
-      font-size: 11px; font-weight: 900; text-align: center;
-      z-index: 3000; display: none; box-shadow: 0 0 25px rgba(255, 119, 0, 0.5);
-      pointer-events: none; max-width: 90vw; white-space: nowrap;
+      background: var(--bg-panel);
+      border: 2px solid var(--neon-orange);
+      border-radius: 8px;
+      padding: 8px 18px;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+      z-index: 3500;
+      display: none;
+      box-shadow: 0 0 25px rgba(255, 119, 0, 0.5);
+      pointer-events: none;
+      max-width: 92vw;
+      white-space: nowrap;
     }
 
     #mining-hud {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 120px; height: 10px; background: rgba(0,0,0,0.85);
-      border: 1px solid #ff7700; border-radius: 4px; display: none;
-      z-index: 20; pointer-events: none; overflow: hidden;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--neon-orange);
+      border-radius: 4px;
+      display: none;
+      z-index: 25;
+      pointer-events: none;
+      overflow: hidden;
     }
-    #mining-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff7700, #ffd700); }
+    #mining-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-orange), var(--neon-gold));
+    }
 
     #buff-tray {
-      position: absolute; top: 76px; left: 8px;
-      display: flex; flex-direction: column; gap: 4px;
-      z-index: 15; pointer-events: none;
+      position: absolute;
+      top: 76px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 20;
+      pointer-events: none;
     }
     .buff-badge {
-      background: rgba(8, 14, 30, 0.92); border: 1px solid #ff7700;
-      border-radius: 4px; padding: 3px 7px; font-size: 9px;
-      font-weight: bold; color: #fff; display: flex; align-items: center; gap: 4px;
-      box-shadow: 0 0 8px rgba(255, 119, 0, 0.3);
+      background: rgba(8, 14, 30, 0.94);
+      border: 1px solid var(--neon-orange);
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 900;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 10px rgba(255, 119, 0, 0.35);
     }
 
+    /* ОСНОВНОЙ HUD И ВЕРХНИЙ БАР */
     #hud {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 10; pointer-events: none; display: flex; flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
       justify-content: space-between;
       padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
     }
 
     .hud-bar {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(10, 8, 28, 0.94); border: 1px solid #ff7700;
-      border-radius: 8px; padding: 5px 8px;
-      box-shadow: 0 0 15px rgba(255, 119, 0, 0.35); backdrop-filter: blur(8px);
-      pointer-events: auto; max-width: 920px; margin: 34px auto 0; width: 100%; gap: 3px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-panel);
+      border: var(--border-panel);
+      border-radius: 8px;
+      padding: 6px 10px;
+      box-shadow: 0 0 18px rgba(255, 119, 0, 0.35);
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+      max-width: 940px;
+      margin: 32px auto 0;
+      width: 100%;
+      gap: 5px;
     }
 
     .nav-btn {
-      background: rgba(255, 119, 0, 0.12); border: 1px solid #ff7700; color: #ffaa00;
-      padding: 5px 7px; border-radius: 4px; font-size: 10px; font-weight: 900;
-      cursor: pointer; display: flex; align-items: center; gap: 3px;
+      background: rgba(255, 119, 0, 0.12);
+      border: 1px solid var(--neon-orange);
+      color: #ffaa00;
+      padding: 6px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
-    .nav-btn:active { transform: scale(0.95); }
-    .nav-btn.active { background: #ff7700; color: #000; box-shadow: 0 0 10px #ff7700; }
-    .nav-btn.boss { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.15); }
-    .nav-btn.boss.active { background: #ff0055; color: #fff; box-shadow: 0 0 12px #ff0055; }
+    .nav-btn:active { transform: scale(0.94); }
+    .nav-btn.active { background: var(--neon-orange); color: #000000; box-shadow: 0 0 10px var(--neon-orange); }
+    .nav-btn.boss { border-color: var(--neon-crimson); color: var(--neon-crimson); background: rgba(255, 0, 85, 0.15); }
+    .nav-btn.boss.active { background: var(--neon-crimson); color: #ffffff; box-shadow: 0 0 12px var(--neon-crimson); }
     .nav-btn.craft { border-color: #ff9900; color: #ff9900; background: rgba(255, 153, 0, 0.15); }
-    .nav-btn.inv { border-color: #00e5ff; color: #00e5ff; background: rgba(0, 229, 255, 0.15); }
-    .nav-btn.hero { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.15); }
-    .nav-btn.quest { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.15); }
-    .nav-btn.cases { border-color: #e056fd; color: #e056fd; background: rgba(224, 86, 253, 0.15); }
-    .nav-btn.menu { border-color: #8899aa; color: #fff; background: rgba(255, 255, 255, 0.1); }
-    
+    .nav-btn.inv { border-color: #38ef7d; color: #38ef7d; background: rgba(56, 239, 125, 0.15); }
+    .nav-btn.hero { border-color: var(--neon-gold); color: var(--neon-gold); background: rgba(255, 215, 0, 0.15); }
+    .nav-btn.quest { border-color: var(--neon-cyan); color: var(--neon-cyan); background: rgba(0, 255, 255, 0.15); }
+    .nav-btn.cases { border-color: var(--neon-purple); color: var(--neon-purple); background: rgba(197, 108, 240, 0.15); }
+    .nav-btn.menu { border-color: #8899aa; color: #ffffff; background: rgba(255, 255, 255, 0.1); }
+
     .version-tag {
-      background: #ff7700; color: #000; font-size: 9px; font-weight: 900;
-      padding: 3px 6px; border-radius: 4px; cursor: pointer;
+      background: var(--neon-orange);
+      color: #000000;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 3px 6px;
+      border-radius: 4px;
+      cursor: pointer;
     }
-    .version-tag:active { transform: scale(0.9); }
+    .version-tag:active { transform: scale(0.88); }
 
     #heisenberg-compass {
-      background: rgba(4, 8, 20, 0.85); border: 1px solid #00ffcc;
-      color: #00ffcc; font-size: 10px; font-weight: bold;
-      padding: 3px 7px; border-radius: 4px; white-space: nowrap;
+      background: rgba(4, 8, 20, 0.9);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.35);
+      white-space: nowrap;
     }
 
-    /* ЧИСТЫЙ ВЕРХ: HP ИНДИКАТОР ВНИЗУ */
-    #bottom-hp-panel {
-      pointer-events: auto; background: rgba(8, 10, 24, 0.92);
-      border: 1px solid #00ffcc; border-radius: 6px;
-      padding: 4px 8px; width: 100%; max-width: 920px;
-      margin: 0 auto 4px; display: flex; flex-direction: column; gap: 2px;
-    }
-    .bar-bg {
-      width: 100%; height: 6px; background: #080c18;
-      border: 1px solid #142035; border-radius: 3px; overflow: hidden;
-    }
-    .bar-fill-hp { height: 100%; width: 100%; background: #00ff66; transition: width 0.1s linear; }
-    .bar-fill-hp.regen-active { box-shadow: 0 0 10px #00ff66; }
-    .bar-fill-boss-hp { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ff7700); transition: width 0.1s linear; }
-    .bar-fill-boss-shield { height: 100%; width: 100%; background: linear-gradient(90deg, #0088ff, #00ffff); transition: width 0.1s linear; }
-
+    /* БЛОК ПОДСКАЗОК И ИНТЕРАКТИВА */
     #tip-banner {
-      align-self: center; font-size: 11px; font-weight: bold;
-      background: rgba(255, 119, 0, 0.18); border: 1px solid #ff7700;
-      padding: 4px 12px; border-radius: 4px; color: #fff; text-align: center;
-      box-shadow: 0 0 10px rgba(255, 119, 0, 0.3); margin-bottom: 4px;
+      align-self: center;
+      font-size: 11px;
+      font-weight: 900;
+      background: rgba(255, 119, 0, 0.18);
+      border: 1px solid var(--neon-orange);
+      padding: 4px 14px;
+      border-radius: 6px;
+      color: #ffffff;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(255, 119, 0, 0.35);
+      margin-bottom: 4px;
     }
 
     #interact-prompt {
-      align-self: center; background: rgba(255, 119, 0, 0.85);
-      border: 2px solid #ffd700; color: #000; padding: 7px 15px;
-      border-radius: 8px; font-size: 11px; font-weight: 900;
-      display: none; pointer-events: auto; cursor: pointer;
-      box-shadow: 0 0 15px #ff7700; margin-bottom: 4px;
+      align-self: center;
+      background: rgba(255, 119, 0, 0.9);
+      border: 2px solid var(--neon-gold);
+      color: #000000;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      display: none;
+      pointer-events: auto;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--neon-orange);
+      margin-bottom: 4px;
     }
 
-    .bottom-panel {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      width: 100%; max-width: 920px; margin: 0 auto; pointer-events: none;
+    /* КОМПАКТНЫЙ НИЖНИЙ ИНДИКАТОР HP */
+    #bottom-hp-panel {
+      pointer-events: auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 8px;
+      padding: 5px 10px;
+      width: 100%;
+      max-width: 940px;
+      margin: 0 auto 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .bar-bg {
+      width: 100%;
+      height: 7px;
+      background: #090e1c;
+      border: 1px solid #1a2942;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill-hp {
+      height: 100%;
+      width: 100%;
+      background: var(--neon-green);
+      transition: width 0.12s ease;
+    }
+    .bar-fill-hp.regen-active {
+      box-shadow: 0 0 12px var(--neon-green);
+    }
+    .bar-fill-boss-hp {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--neon-crimson), var(--neon-orange));
+      transition: width 0.1s;
+    }
+    .bar-fill-boss-shield {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #0088ff, var(--neon-cyan));
+      transition: width 0.1s;
     }
 
-    /* АДАПТИВНЫЙ D-PAD (КРЕСТ В 3D / ПЕДАЛИ ◀ ▶ В 2D) */
-    .dpad-container {
-      pointer-events: auto; display: grid; gap: 3px;
+    /* MINECRAFT-STYLE HOTBAR НА ЭКРАНЕ */
+    #hud-hotbar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      pointer-events: auto;
     }
-    .dpad-3d {
-      grid-template-columns: repeat(3, 46px);
-      grid-template-rows: repeat(3, 46px);
-    }
-    .dpad-2d {
-      grid-template-columns: repeat(2, 54px);
-      grid-template-rows: 54px;
-    }
-
-    .touch-btn {
-      background: rgba(255, 119, 0, 0.15); border: 1px solid #ff7700;
-      border-radius: 8px; color: #ffaa00; font-size: 18px; font-weight: bold;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .touch-btn.active-touch { background: #ff7700; color: #000; }
-
-    .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 5px; }
-    .act-btn {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: rgba(255, 119, 0, 0.15); border: 1px solid #ff7700;
-      color: #ffaa00; font-size: 8px; font-weight: bold;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    .hotbar-slot {
+      width: 44px;
+      height: 44px;
+      background: rgba(15, 10, 32, 0.88);
+      border: 2px solid #3d2768;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
       cursor: pointer;
     }
-    .act-btn.active-touch { background: #ff7700; color: #000; transform: scale(0.92); }
-    .act-btn.combat { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.2); }
-    .act-btn.combat.active-touch { background: #ff0055; color: #fff; }
-    .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
-    .act-btn.mode-toggle { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.2); }
+    .hotbar-slot.selected {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    .hotbar-slot-icon {
+      font-size: 20px;
+      pointer-events: none;
+    }
+    .hotbar-slot-qty {
+      position: absolute;
+      bottom: 2px;
+      right: 3px;
+      font-size: 9px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 3px #000000;
+    }
 
+    /* ПАНЕЛЬ УПРАВЛЕНИЯ И СЕНСОРНЫЙ ВВОД */
+    .bottom-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      max-width: 940px;
+      margin: 0 auto;
+      pointer-events: none;
+    }
+    .dpad-cross {
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      grid-template-rows: repeat(3, 48px);
+      gap: 3px;
+    }
+    .dpad-horizontal-only {
+      grid-template-columns: repeat(2, 58px);
+      grid-template-rows: 58px;
+    }
+    .touch-btn {
+      background: rgba(255, 119, 0, 0.15);
+      border: 1px solid var(--neon-orange);
+      border-radius: 8px;
+      color: #ffaa00;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .touch-btn.active-touch {
+      background: var(--neon-orange);
+      color: #000000;
+    }
+
+    .touch-actions {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .act-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(255, 119, 0, 0.15);
+      border: 1px solid var(--neon-orange);
+      color: #ffaa00;
+      font-size: 8px;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .act-btn.active-touch {
+      background: var(--neon-orange);
+      color: #000000;
+      transform: scale(0.92);
+    }
+    .act-btn.combat {
+      border-color: var(--neon-crimson);
+      color: var(--neon-crimson);
+      background: rgba(255, 0, 85, 0.2);
+    }
+    .act-btn.combat.active-touch {
+      background: var(--neon-crimson);
+      color: #ffffff;
+    }
+    .act-btn.attack-world {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: rgba(0, 255, 255, 0.2);
+    }
+    .act-btn.mode-toggle {
+      border-color: var(--neon-gold);
+      color: var(--neon-gold);
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    /* МОДАЛЬНЫЕ ОКНА */
     .modal {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(4, 2, 12, 0.96); z-index: 2000; display: none;
-      justify-content: center; align-items: center; padding: 12px; backdrop-filter: blur(10px);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 4, 16, 0.96);
+      z-index: 4000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+      backdrop-filter: blur(12px);
     }
     .modal-box {
-      width: 100%; max-width: 480px; background: #0c081e;
-      border: 2px solid #ff7700; border-radius: 12px; padding: 14px;
-      position: relative; box-shadow: 0 0 30px rgba(255, 119, 0, 0.35);
-      max-height: 90vh; overflow-y: auto;
+      width: 100%;
+      max-width: 520px;
+      background: #0f0a24;
+      border: 2px solid var(--neon-orange);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 0 35px rgba(255, 119, 0, 0.35);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .card-item {
-      background: #120a2c; border: 1px solid #241648; border-radius: 8px;
-      padding: 8px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center;
+      background: #140d33;
+      border: 1px solid #281a54;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin: 6px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .btn-action-small {
-      background: #ff7700; border: none; color: #000; font-weight: 900;
-      padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px;
+      background: var(--neon-orange);
+      border: none;
+      color: #000000;
+      font-weight: 900;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .btn-action-small:active { transform: scale(0.92); }
+    .btn-plus {
+      background: var(--neon-cyan);
+      border: none;
+      color: #000000;
+      font-weight: 900;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
     }
 
-    /* MINECRAFT-STYLE СЕТКА ИНВЕНТАРЯ */
-    .inv-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 8px 0;
+    /* СЕТЧАТЫЙ ИНВЕНТАРЬ (MINECRAFT STYLE) */
+    .inventory-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-    .inv-slot {
-      aspect-ratio: 1; background: #160c38; border: 2px solid #2d186c;
-      border-radius: 6px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; position: relative; cursor: pointer;
+    .inventory-grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: #090616;
+      border: 2px solid #2b184f;
+      border-radius: 8px;
+      padding: 10px;
     }
-    .inv-slot.active-slot { border-color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
-    .inv-slot .slot-icon { font-size: 20px; }
-    .inv-slot .slot-count {
-      position: absolute; bottom: 2px; right: 4px;
-      font-size: 10px; font-weight: 900; color: #ffd700; text-shadow: 0 0 4px #000;
+    .inv-cell {
+      aspect-ratio: 1;
+      background: #130c29;
+      border: 1px solid #3c246e;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .inv-cell.selected {
+      border-color: var(--neon-gold);
+      box-shadow: 0 0 10px var(--neon-gold);
+    }
+    .inv-cell-icon {
+      font-size: 26px;
+    }
+    .inv-cell-qty {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 10px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 4px #000000;
+    }
+    .inv-equip-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: #090616;
+      border: 1px solid #2b184f;
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .equip-cell {
+      background: #170d36;
+      border: 1px dashed var(--neon-cyan);
+      border-radius: 6px;
+      padding: 6px;
+      text-align: center;
+      font-size: 10px;
     }
 
-    /* АДМИНКА СОЗДАТЕЛЯ */
+    /* АДМИН-ПАНЕЛЬ СОЗДАТЕЛЯ (12 ТАПОВ) */
     #admin-modal .modal-box {
-      border-color: #00ffcc; box-shadow: 0 0 35px rgba(0, 255, 204, 0.5);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 35px rgba(0, 255, 204, 0.5);
     }
     .admin-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin: 8px 0;
     }
     .btn-admin {
-      background: rgba(0, 255, 204, 0.12); border: 1px solid #00ffcc;
-      color: #00ffcc; font-size: 10px; font-weight: 900; padding: 7px;
-      border-radius: 5px; cursor: pointer; text-align: center;
+      background: rgba(0, 255, 204, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-size: 10px;
+      font-weight: 900;
+      padding: 8px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
     }
-    .btn-admin:active { background: #00ffcc; color: #000; }
+    .btn-admin:active {
+      background: var(--neon-cyan);
+      color: #000000;
+    }
 
+    /* ГЛАВНОЕ МЕНЮ */
     #start-menu {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at center, #260a3a 0%, #05010a 100%);
-      z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #260c38 0%, #06020c 100%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
     .menu-btn {
-      width: 100%; max-width: 290px; background: rgba(255, 119, 0, 0.12);
-      border: 1px solid #ff7700; color: #ffaa00; font-size: 13px; font-weight: 900;
-      padding: 11px; margin: 5px 0; border-radius: 8px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      max-width: 290px;
+      background: rgba(255, 119, 0, 0.12);
+      border: 1px solid var(--neon-orange);
+      color: #ffaa00;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 12px;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .menu-btn:active { background: #ff7700; color: #000; }
+    .menu-btn:active {
+      background: var(--neon-orange);
+      color: #000000;
+    }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -267,97 +646,75 @@
 
   <!-- START MENU -->
   <div id="start-menu">
-    <div style="font-size:26px; font-weight:900; color:#ff7700; text-shadow:0 0 20px #ff7700; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN <span class="version-tag" onclick="handleVersionClick()">v1.9</span>
+    <div style="font-size:26px; font-weight:900; color:var(--neon-orange); text-shadow:0 0 20px var(--neon-orange); margin-bottom:4px; text-align:center;">
+      CYBERCORE: TITAN <span class="version-tag" onclick="handleVersionClick()">v1.8</span>
     </div>
-    <div style="font-size:11px; color:#ffd700; margin-bottom:18px; letter-spacing:1px;">
-      ⚡ APEX DYNAMICS & HIGH-DETAIL UPDATE
+    <div style="font-size:11px; color:var(--neon-gold); margin-bottom:18px; letter-spacing:1px; text-align:center;">
+      ⚡ ADAPTIVE DELTA-TIME & GRID INVENTORY
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
       <span>🌍</span> <span>ОТКРЫТЫЙ МИР</span>
     </button>
-    <button class="menu-btn" style="border-color:#ff0055; color:#ff0055;" onclick="openBossSelectMenu()">
-      <span>⚔️</span> <span>АРЕНА 3D-БОССОВ</span>
+    <button class="menu-btn" style="border-color:var(--neon-crimson); color:var(--neon-crimson);" onclick="openBossSelectMenu()">
+      <span>⚔️</span> <span>АРЕНА БОССОВ (3D)</span>
     </button>
-    <button class="menu-btn" style="border-color:#00e5ff; color:#00e5ff;" onclick="openInventoryModal()">
-      <span>🎒</span> <span>ИНВЕНТАРЬ (СЕТКА)</span>
+    <button class="menu-btn" style="border-color:#38ef7d; color:#38ef7d;" onclick="openInventoryMenu()">
+      <span>🎒</span> <span>СЕТЧАТЫЙ ИНВЕНТАРЬ</span>
     </button>
-    <button class="menu-btn" style="border-color:#e056fd; color:#e056fd;" onclick="openCasesMenu()">
+    <button class="menu-btn" style="border-color:var(--neon-purple); color:var(--neon-purple);" onclick="openCasesMenu()">
       <span>📦</span> <span>КИБЕР-КЕЙСЫ</span>
     </button>
-    <button class="menu-btn" style="border-color:#ffd700; color:#ffd700;" onclick="openHeroProfile()">
+    <button class="menu-btn" style="border-color:var(--neon-cyan); color:var(--neon-cyan);" onclick="openQuestsMenu()">
+      <span>📜</span> <span>КОНТРАКТЫ / КВЕСТЫ</span>
+    </button>
+    <button class="menu-btn" style="border-color:var(--neon-gold); color:var(--neon-gold);" onclick="openHeroProfile()">
       <span>👤</span> <span>КИБЕР-ПРОФИЛЬ ГЕРОЯ</span>
     </button>
-    <button class="menu-btn" style="border-color:#00ffcc; color:#00ffcc;" onclick="openCustomMenu()">
-      <span>🎨</span> <span>ГАРДЕРОБ / ВИД ПЕРСОНАЖА</span>
-    </button>
-  </div>
-
-  <!-- MINECRAFT-STYLE ИНВЕНТАРЬ -->
-  <div class="modal" id="inventory-modal">
-    <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('inventory-modal')">✕</button>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h3 style="color:#00e5ff; font-size:15px;">🎒 КИБЕР-ИНВЕНТАРЬ</h3>
-        <span style="font-size:10px; color:#8fa5c4;">Слотов: 12 + Хотбар</span>
-      </div>
-
-      <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">ХРАНИЛИЩЕ РЕСУРСОВ:</div>
-      <div class="inv-grid" id="main-inventory-grid"></div>
-
-      <div style="font-size:11px; font-weight:bold; color:#ff7700; margin:10px 0 4px;">ЭКИПИРОВКА И АРТЕФАКТЫ:</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-        <div class="card-item" style="padding:6px;">
-          <div><div style="font-size:9px; color:#8fa5c4;">КЛИНОК</div><b id="inv-slot-weapon" style="font-size:11px; color:#00ffcc;">Клинок MK-1</b></div>
-        </div>
-        <div class="card-item" style="padding:6px;">
-          <div><div style="font-size:9px; color:#8fa5c4;">ИНСТРУМЕНТ</div><b id="inv-slot-tool" style="font-size:11px; color:#ffd700;">Кирка</b></div>
-        </div>
-        <div class="card-item" style="padding:6px;">
-          <div><div style="font-size:9px; color:#8fa5c4;">ШЛЕМ</div><b id="inv-slot-helm" style="font-size:11px; color:#ff7700;">Нет</b></div>
-        </div>
-        <div class="card-item" style="padding:6px;">
-          <div><div style="font-size:9px; color:#8fa5c4;">РЕЛИКВИЯ</div><b id="inv-slot-relic" style="font-size:11px; color:#e056fd;">Нет</b></div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- СЕКРЕТНАЯ АДМИН-ПАНЕЛЬ СОЗДАТЕЛЯ (12 ТАПОВ) -->
   <div class="modal" id="admin-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('admin-modal')">✕</button>
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-        <span style="font-size:22px;">⚡</span>
-        <h3 style="color:#00ffcc; font-size:15px;">CREATOR ADMIN CONSOLE</h3>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('admin-modal')">✕</button>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <span style="font-size:24px;">⚡</span>
+        <h3 style="color:var(--neon-cyan); font-size:15px;">CREATOR ADMIN OVERDRIVE v1.8</h3>
       </div>
-      <p style="font-size:10px; color:#8fa5c4; margin-bottom:8px;">Секретные тулы разработчика активны.</p>
+      <p style="font-size:10px; color:#8fa5c4; margin-bottom:10px;">Режим разработчика активен. Защита параметров отключена.</p>
 
-      <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">РЕЖИМ БОГА И СПОСОБНОСТИ:</div>
+      <div style="font-size:11px; font-weight:bold; color:var(--neon-gold); margin-bottom:4px;">РЕЖИМ БОГА И СПОСОБНОСТИ:</div>
       <div class="admin-grid">
         <button class="btn-admin" id="btn-admin-god" onclick="adminToggleGod()">🛡️ БЕССМЕРТИЕ: ВЫКЛ</button>
         <button class="btn-admin" id="btn-admin-speed" onclick="adminToggleSpeed()">⚡ СПИДХАК: x1</button>
-        <button class="btn-admin" id="btn-admin-fly" onclick="adminToggleFly()">🕊️ ПОЛЁТ: ВЫКЛ</button>
+        <button class="btn-admin" id="btn-admin-fly" onclick="adminToggleFly()">🕊️ ПОЛЁТ (NO-GRAV): ВЫКЛ</button>
         <button class="btn-admin" onclick="adminKillAll()">💥 УБИТЬ ВСЕХ МОБОВ</button>
       </div>
 
-      <div style="font-size:11px; font-weight:bold; color:#ffd700; margin:6px 0 4px;">БОДИБИЛДИНГ СТАТОВ:</div>
+      <div style="font-size:11px; font-weight:bold; color:var(--neon-gold); margin:8px 0 4px;">БОДИБИЛДИНГ И СУПЕР-СТАТЫ:</div>
       <div class="admin-grid">
-        <button class="btn-admin" onclick="adminAddStatPts(10)">+10 Очков развития</button>
-        <button class="btn-admin" onclick="adminAddStatPts(50)">+50 Очков развития</button>
-        <button class="btn-admin" onclick="adminToggleOnePunch()">👊 ONE-PUNCH (9999 DMG)</button>
-        <button class="btn-admin" onclick="adminBoostHp()">💚 БУСТ +1000 HP</button>
-        <button class="btn-admin" id="btn-admin-crit" onclick="adminToggleCrit()">🔥 100% КРИТ: ВЫКЛ</button>
-        <button class="btn-admin" style="border-color:#ff0055; color:#ff0055;" onclick="adminResetCheats()">🔄 СБРОС В ДЕФОЛТ</button>
+        <button class="btn-admin" onclick="adminAddStatPoints(10)">+10 Очков Развития</button>
+        <button class="btn-admin" onclick="adminAddStatPoints(50)">+50 Очков Развития</button>
+        <button class="btn-admin" id="btn-admin-onepunch" onclick="adminToggleOnePunch()">🥊 ONE-PUNCH (9999 DMG)</button>
+        <button class="btn-admin" id="btn-admin-crit" onclick="adminToggleMaxCrit()">🔥 100% КРИТ: ВЫКЛ</button>
       </div>
 
-      <div style="font-size:11px; font-weight:bold; color:#ffd700; margin:6px 0 4px;">ЧИТ-РЕСУРСЫ И ТЕЛЕПОРТ:</div>
+      <div style="font-size:11px; font-weight:bold; color:var(--neon-gold); margin:8px 0 4px;">ЧИТ-РЕСУРСЫ:</div>
       <div class="admin-grid">
         <button class="btn-admin" onclick="adminAddRes('coins', 10000)">+10,000 🪙 Монет</button>
-        <button class="btn-admin" onclick="adminAddRes('ores', 50)">+50 💎 Кристаллов</button>
+        <button class="btn-admin" onclick="adminAddRes('ores', 50)">+50 💎 Руды</button>
+        <button class="btn-admin" onclick="adminAddRes('gold', 30)">+30 👑 Золота</button>
+        <button class="btn-admin" onclick="adminAddRes('tech_chips', 20)">+20 ⚙️ Техно-Чипов</button>
+        <button class="btn-admin" onclick="adminAddRes('pumpkins', 30)">+30 🎃 Тыкв</button>
+        <button class="btn-admin" onclick="adminAddRes('cases', 10)">+10 📦 Кейсов</button>
+      </div>
+
+      <div style="font-size:11px; font-weight:bold; color:var(--neon-gold); margin:8px 0 4px;">БЫСТРЫЙ ТЕЛЕПОРТ:</div>
+      <div class="admin-grid">
         <button class="btn-admin" onclick="adminTeleport('heisenberg')">⚗️ К Хайзенбергу</button>
-        <button class="btn-admin" onclick="adminTeleport('datacenter')">🖥️ В Датацентр</button>
+        <button class="btn-admin" onclick="adminTeleport('surface')">🌱 На Поверхность</button>
+        <button class="btn-admin" onclick="adminTeleport('datacenter')">🖥️ В Датацентр (-12Y)</button>
+        <button class="btn-admin" onclick="adminTeleport('deepgold')">👑 К Золоту (-16Y)</button>
       </div>
     </div>
   </div>
@@ -365,32 +722,88 @@
   <!-- СЕЛЕКТОР БОССОВ -->
   <div class="modal" id="boss-select-modal">
     <div class="modal-box" style="text-align:center;">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('boss-select-modal')">✕</button>
-      <h3 style="color:#ff0055; font-size:16px; margin-bottom:6px;">⚔️ ВЫБОР ДУЭЛИ В 3D АРЕНЕ</h3>
-      <p style="font-size:11px; color:#8fa5c4; margin-bottom:12px;">Выбери титана для сражения:</p>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('boss-select-modal')">✕</button>
+      <h3 style="color:var(--neon-crimson); font-size:16px; margin-bottom:6px;">⚔️ ВЫБОР ДУЭЛИ В 3D АРЕНЕ</h3>
+      <p style="font-size:11px; color:#8fa5c4; margin-bottom:14px;">Выбери титана или начни битву с синдикатом:</p>
 
       <div class="card-item" onclick="startChosenBoss('random')" style="cursor:pointer;">
         <div>
-          <div style="font-size:13px; font-weight:900; color:#ffd700;">🎲 СЛУЧАЙНЫЙ ТИТАН</div>
-          <div style="font-size:10px; color:#8fa5c4;">Случайный выбор +15% к награде</div>
+          <div style="font-size:13px; font-weight:900; color:var(--neon-gold);">🎲 СЛУЧАЙНЫЙ ТИТАН</div>
+          <div style="font-size:10px; color:#8fa5c4;">Случайный противник +20% к награде</div>
         </div>
-        <button class="btn-action-small" style="background:#ffd700; color:#000;">В БОЙ</button>
+        <button class="btn-action-small" style="background:var(--neon-gold); color:#000;">В БОЙ</button>
       </div>
 
       <div class="card-item" onclick="startChosenBoss('centurion')" style="cursor:pointer;">
         <div>
-          <div style="font-size:13px; font-weight:900; color:#ff0055;">🛡️ КИБЕР-ЦЕНТУРИОН MK-X</div>
-          <div style="font-size:10px; color:#8fa5c4;">Тяжёлый мех, молот, овердрайв</div>
+          <div style="font-size:13px; font-weight:900; color:var(--neon-crimson);">🛡️ КИБЕР-ЦЕНТУРИОН MK-X</div>
+          <div style="font-size:10px; color:#8fa5c4;">Тяжёлый мех, молот, лазеры и фаза овердрайва</div>
         </div>
         <button class="btn-action-small">В БОЙ</button>
       </div>
 
       <div class="card-item" onclick="startChosenBoss('phoenix')" style="cursor:pointer;">
         <div>
-          <div style="font-size:13px; font-weight:900; color:#ff7700;">🦅 НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»</div>
-          <div style="font-size:10px; color:#8fa5c4;">Погоня, пикирование, спирали Bullet-Hell</div>
+          <div style="font-size:13px; font-weight:900; color:var(--neon-orange);">🦅 НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»</div>
+          <div style="font-size:10px; color:#8fa5c4;">Погоня на бреющем полёте, Bullet-Hell спирали и перья</div>
         </div>
-        <button class="btn-action-small" style="background:#ff7700; color:#000;">В БОЙ</button>
+        <button class="btn-action-small" style="background:var(--neon-orange); color:#000;">В БОЙ</button>
+      </div>
+
+      <div class="card-item" onclick="startChosenBoss('arachnid')" style="cursor:pointer;">
+        <div>
+          <div style="font-size:13px; font-weight:900; color:var(--neon-cyan);">🕷️ КРИО-АРАХНИД MK-4</div>
+          <div style="font-size:10px; color:#8fa5c4;">Лазерные паутины, камикадзе и скользящий лёд</div>
+        </div>
+        <button class="btn-action-small" style="background:var(--neon-cyan); color:#000;">В БОЙ</button>
+      </div>
+
+      <div class="card-item" onclick="startChosenBoss('syndicate')" style="cursor:pointer;">
+        <div>
+          <div style="font-size:13px; font-weight:900; color:var(--neon-purple);">👾 БАНДА: ГЛИТЧ-СИНДИКАТ</div>
+          <div style="font-size:10px; color:#8fa5c4;">Трио психопатов: Рывок, Хакерские мины и Пулемётчик</div>
+        </div>
+        <button class="btn-action-small" style="background:var(--neon-purple); color:#fff;">В БОЙ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINECRAFT-STYLE СЕТЧАТЫЙ ИНВЕНТАРЬ -->
+  <div class="modal" id="inventory-modal">
+    <div class="modal-box">
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('inventory-modal')">✕</button>
+      <h3 style="color:#38ef7d; font-size:15px; margin-bottom:10px;">🎒 КИБЕР-ИНВЕНТАРЬ (СЕТКА 3x4)</h3>
+
+      <div class="inventory-layout">
+        <div style="font-size:11px; font-weight:900; color:var(--neon-gold);">АКТИВНАЯ ЭКИПИРОВКА:</div>
+        <div class="inv-equip-slots">
+          <div class="equip-cell">
+            <span style="color:#8fa5c4;">Шлем</span><br>
+            <b id="slot-equip-helmet" style="color:var(--neon-orange);">Нет</b>
+          </div>
+          <div class="equip-cell">
+            <span style="color:#8fa5c4;">Броня</span><br>
+            <b id="slot-equip-chest" style="color:var(--neon-cyan);">Куртка</b>
+          </div>
+          <div class="equip-cell">
+            <span style="color:#8fa5c4;">Оружие</span><br>
+            <b id="slot-equip-weapon" style="color:var(--neon-gold);">Клинок</b>
+          </div>
+        </div>
+
+        <div style="font-size:11px; font-weight:900; color:var(--neon-gold);">ХРАНИЛИЩЕ РЕСУРСОВ:</div>
+        <div class="inventory-grid-container" id="inv-grid-slots">
+          <!-- 12 ячеек генерируются через JS -->
+        </div>
+
+        <div id="inv-selected-details" style="background:#130b2e; border:1px solid #3c246e; border-radius:6px; padding:8px; display:none;">
+          <div id="inv-item-name" style="font-size:12px; font-weight:900; color:var(--neon-cyan);">Название предмета</div>
+          <div id="inv-item-desc" style="font-size:10px; color:#8fa5c4; margin:4px 0;">Описание предмета</div>
+          <div style="display:flex; gap:6px; margin-top:6px;">
+            <button class="btn-action-small" id="btn-inv-use" onclick="useSelectedItem()">ИСПОЛЬЗОВАТЬ</button>
+            <button class="btn-action-small" style="background:var(--neon-crimson); color:#fff;" onclick="dropSelectedItem()">ВЫБРОСИТЬ</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -401,49 +814,76 @@
       <button class="nav-btn menu" onclick="exitToMainMenu()">🏠</button>
       <button class="nav-btn active" id="btn-mode-world">🌍 МИР</button>
       <button class="nav-btn boss" id="btn-mode-boss">⚔️ БОСС</button>
-      <button class="nav-btn inv" onclick="openInventoryModal()">🎒</button>
+      <button class="nav-btn inv" onclick="openInventoryMenu()">🎒</button>
       <button class="nav-btn craft" onclick="openCraftMenu()">⚒️</button>
       <button class="nav-btn quest" onclick="openQuestsMenu()">📜</button>
       <button class="nav-btn cases" onclick="openCasesMenu()">📦</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
-      <span class="version-tag" onclick="handleVersionClick()">v1.9</span>
+      <span class="version-tag" onclick="handleVersionClick()">v1.8</span>
       <div id="heisenberg-compass">⚗️ 0м</div>
       <div style="font-size:10px; font-weight:bold;">
-        🪙 <span id="val-coins" style="color:#ffd700;">100</span> | 
-        💎 <span id="val-ores" style="color:#00ffff;">0</span> | 
-        👑 <span id="val-gold" style="color:#ffd700;">0</span>
+        🪙 <span id="val-coins" style="color:var(--neon-gold);">100</span> | 
+        💎 <span id="val-ores" style="color:var(--neon-cyan);">0</span> | 
+        👑 <span id="val-gold" style="color:var(--neon-gold);">0</span>
       </div>
-      <button class="nav-btn" id="btn-sync" style="background:#ff7700; color:#000;">💾</button>
+      <button class="nav-btn" id="btn-sync" style="background:var(--neon-orange); color:#000;">💾</button>
     </div>
 
     <div></div>
 
     <div id="interact-prompt">⚗️ ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА [ТАП]</div>
-    <div id="tip-banner">⛏️ ТАПАЙ РЯДОМ ЧТОБЫ СТРОИТЬ/КОПАТЬ, ДВОЙНОЙ ПРЫЖОК = БУСТ!</div>
+    <div id="tip-banner">⛏️ ТАПАЙ РЯДОМ ЧТОБЫ КОПАТЬ, ДВОЙНОЙ ПРЫЖОК = БУСТ!</div>
 
+    <!-- MINECRAFT HOTBAR НА ЭКРАНЕ -->
+    <div id="hud-hotbar">
+      <div class="hotbar-slot selected" id="hb-slot-0" onclick="selectHotbarSlot(0)">
+        <span class="hotbar-slot-icon" id="hb-icon-0">🗡️</span>
+        <span class="hotbar-slot-qty" id="hb-qty-0"></span>
+      </div>
+      <div class="hotbar-slot" id="hb-slot-1" onclick="selectHotbarSlot(1)">
+        <span class="hotbar-slot-icon" id="hb-icon-1">⛏️</span>
+        <span class="hotbar-slot-qty" id="hb-qty-1"></span>
+      </div>
+      <div class="hotbar-slot" id="hb-slot-2" onclick="selectHotbarSlot(2)">
+        <span class="hotbar-slot-icon" id="hb-icon-2">🧱</span>
+        <span class="hotbar-slot-qty" id="hb-qty-2">0</span>
+      </div>
+      <div class="hotbar-slot" id="hb-slot-3" onclick="selectHotbarSlot(3)">
+        <span class="hotbar-slot-icon" id="hb-icon-3">🧪</span>
+        <span class="hotbar-slot-qty" id="hb-qty-3">0</span>
+      </div>
+    </div>
+
+    <!-- КОМПАКТНЫЙ НИЖНИЙ ИНДИКАТОР HP -->
     <div id="bottom-hp-panel">
       <div style="display:flex; justify-content:space-between; font-size:9px; font-weight:bold;">
-        <span style="color:#00ff66;">ПРОЧНОСТЬ ЭКЗОСКЕЛЕТА (HP)</span>
-        <span id="player-hp-txt" style="color:#00ff66;">150 / 150</span>
+        <span style="color:var(--neon-green);">ПРОЧНОСТЬ ЭКЗОСКЕЛЕТА (HP)</span>
+        <span id="player-hp-txt" style="color:var(--neon-green);">150 / 150</span>
       </div>
       <div class="bar-bg"><div class="bar-fill-hp" id="player-hp-bar"></div></div>
       <div id="boss-hud-group" style="display:none; margin-top:2px;">
         <div style="display:flex; justify-content:space-between; font-size:9px;">
-          <span id="boss-name" style="color:#ff0055; font-weight:bold;">ЦЕНТУРИОН MK-X</span>
-          <span id="boss-stage" style="color:#ff7700;">ФАЗА 1: ЩИТ</span>
+          <span id="boss-name" style="color:var(--neon-crimson); font-weight:bold;">ЦЕНТУРИОН MK-X</span>
+          <span id="boss-stage" style="color:var(--neon-orange);">ФАЗА 1: ЩИТ</span>
         </div>
         <div class="bar-bg" style="height:4px;"><div class="bar-fill-boss-shield" id="boss-shield"></div></div>
         <div class="bar-bg" style="height:5px; margin-top:1px;"><div class="bar-fill-boss-hp" id="boss-hp"></div></div>
       </div>
     </div>
 
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ С АДАПТИВНЫМ Д-ПАДОМ -->
     <div class="bottom-panel">
-      <!-- ДИНАМИЧЕСКИЙ D-PAD -->
-      <div class="dpad-container dpad-2d" id="dpad-container">
+      <div class="dpad-cross" id="dpad-container">
+        <div></div>
+        <button class="touch-btn" id="ctrl-up">▲</button>
+        <div></div>
         <button class="touch-btn" id="ctrl-left">◀</button>
+        <div></div>
         <button class="touch-btn" id="ctrl-right">▶</button>
+        <div></div>
+        <button class="touch-btn" id="ctrl-down">▼</button>
+        <div></div>
       </div>
-
       <div class="touch-actions">
         <button class="act-btn mode-toggle" id="btn-build-toggle">
           <span id="build-mode-icon">⛏️</span>
@@ -464,37 +904,37 @@
   <!-- КРАФТ ВЕРСТАК -->
   <div class="modal" id="craft-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
       <h3 style="color:#ff9900; font-size:15px; margin-bottom:6px;">⚒️ КИБЕР-КУЗНИЦА И ИНСТРУМЕНТЫ</h3>
       
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🔩 Титановый Бур (Кирка 2 ур)</div>
-          <div style="font-size:10px; color:#ffd700;">💎 6 Руды + 👑 2 Золота</div>
+          <div style="font-size:12px; font-weight:900; color:var(--neon-cyan);">🔩 Титановый Бур (Кирка 2 уровня)</div>
+          <div style="font-size:10px; color:var(--neon-gold);">💎 6 Руды + 👑 2 Золота</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('titan_drill')">КРАФТ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#ff7700;">🔨 Кибер-Кувалда «Разрушитель»</div>
-          <div style="font-size:10px; color:#ffd700;">🧱 15 Камня + 👑 3 Золота</div>
+          <div style="font-size:12px; font-weight:900; color:var(--neon-orange);">🔨 Кибер-Кувалда «Разрушитель»</div>
+          <div style="font-size:10px; color:var(--neon-gold);">🧱 15 Камня + 👑 3 Золота</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('sledgehammer')">КРАФТ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#00e5ff;">🔫 Импульсный Бластер (Автоаим)</div>
-          <div style="font-size:10px; color:#ffd700;">💎 5 Руды + ⚙️ 2 Чипа</div>
+          <div style="font-size:12px; font-weight:900; color:#00e5ff;">🔫 Импульсный Бластер с Автоаимом</div>
+          <div style="font-size:10px; color:var(--neon-gold);">💎 5 Руды + ⚙️ 2 Техно-Чипа</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('blaster')">КРАФТ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#e056fd;">🧲 Реликвия: Магнит Руды</div>
-          <div style="font-size:10px; color:#ffd700;">💎 4 Руды + 🪙 80 Монет</div>
+          <div style="font-size:12px; font-weight:900; color:var(--neon-purple);">🧲 Реликвия: Магнит Руды</div>
+          <div style="font-size:10px; color:var(--neon-gold);">💎 4 Руды + 🪙 80 Монет</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('magnet')">КРАФТ</button>
       </div>
@@ -504,8 +944,8 @@
   <!-- КВЕСТЫ -->
   <div class="modal" id="quests-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('quests-modal')">✕</button>
-      <h3 style="color:#00ffff; font-size:15px; margin-bottom:8px;">📜 СЕТЕВЫЕ КОНТРАКТЫ / КВЕСТЫ</h3>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('quests-modal')">✕</button>
+      <h3 style="color:var(--neon-cyan); font-size:15px; margin-bottom:8px;">📜 СЕТЕВЫЕ КОНТРАКТЫ / КВЕСТЫ</h3>
       <div id="quest-list"></div>
     </div>
   </div>
@@ -513,51 +953,51 @@
   <!-- КЕЙСЫ -->
   <div class="modal" id="cases-modal">
     <div class="modal-box" style="text-align:center;">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('cases-modal')">✕</button>
-      <h3 style="color:#e056fd; font-size:16px; margin-bottom:4px;">📦 КИБЕР-КЕЙСЫ</h3>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('cases-modal')">✕</button>
+      <h3 style="color:var(--neon-purple); font-size:16px; margin-bottom:4px;">📦 КИБЕР-КЕЙСЫ</h3>
       <div style="font-size:11px; color:#8fa5c4; margin-bottom:12px;">
-        Обычные: <b id="case-count-txt" style="color:#e056fd;">1</b> | 
-        Хэллоуинские: <b id="spooky-case-count-txt" style="color:#ff7700;">1</b>
+        Обычные: <b id="case-count-txt" style="color:var(--neon-purple);">1</b> | 
+        Хэллоуинские: <b id="spooky-case-count-txt" style="color:var(--neon-orange);">1</b>
       </div>
       
-      <div style="width:100px; height:100px; margin:0 auto 12px; border:2px dashed #ff7700; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:42px; background:rgba(255, 119, 0, 0.1);" id="box-anim-target">
+      <div style="width:100px; height:100px; margin:0 auto 12px; border:2px dashed var(--neon-orange); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:42px; background:rgba(255, 119, 0, 0.1);" id="box-anim-target">
         📦
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
-        <button class="btn-action-small" style="background:#e056fd; color:#fff;" onclick="openCyberCase('normal')">ОТКРЫТЬ КЕЙС</button>
-        <button class="btn-action-small" style="background:#ff7700; color:#000;" onclick="openCyberCase('spooky')">🎃 SPOOKY КЕЙС</button>
-        <button class="btn-action-small" style="background:#ffd700; color:#000;" onclick="buyCyberCase()">КУПИТЬ (150 🪙)</button>
+        <button class="btn-action-small" style="background:var(--neon-purple); color:#fff;" onclick="openCyberCase('normal')">ОТКРЫТЬ КЕЙС</button>
+        <button class="btn-action-small" style="background:var(--neon-orange); color:#000;" onclick="openCyberCase('spooky')">🎃 SPOOKY КЕЙС</button>
+        <button class="btn-action-small" style="background:var(--neon-gold); color:#000;" onclick="buyCyberCase()">КУПИТЬ (150 🪙)</button>
       </div>
-      <div id="case-reward-txt" style="margin-top:12px; font-size:12px; font-weight:bold; color:#00ffcc; min-height:16px;"></div>
+      <div id="case-reward-txt" style="margin-top:12px; font-size:12px; font-weight:bold; color:var(--neon-cyan); min-height:16px;"></div>
     </div>
   </div>
 
   <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
         <span style="font-size:32px;">🔮</span>
         <div>
           <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ: МОДИФИКАТОР & АЛХИМИЯ</h3>
-          <span style="font-size:10px; color:#00ffcc;">Зачарования оружия и 10-минутные зелья</span>
+          <span style="font-size:10px; color:var(--neon-cyan);">Зачарования оружия и 10-минутные зелья</span>
         </div>
       </div>
       
-      <div style="background:#170f30; border:1px solid #00ffcc; border-radius:8px; padding:10px; margin-bottom:10px;">
-        <div style="font-size:12px; font-weight:900; color:#00ffcc; margin-bottom:3px;">🔮 КИБЕР-ЗАЧАРОВАНИЕ ОРУЖИЯ</div>
+      <div style="background:#1b1238; border:1px solid var(--neon-cyan); border-radius:8px; padding:10px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:900; color:var(--neon-cyan); margin-bottom:3px;">🔮 КИБЕР-ЗАЧАРОВАНИЕ ОРУЖИЯ</div>
         <div style="font-size:10px; color:#cbd9ec; margin-bottom:6px;">
-          Текущее оружие: <b id="current-enchant-txt" style="color:#ffd700;">Без зачарования</b>
+          Текущее оружие: <b id="current-enchant-txt" style="color:var(--neon-gold);">Без зачарования</b>
         </div>
-        <button class="btn-action-small" style="background:#00ffcc; color:#000; width:100%; padding:8px;" onclick="enchantWeapon()">
+        <button class="btn-action-small" style="background:var(--neon-cyan); color:#000; width:100%; padding:8px;" onclick="enchantWeapon()">
           ⚡ ЗАЧАРОВАТЬ ЗА 5 КРИСТАЛЛОВ 💎
         </button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:bold; color:#ff7700;">🎃 Эликсир Тыквенного Безумия (10 мин)</div>
+          <div style="font-size:12px; font-weight:bold; color:var(--neon-orange);">🎃 Эликсир Тыквенного Безумия (10 мин)</div>
           <div style="font-size:10px; color:#8fa5c4;">+40% скорость, +35 урон | 🎃 4 Тыквы</div>
         </div>
         <button class="btn-action-small" onclick="buyPotion('pumpkin_madness')">СВАРИТЬ</button>
@@ -573,56 +1013,19 @@
     </div>
   </div>
 
-  <!-- КИБЕР-ГАРДЕРОБ -->
-  <div class="modal" id="custom-modal">
-    <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('custom-modal')">✕</button>
-      <h3 style="color:#00ffcc; font-size:15px; margin-bottom:8px;">🎨 КИБЕР-ГАРДЕРОБ / ВИД ГЕРОЯ</h3>
-
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">ЦВЕТ ВОЛОС:</div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-action-small" style="background:#1f140e; color:#fff;" onclick="setCustomStyle('hair', 0x1f140e)">Брюнет</button>
-          <button class="btn-action-small" style="background:#00e5ff; color:#000;" onclick="setCustomStyle('hair', 0x00e5ff)">Неон</button>
-          <button class="btn-action-small" style="background:#f1c40f; color:#000;" onclick="setCustomStyle('hair', 0xf1c40f)">Блонд</button>
-          <button class="btn-action-small" style="background:#e74c3c; color:#fff;" onclick="setCustomStyle('hair', 0xe74c3c)">Огонь</button>
-        </div>
-      </div>
-
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">НЕОН КИБЕР-ПРОТЕЗА:</div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-action-small" style="background:#00ffcc; color:#000;" onclick="setCustomStyle('legGlow', 0x00ffcc)">Бирюза</button>
-          <button class="btn-action-small" style="background:#e056fd; color:#fff;" onclick="setCustomStyle('legGlow', 0xe056fd)">Пурпур</button>
-          <button class="btn-action-small" style="background:#ff7700; color:#000;" onclick="setCustomStyle('legGlow', 0xff7700)">Пламя</button>
-          <button class="btn-action-small" style="background:#00ff66; color:#000;" onclick="setCustomStyle('legGlow', 0x00ff66)">Изумруд</button>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">МОДИФИКАЦИИ ЛИЦА:</div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-action-small" onclick="setCustomStyle('face', 'scar')">Боевой шрам</button>
-          <button class="btn-action-small" onclick="setCustomStyle('face', 'monocular')">Кибер-глаз</button>
-          <button class="btn-action-small" onclick="setCustomStyle('face', 'none')">Чистое лицо</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- КИБЕР-ПРОФИЛЬ ГЕРОЯ -->
   <div class="modal" id="hero-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:var(--neon-crimson); font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
       <h3 style="color:#ffaa00; font-size:15px; margin-bottom:10px;">КИБЕР-ПРОФИЛЬ ГЕРОЯ</h3>
-      <div style="background:#120828; border:1px solid #ff7700; border-radius:8px; padding:10px; margin-bottom:10px;">
+      <div style="background:#130b2e; border:1px solid var(--neon-orange); border-radius:8px; padding:10px; margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:14px; font-weight:900; color:#ff7700;">Tivaiis [Cyber-Titan]</div>
-          <button class="btn-action-small" style="background:#00ffcc; color:#000; font-size:9px;" onclick="openCustomMenu()">🎨 ВИД</button>
+          <div style="font-size:14px; font-weight:900; color:var(--neon-orange);">Tivaiis [Cyber-Titan]</div>
+          <span style="font-size:10px; color:var(--neon-cyan);">Rank A</span>
         </div>
-        <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:#ffd700; font-weight:bold;">1</span></div>
+        <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:var(--neon-gold); font-weight:bold;">1</span></div>
         <div class="bar-bg" style="height:6px; margin-top:4px;">
-          <div id="ui-exp-fill" style="height:100%; width:15%; background:#ff7700;"></div>
+          <div id="ui-exp-fill" style="height:100%; width:15%; background:var(--neon-orange);"></div>
         </div>
         <div style="font-size:9px; color:#6b829e; text-align:right; margin-top:2px;">
           <span id="ui-exp-cur">15</span> / <span id="ui-exp-max">100</span> EXP
@@ -637,27 +1040,28 @@
         </div>
       </div>
       <div style="font-size:12px; font-weight:bold; color:#ffaa00; margin-bottom:6px;">
-        Очки развития: <span id="ui-stat-pts" style="font-size:14px; color:#00ffcc;">0</span>
+        Очки развития: <span id="ui-stat-pts" style="font-size:14px; color:var(--neon-cyan);">0</span>
       </div>
       <div class="card-item" style="padding:6px 10px;">
         <div><div style="font-size:12px; font-weight:bold; color:#fff;">Сила • <span id="val-str">0</span></div></div>
-        <button class="btn-action-small" onclick="upgradeStat('str')">+1</button>
+        <button class="btn-plus" onclick="upgradeStat('str')">+1</button>
       </div>
       <div class="card-item" style="padding:6px 10px;">
         <div><div style="font-size:12px; font-weight:bold; color:#fff;">Стойкость • <span id="val-end">0</span></div></div>
-        <button class="btn-action-small" onclick="upgradeStat('end')">+1</button>
+        <button class="btn-plus" onclick="upgradeStat('end')">+1</button>
       </div>
       <div class="card-item" style="padding:6px 10px;">
         <div><div style="font-size:12px; font-weight:bold; color:#fff;">Меткость • <span id="val-acc">0</span></div></div>
-        <button class="btn-action-small" onclick="upgradeStat('acc')">+1</button>
+        <button class="btn-plus" onclick="upgradeStat('acc')">+1</button>
       </div>
       <div class="card-item" style="padding:6px 10px;">
         <div><div style="font-size:12px; font-weight:bold; color:#fff;">Ловкость • <span id="val-agi">0</span></div></div>
-        <button class="btn-action-small" onclick="upgradeStat('agi')">+1</button>
+        <button class="btn-plus" onclick="upgradeStat('agi')">+1</button>
       </div>
     </div>
   </div>
 
+  <!-- JAVASCRIPT: ЯДРО, АУДИО И БАЗА ДАННЫХ -->
   <script>
     window.addEventListener('contextmenu', e => e.preventDefault(), { capture: true });
     window.addEventListener('selectstart', e => e.preventDefault(), { capture: true });
@@ -673,7 +1077,9 @@
     let toastTimer = null;
     function showToast(text, color = '#ff7700') {
       const el = document.getElementById('toast-banner');
-      el.innerText = text; el.style.borderColor = color; el.style.display = 'block';
+      el.innerText = text;
+      el.style.borderColor = color;
+      el.style.display = 'block';
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2400);
     }
@@ -688,27 +1094,31 @@
       } catch (e) {}
     }
 
+    // ПОЛНЫЙ АУДИО СИНТЕЗАТОР (WEB AUDIO API)
     const AudioEngine = {
       ctx: null,
       init() {
         if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (this.ctx.state === 'suspended') this.ctx.resume();
       },
-      beep(freq, dur, type='sine', slide=null, vol=0.15) {
+      beep(freq, dur, type = 'sine', slide = null, vol = 0.15) {
         this.init();
-        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
         o.type = type;
         o.frequency.setValueAtTime(freq, this.ctx.currentTime);
         if (slide) o.frequency.exponentialRampToValueAtTime(slide, this.ctx.currentTime + dur);
         g.gain.setValueAtTime(vol, this.ctx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
-        o.connect(g); g.connect(this.ctx.destination);
-        o.start(); o.stop(this.ctx.currentTime + dur);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start();
+        o.stop(this.ctx.currentTime + dur);
       },
       jump() { this.beep(240, 0.14, 'sine', 520, 0.15); },
       doubleJump() { this.beep(420, 0.18, 'sawtooth', 840, 0.2); },
       slash() { this.beep(550, 0.12, 'sawtooth', 120, 0.2); },
-      stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.03); },
+      stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.04); },
       mine() { this.beep(120, 0.08, 'sawtooth', 50, 0.15); },
       build() { this.beep(600, 0.08, 'square', null, 0.15); },
       gem() { this.beep(1200, 0.18, 'sine', 1600, 0.2); },
@@ -716,28 +1126,216 @@
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
       pumpkinSmash() { this.beep(350, 0.2, 'square', 80, 0.25); },
       phoenixScreech() { this.beep(750, 0.5, 'sawtooth', 1500, 0.3); },
+      spiderHiss() { this.beep(400, 0.3, 'sawtooth', 180, 0.25); },
+      glitchBeep() { this.beep(1400, 0.08, 'sawtooth', 300, 0.3); },
       enchant() { [500, 750, 1000, 1350].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'sine', null, 0.25), i * 80)); },
       enrage() { this.beep(160, 0.6, 'sawtooth', 60, 0.4); },
       craft() { [300, 450, 600, 900].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70)); },
       lvlUp() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80)); }
     };
 
-    function spawnDamageNumber(x3d, y3d, z3d, val, isCrit = false, isHeal = false) {
-      const v = new THREE.Vector3(x3d, y3d, z3d);
-      v.project(camera);
-      const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
-      const sy = (-(v.y * 0.5) + 0.5) * window.innerHeight;
+    // БАЗА ДАННЫХ ПРЕДМЕТОВ ДЛЯ MINECRAFT-ИНВЕНТАРЯ
+    const ItemDatabase = {
+      stone: { id: 'stone', name: 'Каменный Блок', icon: '🧱', type: 'block', maxStack: 64, desc: 'Плотная порода. Используется для строительства.' },
+      ore: { id: 'ore', name: 'Кристальная Руда', icon: '💎', type: 'resource', maxStack: 64, desc: 'Чистый кристалл для крафта и перековки.' },
+      gold: { id: 'gold', name: 'Золотой Самородок', icon: '👑', type: 'resource', maxStack: 64, desc: 'Драгоценный металл из глубин шахт.' },
+      tech_chip: { id: 'tech_chip', name: 'Техно-Чип Датацентра', icon: '⚙️', type: 'resource', maxStack: 64, desc: 'Микропроцессор из серверных стоек.' },
+      pumpkin: { id: 'pumpkin', name: 'Неоновая Тыква', icon: '🎃', type: 'resource', maxStack: 64, desc: 'Растет на поверхности. Ингредиент зелий.' },
+      potion_str: { id: 'potion_str', name: 'Зелье Силы Blue Sky', icon: '🧪', type: 'consumable', maxStack: 16, desc: '+50 к урону на 10 минут.' },
+      potion_pump: { id: 'potion_pump', name: 'Тыквенное Безумие', icon: '🍺', type: 'consumable', maxStack: 16, desc: '+40% скорость, +35 урон на 10 мин.' }
+    };
 
-      const el = document.createElement('div');
-      el.className = 'dmg-num' + (isCrit ? ' dmg-crit' : '') + (isHeal ? ' dmg-heal' : '');
-      el.innerText = (isHeal ? '+💚 ' : (isCrit ? '🔥 ' : '')) + Math.round(val);
-      el.style.left = `${sx}px`; el.style.top = `${sy}px`;
-      document.getElementById('dmg-layer').appendChild(el);
-      setTimeout(() => el.remove(), 750);
+    // СОСТОЯНИЕ ИНВЕНТАРЯ (12 СЛОТОВ ХРАНИЛИЩА)
+    const inventorySlots = [
+      { itemId: 'stone', qty: 20 },
+      { itemId: 'ore', qty: 4 },
+      { itemId: 'tech_chip', qty: 2 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 },
+      { itemId: null, qty: 0 }
+    ];
+
+    let selectedInvIndex = -1;
+    let selectedHotbarIndex = 0;
+
+    // ВЫДАЧА И ДОБАВЛЕНИЕ ПРЕДМЕТОВ В ИНВЕНТАРЬ
+    function addItemToInventory(itemId, qty = 1) {
+      const def = ItemDatabase[itemId];
+      if (!def) return false;
+
+      // 1. Поиск существующего стака
+      for (let i = 0; i < inventorySlots.length; i++) {
+        if (inventorySlots[i].itemId === itemId && inventorySlots[i].qty < def.maxStack) {
+          const space = def.maxStack - inventorySlots[i].qty;
+          const add = Math.min(space, qty);
+          inventorySlots[i].qty += add;
+          qty -= add;
+          if (qty <= 0) { renderInventoryGrid(); updateHotbarUI(); return true; }
+        }
+      }
+
+      // 2. Поиск свободной ячейки
+      for (let i = 0; i < inventorySlots.length; i++) {
+        if (!inventorySlots[i].itemId || inventorySlots[i].qty <= 0) {
+          inventorySlots[i].itemId = itemId;
+          inventorySlots[i].qty = qty;
+          renderInventoryGrid();
+          updateHotbarUI();
+          return true;
+        }
+      }
+
+      showToast("Инвентарь полон!", "#ff0055");
+      return false;
+    }
+
+    function removeItemFromInventory(index, qty = 1) {
+      if (!inventorySlots[index] || !inventorySlots[index].itemId) return;
+      inventorySlots[index].qty -= qty;
+      if (inventorySlots[index].qty <= 0) {
+        inventorySlots[index].itemId = null;
+        inventorySlots[index].qty = 0;
+      }
+      renderInventoryGrid();
+      updateHotbarUI();
+    }
+    // ==========================================
+    // ЧАСТЬ 2 / 2: ЛОГИКА ИНВЕНТАРЯ И ХОТБАРА
+    // ==========================================
+    function renderInventoryGrid() {
+      const container = document.getElementById('inv-grid-slots');
+      if (!container) return;
+      container.innerHTML = '';
+
+      inventorySlots.forEach((slot, index) => {
+        const cell = document.createElement('div');
+        cell.className = 'inv-cell' + (selectedInvIndex === index ? ' selected' : '');
+        cell.onclick = () => selectInventoryCell(index);
+
+        if (slot.itemId && slot.qty > 0) {
+          const def = ItemDatabase[slot.itemId];
+          cell.innerHTML = `
+            <span class="inv-cell-icon">${def ? def.icon : '❓'}</span>
+            <span class="inv-cell-qty">${slot.qty}</span>
+          `;
+        }
+        container.appendChild(cell);
+      });
+
+      // Обновление отображения экипировки
+      document.getElementById('slot-equip-helmet').innerText = Hero.equipped.helmet === 'pumpkin_hat' ? '🎃 Тыква' : 'Нет';
+      document.getElementById('slot-equip-chest').innerText = Hero.equipped.chest !== 'Обычная одежда' ? '🛡️ Титан' : 'Куртка';
+      document.getElementById('slot-equip-weapon').innerText = weaponEnchantment ? `⚡ ${weaponEnchantment.toUpperCase()}` : 'Клинок';
+    }
+
+    function selectInventoryCell(index) {
+      selectedInvIndex = index;
+      renderInventoryGrid();
+      const slot = inventorySlots[index];
+      const details = document.getElementById('inv-selected-details');
+
+      if (slot && slot.itemId && slot.qty > 0) {
+        const def = ItemDatabase[slot.itemId];
+        document.getElementById('inv-item-name').innerText = def.name;
+        document.getElementById('inv-item-desc').innerText = def.desc;
+        document.getElementById('btn-inv-use').style.display = (def.type === 'consumable' || def.type === 'block') ? 'block' : 'none';
+        details.style.display = 'block';
+        AudioEngine.beep(500, 0.05);
+      } else {
+        details.style.display = 'none';
+      }
+    }
+
+    window.openInventoryMenu = function() {
+      renderInventoryGrid();
+      document.getElementById('inventory-modal').style.display = 'flex';
+      AudioEngine.beep(420, 0.08);
+      haptic('medium');
+    };
+
+    window.useSelectedItem = function() {
+      if (selectedInvIndex < 0) return;
+      const slot = inventorySlots[selectedInvIndex];
+      if (!slot || !slot.itemId) return;
+
+      if (slot.itemId === 'potion_str') {
+        activeBuffs.strength = 600;
+        removeItemFromInventory(selectedInvIndex, 1);
+        showToast("🧪 ЗЕЛЬЕ СИЛЫ АКТИВИРОВАНО (+50 УРОН)!", "#00e5ff");
+        AudioEngine.craft();
+      } else if (slot.itemId === 'potion_pump') {
+        activeBuffs.pumpkin_madness = 600;
+        removeItemFromInventory(selectedInvIndex, 1);
+        showToast("🎃 ТЫКВЕННОЕ БЕЗУМИЕ АКТИВИРОВАНО!", "#ff7700");
+        AudioEngine.pumpkinSmash();
+      } else if (slot.itemId === 'stone') {
+        currentInteractionMode = 'build';
+        document.getElementById('build-mode-icon').innerText = "🧱";
+        document.getElementById('build-mode-text').innerText = "СТРОИТЬ";
+        closeModal('inventory-modal');
+        showToast("🧱 Выбран каменный блок для стройки!", "#00ffcc");
+      }
+      updateHeroUI();
+      updateBuffTrayUI();
+      selectInventoryCell(selectedInvIndex);
+      saveGameData();
+    };
+
+    window.dropSelectedItem = function() {
+      if (selectedInvIndex < 0) return;
+      removeItemFromInventory(selectedInvIndex, 1);
+      AudioEngine.mine();
+      selectInventoryCell(selectedInvIndex);
+      saveGameData();
+    };
+
+    window.selectHotbarSlot = function(index) {
+      selectedHotbarIndex = index;
+      document.querySelectorAll('.hotbar-slot').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+      });
+
+      if (index === 0) {
+        // Оружие ближнего боя
+        hasBlaster = false;
+        document.getElementById('attack-icon').innerText = "🗡️";
+        document.getElementById('attack-text').innerText = "УДАР";
+      } else if (index === 1) {
+        // Кирка / Бур
+        currentInteractionMode = 'mine';
+        document.getElementById('build-mode-icon').innerText = "⛏️";
+        document.getElementById('build-mode-text').innerText = "КОПАТЬ";
+      } else if (index === 2) {
+        // Блок для стройки
+        currentInteractionMode = 'build';
+        document.getElementById('build-mode-icon').innerText = "🧱";
+        document.getElementById('build-mode-text').innerText = "СТРОИТЬ";
+      } else if (index === 3) {
+        // Бластер с автоаимом
+        hasBlaster = true;
+        document.getElementById('attack-icon').innerText = "🔫";
+        document.getElementById('attack-text').innerText = "АВТО-АИМ";
+      }
+      AudioEngine.beep(600 + index * 50, 0.06);
+      haptic('light');
+    };
+
+    function updateHotbarUI() {
+      const stoneSlot = inventorySlots.find(s => s.itemId === 'stone');
+      document.getElementById('hb-qty-2').innerText = stoneSlot ? stoneSlot.qty : '0';
+      const potSlot = inventorySlots.find(s => s.itemId === 'potion_str' || s.itemId === 'potion_pump');
+      document.getElementById('hb-qty-3').innerText = potSlot ? potSlot.qty : '0';
+      if (potSlot) document.getElementById('hb-icon-3').innerText = ItemDatabase[potSlot.itemId].icon;
     }
 
     // ==========================================
-    // СЕКРЕТНЫЙ ТРИГГЕР: 12 ТАПОВ ПО ВЕРСИИ
+    // СЕКРЕТНЫЙ СЧЁТЧИК 12 ТАПОВ И АДМИНКА
     // ==========================================
     let versionClickCount = 0;
     let versionClickTimeout = null;
@@ -755,18 +1353,17 @@
       }
     }
 
-    // БОДИБИЛДИНГ И ЧИТЫ АДМИНКИ
     let adminGodMode = false;
     let adminSpeedTier = 1;
     let adminFlyMode = false;
     let adminOnePunch = false;
-    let adminAlwaysCrit = false;
-    let adminCheatBonusHp = 0;
+    let adminMaxCrit = false;
 
     window.adminToggleGod = function() {
       adminGodMode = !adminGodMode;
-      document.getElementById('btn-admin-god').innerText = `🛡️ БЕССМЕРТИЕ: ${adminGodMode ? 'ВКЛ' : 'ВЫКЛ'}`;
-      document.getElementById('btn-admin-god').style.borderColor = adminGodMode ? '#00ff66' : '#00ffcc';
+      const b = document.getElementById('btn-admin-god');
+      b.innerText = `🛡️ БЕССМЕРТИЕ: ${adminGodMode ? 'ВКЛ' : 'ВЫКЛ'}`;
+      b.style.borderColor = adminGodMode ? '#00ff66' : '#00ffff';
       haptic('medium');
     };
 
@@ -778,110 +1375,104 @@
 
     window.adminToggleFly = function() {
       adminFlyMode = !adminFlyMode;
-      document.getElementById('btn-admin-fly').innerText = `🕊️ ПОЛЁТ: ${adminFlyMode ? 'ВКЛ' : 'ВЫКЛ'}`;
+      const b = document.getElementById('btn-admin-fly');
+      b.innerText = `🕊️ ПОЛЁТ (NO-GRAV): ${adminFlyMode ? 'ВКЛ' : 'ВЫКЛ'}`;
+      b.style.borderColor = adminFlyMode ? '#00ff66' : '#00ffff';
       haptic('medium');
-    };
-
-    window.adminToggleOnePunch = function() {
-      adminOnePunch = !adminOnePunch;
-      showToast(adminOnePunch ? "👊 ONE-PUNCH РЕЖИМ АКТИВИРОВАН!" : "👊 One-Punch выключен", "#ffd700");
-      haptic('heavy');
-    };
-
-    window.adminToggleCrit = function() {
-      adminAlwaysCrit = !adminAlwaysCrit;
-      document.getElementById('btn-admin-crit').innerText = `🔥 100% КРИТ: ${adminAlwaysCrit ? 'ВКЛ' : 'ВЫКЛ'}`;
-      haptic('medium');
-    };
-
-    window.adminBoostHp = function() {
-      adminCheatBonusHp += 1000;
-      currentHp += 1000;
-      updateHeroUI();
-      showToast("💚 ЗДОРОВЬЕ УВЕЛИЧЕНО НА +1000 HP!", "#00ff66");
-      haptic('success');
-    };
-
-    window.adminAddStatPts = function(amount) {
-      Hero.statPoints += amount;
-      updateHeroUI();
-      showToast(`⚡ ДОБАВЛЕНО +${amount} ОЧКОВ РАЗВИТИЯ!`, "#00ffcc");
-      haptic('success');
-      saveGameData();
-    };
-
-    window.adminResetCheats = function() {
-      adminGodMode = false; adminSpeedTier = 1; adminFlyMode = false;
-      adminOnePunch = false; adminAlwaysCrit = false; adminCheatBonusHp = 0;
-      document.getElementById('btn-admin-god').innerText = '🛡️ БЕССМЕРТИЕ: ВЫКЛ';
-      document.getElementById('btn-admin-speed').innerText = '⚡ СПИДХАК: x1';
-      document.getElementById('btn-admin-fly').innerText = '🕊️ ПОЛЁТ: ВЫКЛ';
-      document.getElementById('btn-admin-crit').innerText = '🔥 100% КРИТ: ВЫКЛ';
-      currentHp = Math.min(currentHp, Hero.getMaxHp());
-      updateHeroUI();
-      showToast("🔄 ВСЕ ЧИТЫ СБРОШЕНЫ К ДЕФОЛТУ!", "#ff0055");
-      haptic('heavy');
     };
 
     window.adminKillAll = function() {
       for (let i = worldEnemies.length - 1; i >= 0; i--) {
+        disposeMesh(worldEnemies[i]);
         worldGroup.remove(worldEnemies[i]);
       }
       worldEnemies.length = 0;
-      showToast("💥 ВСЕ МОБЫ УНИЧТОЖЕНЫ!", "#00ffcc");
+      showToast("💥 ВСЕ МОБЫ УНИЧТОЖЕНЫ!", "#00ffff");
       haptic('heavy');
+    };
+
+    window.adminAddStatPoints = function(val) {
+      Hero.statPoints += val;
+      updateHeroUI();
+      saveGameData();
+      showToast(`⚡ ЧИТ: Получено +${val} очков прокачки!`, "#ffd700");
+      AudioEngine.lvlUp();
+    };
+
+    window.adminToggleOnePunch = function() {
+      adminOnePunch = !adminOnePunch;
+      const b = document.getElementById('btn-admin-onepunch');
+      b.innerText = `🥊 ONE-PUNCH: ${adminOnePunch ? 'ВКЛ (9999)' : 'ВЫКЛ'}`;
+      b.style.borderColor = adminOnePunch ? '#ff0055' : '#00ffff';
+      haptic('heavy');
+      updateHeroUI();
+    };
+
+    window.adminToggleMaxCrit = function() {
+      adminMaxCrit = !adminMaxCrit;
+      const b = document.getElementById('btn-admin-crit');
+      b.innerText = `🔥 100% КРИТ: ${adminMaxCrit ? 'ВКЛ' : 'ВЫКЛ'}`;
+      b.style.borderColor = adminMaxCrit ? '#ffd700' : '#00ffff';
+      haptic('heavy');
+      updateHeroUI();
     };
 
     window.adminAddRes = function(type, amount) {
       if (type === 'coins') coins += amount;
-      if (type === 'ores') ores += amount;
+      if (type === 'ores') { ores += amount; addItemToInventory('ore', amount); }
+      if (type === 'gold') { gold += amount; addItemToInventory('gold', amount); }
+      if (type === 'tech_chips') { techChips += amount; addItemToInventory('tech_chip', amount); }
+      if (type === 'pumpkins') { pumpkins += amount; addItemToInventory('pumpkin', amount); }
+      if (type === 'cases') { caseCount += amount; spookyCaseCount += amount; }
       AudioEngine.gem();
       haptic('light');
       updateHeroUI();
       saveGameData();
-      showToast(`⚡ ЧИТ: +${amount} ${type}!`, "#00ffcc");
+      showToast(`⚡ ЧИТ: +${amount} ${type}!`, "#00ffff");
     };
 
     window.adminTeleport = function(target) {
       closeModal('admin-modal');
       pVy = 0;
       if (target === 'heisenberg') {
-        pX = heisenbergGroup.position.x - 1.5; pY = heisenbergGroup.position.y;
+        pX = heisenbergGroup.position.x - 1.5;
+        pY = heisenbergGroup.position.y;
+      } else if (target === 'surface') {
+        pX = 0;
+        pY = getSurfaceY(0) + 0.5;
       } else if (target === 'datacenter') {
-        pX = 25; pY = -12;
+        pX = 24;
+        pY = -12;
+      } else if (target === 'deepgold') {
+        pX = -20;
+        pY = -16;
       }
       playerGroup.position.set(pX, pY, 0);
-      showToast(`🌌 ТЕЛЕПОРТАЦИЯ: ${target.toUpperCase()}`, "#00ffcc");
+      showToast(`🌌 ТЕЛЕПОРТ: ${target.toUpperCase()}`, "#00ffff");
       haptic('heavy');
     };
 
     // ==========================================
-    // ИГРОВОЙ СТЕЙТ
+    // ИГРОВОЕ СОСТОЯНИЕ И ПРОГРЕССИЯ
     // ==========================================
     let coins = 100;
-    let ores = 0;
-    let stones = 0;
-    let chips = 1;
+    let ores = 4;
+    let stones = 20;
+    let chips = 2;
     let pumpkins = 0;
     let gold = 0;
-    let techChips = 0;
+    let techChips = 2;
     let caseCount = 1;
     let spookyCaseCount = 1;
 
     let currentInteractionMode = 'mine';
     let currentToolTier = 1;
     let hasSledgehammer = false;
-    let hasBlaster = false;
+    let hasBlaster = true;
     let hasMagnet = false;
     let weaponEnchantment = null;
 
     let currentSelectedBoss = 'centurion';
-
-    const customStyle = {
-      hairColor: 0x1f140e,
-      legGlowColor: 0x00ffcc,
-      faceAcc: 'scar'
-    };
 
     const activeBuffs = {
       strength: 0,
@@ -895,15 +1486,15 @@
       { id: 'q_pumpkin', title: '🎃 Тыквенный Сборщик', desc: 'Срубить 4 кибер-тыквы на поверхности', cur: 0, max: 4, rewardCoins: 150, rewardCase: 1, done: false },
       { id: 'q_gold', title: '👑 Золотая Лихорадка', desc: 'Добыть 3 золотые жилы в глубинах', cur: 0, max: 3, rewardCoins: 200, rewardCase: 1, done: false },
       { id: 'q_drone', title: '💥 Охотник на Дронов', desc: 'Уничтожить 4 тыквенных дрона', cur: 0, max: 4, rewardCoins: 180, rewardCase: 1, done: false },
-      { id: 'q_server', title: '🖥️ Взлом Датацентра', desc: 'Взломать серверный терминал в недрах', cur: 0, max: 1, rewardCoins: 300, rewardCase: 2, done: false },
-      { id: 'q_boss', title: '🏆 Падение Титана', desc: 'Победить любого босса в 3D', cur: 0, max: 1, rewardCoins: 600, rewardCase: 2, done: false }
+      { id: 'q_server', title: '🖥️ Взлом Датацентра', desc: 'Взломать серверную стойку или терминал', cur: 0, max: 2, rewardCoins: 300, rewardCase: 2, done: false },
+      { id: 'q_boss', title: '🏆 Падение Титана', desc: 'Победить любого 3D-босса', cur: 0, max: 1, rewardCoins: 600, rewardCase: 2, done: false }
     ];
 
     const Hero = {
       level: 1,
       exp: 15,
       expMax: 100,
-      statPoints: 2,
+      statPoints: 3,
       str: 0,
       end: 0,
       acc: 0,
@@ -912,33 +1503,28 @@
       baseHp: 150,
 
       equipped: {
-        sword: "Клинок MK.1",
+        sword: "Кибер-Клинок MK.1",
         chest: "Обычная одежда",
         leg: "Хромовый протез",
         visor: "Нет",
         helmet: "Нет"
       },
-      craftBonusDmg: 0,
-      craftBonusHp: 0,
-      craftBonusCrit: 0,
-      craftBonusDodge: 0,
 
       addExp(val) {
         this.exp += val;
         while (this.exp >= this.expMax) {
           this.exp -= this.expMax;
           this.level++;
-          // МЯГКАЯ ЛИНЕЙНО-ПРОГРЕССИВНАЯ КРИВАЯ ОПЫТА (БЕЗ ЭКСПОНЕНЦИАЛЬНОГО ТУПИКА)
-          this.expMax = Math.floor(100 + (this.level - 1) * 75);
+          // МЯГКАЯ ПРОГРЕССИЯ ОПЫТА ВМЕСТО ЖЕСТКОЙ ЭКСПОНЕНТЫ
+          this.expMax = Math.floor(100 + (this.level - 1) * 65);
           this.statPoints += 3;
 
-          // Веховые бонусы
+          // Веховые бонусы каждые 5 уровней
           if (this.level % 5 === 0) {
-            this.craftBonusDmg += 15;
-            this.craftBonusHp += 50;
-            showToast(`🌟 ВЕХА УРОВНЯ ${this.level}: +15 УРОНА, +50 HP НАВСЕГДА!`, '#ffd700');
+            this.statPoints += 2;
+            showToast(`🌟 ВЕХА ${this.level} УРОВНЯ: +5 ОЧКОВ РАЗВИТИЯ!`, '#ffd700');
           } else {
-            showToast(`🎉 НОВЫЙ УРОВЕНЬ: ${this.level}! (+3 очка развития)`, '#ffd700');
+            showToast(`🎉 НОВЫЙ УРОВЕНЬ: ${this.level}! (+3 очка)`, '#ffd700');
           }
           AudioEngine.lvlUp();
           haptic('success');
@@ -947,52 +1533,52 @@
         saveGameData();
       },
 
-      getMinDmg() { 
+      getMinDmg() {
         if (adminOnePunch) return 9999;
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
         const hammerDmg = hasSledgehammer ? 30 : 0;
-        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
+        return 50 + this.str * 8 + pDmg + helmDmg + hammerDmg;
       },
-      getMaxDmg() { 
+      getMaxDmg() {
         if (adminOnePunch) return 9999;
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
         const hammerDmg = hasSledgehammer ? 30 : 0;
-        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
+        return 70 + this.str * 8 + pDmg + helmDmg + hammerDmg;
       },
-      getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp + adminCheatBonusHp; },
-      getCritChance() { 
-        if (adminAlwaysCrit) return 100;
+      getMaxHp() { return this.baseHp + this.end * 25; },
+      getCritChance() {
+        if (adminMaxCrit) return 100;
         const helmCrit = this.equipped.helmet === 'pumpkin_hat' ? 15 : 0;
-        return Math.min(100, 5 + this.acc * 2 + this.craftBonusCrit + helmCrit); 
+        return Math.min(100, 5 + this.acc * 2 + helmCrit);
       },
-      getDodgeChance() { return Math.min(75, this.agi * 2 + this.craftBonusDodge); },
-      getArmorReduction() { 
+      getDodgeChance() { return Math.min(75, this.agi * 2); },
+      getArmorReduction() {
         const pDef = activeBuffs.titan > 0 ? 30 : 0;
         const enchDef = weaponEnchantment === 'titan' ? 25 : 0;
-        return Math.min(85, this.end * 2 + (this.equipped.chest !== "Обычная одежда" ? 35 : 0) + pDef + enchDef); 
+        return Math.min(85, this.end * 2 + (this.equipped.chest !== "Обычная одежда" ? 35 : 0) + pDef + enchDef);
       }
     };
 
     function saveGameData() {
       const data = {
         coins, ores, stones, chips, pumpkins, gold, techChips, caseCount, spookyCaseCount,
-        currentToolTier, hasSledgehammer, hasBlaster, hasMagnet, weaponEnchantment, customStyle,
-        activeBuffs,
+        currentToolTier, hasSledgehammer, hasBlaster, hasMagnet, weaponEnchantment,
+        activeBuffs, inventorySlots,
         hero: {
           level: Hero.level, exp: Hero.exp, expMax: Hero.expMax, statPoints: Hero.statPoints,
           str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi, wins: Hero.wins,
-          equipped: Hero.equipped, craftBonusDmg: Hero.craftBonusDmg, craftBonusHp: Hero.craftBonusHp
+          equipped: Hero.equipped
         },
         quests: Quests.map(q => ({ id: q.id, cur: q.cur, done: q.done }))
       };
-      localStorage.setItem('CYBERCORE_TITAN_SAVE_v19', JSON.stringify(data));
+      localStorage.setItem('CYBERCORE_TITAN_SAVE_v18', JSON.stringify(data));
     }
 
     function loadGameData() {
       try {
-        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v19') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v17');
+        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v18') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v17');
         if (!raw) return;
         const d = JSON.parse(raw);
         coins = d.coins ?? coins;
@@ -1009,8 +1595,10 @@
         hasBlaster = d.hasBlaster ?? hasBlaster;
         hasMagnet = d.hasMagnet ?? hasMagnet;
         weaponEnchantment = d.weaponEnchantment ?? weaponEnchantment;
-        if (d.customStyle) Object.assign(customStyle, d.customStyle);
         if (d.activeBuffs) Object.assign(activeBuffs, d.activeBuffs);
+        if (d.inventorySlots) {
+          d.inventorySlots.forEach((s, idx) => { if (inventorySlots[idx]) Object.assign(inventorySlots[idx], s); });
+        }
         if (d.hero) {
           Object.assign(Hero, d.hero);
           if (Hero.equipped?.chest && Hero.equipped.chest !== "Обычная одежда") armorPlateMesh.visible = true;
@@ -1023,7 +1611,6 @@
             if (f) { f.cur = sq.cur; f.done = sq.done; }
           });
         }
-        applyCustomizationToMesh();
       } catch (e) {}
     }
 
@@ -1040,9 +1627,11 @@
     let iFrames = 0;
     let timeSinceLastDmg = 0;
     let canDoubleJump = false;
-    let coyoteTimer = 0; // Время койота (секунды)
+    let coyoteTimer = 0;
 
-    function setTip(text) { document.getElementById('tip-banner').innerText = text; }
+    function setTip(text) {
+      document.getElementById('tip-banner').innerText = text;
+    }
 
     function updateHeroUI() {
       document.getElementById('ui-lvl').innerText = Hero.level;
@@ -1052,7 +1641,7 @@
       document.getElementById('ui-stat-pts').innerText = Hero.statPoints;
 
       document.getElementById('stat-hp').innerText = Hero.getMaxHp();
-      document.getElementById('stat-dmg').innerText = adminOnePunch ? "9999" : `${Hero.getMinDmg()}-${Hero.getMaxDmg()}`;
+      document.getElementById('stat-dmg').innerText = adminOnePunch ? '9999 (ONE-PUNCH)' : `${Hero.getMinDmg()}-${Hero.getMaxDmg()}`;
       document.getElementById('stat-crit').innerText = `${Hero.getCritChance()}%`;
       document.getElementById('stat-dodge').innerText = `${Hero.getDodgeChance()}%`;
       document.getElementById('stat-armor').innerText = `-${Hero.getArmorReduction()}%`;
@@ -1070,19 +1659,15 @@
       document.getElementById('spooky-case-count-txt').innerText = spookyCaseCount;
 
       const enchNames = {
-        vampiric: "🩸 Вампирский (+4% HP)",
-        hypersonic: "⚡ Гиперзвуковой (+35% Spd)",
-        glitch: "👾 Глитчевый (x3 Крит)",
-        titan: "🛡️ Титановый (+25 Def)"
+        vampiric: "🩸 Вампирский (+4% HP кража)",
+        hypersonic: "⚡ Гиперзвуковой (+35% скорость)",
+        glitch: "👾 Глитчевый (Шанс x3 урон)",
+        titan: "🛡️ Титановый (+25 броня)"
       };
       document.getElementById('current-enchant-txt').innerText = weaponEnchantment ? enchNames[weaponEnchantment] : "Без зачарования";
 
-      if (hasBlaster) {
-        document.getElementById('attack-icon').innerText = "🔫";
-        document.getElementById('attack-text').innerText = "БЛАСТЕР";
-      }
-
       updatePlayerHpBar();
+      updateHotbarUI();
     }
 
     function updatePlayerHpBar() {
@@ -1092,22 +1677,22 @@
       const bar = document.getElementById('player-hp-bar');
       bar.style.width = `${pct}%`;
       document.getElementById('player-hp-txt').innerText = `${Math.round(currentHp)} / ${maxHp}`;
-      if (pct < 30) bar.style.background = '#ff0055';
-      else if (pct < 60) bar.style.background = '#ffaa00';
-      else bar.style.background = '#00ff66';
+      if (pct < 30) bar.style.background = 'var(--neon-crimson)';
+      else if (pct < 60) bar.style.background = 'var(--neon-orange)';
+      else bar.style.background = 'var(--neon-green)';
     }
 
     function damagePlayer(rawDmg) {
       if (adminGodMode) return;
       if (iFrames > 0) return;
       if (Math.random() * 100 < Hero.getDodgeChance()) {
-        setTip("💨 DODGE! УЛОНЕНИЕ ОТ УДАРА!");
+        setTip("💨 DODGE! УЛОНЕНИЕ ОТ АТАКИ!");
         return;
       }
       const red = Hero.getArmorReduction() / 100;
       const finalDmg = Math.max(6, rawDmg * (1 - red));
       currentHp -= finalDmg;
-      iFrames = 28;
+      iFrames = 26;
       timeSinceLastDmg = 0;
       document.getElementById('player-hp-bar').classList.remove('regen-active');
 
@@ -1117,7 +1702,7 @@
       spawnDamageNumber(playerGroup.position.x, playerGroup.position.y + 1.2, playerGroup.position.z, finalDmg);
 
       if (currentHp <= 0) {
-        showToast("☠️ ЭКЗОСКЕЛЕТ КРИТИЧЕСКИ ПОВРЕЖДЁН!", '#ff0055');
+        showToast("☠️ ЭКЗОСКЕЛЕТ КРИТИЧЕСКИ ПОВРЕЖДЁН!", 'var(--neon-crimson)');
         respawnPlayer();
       }
     }
@@ -1130,7 +1715,7 @@
       }
 
       timeSinceLastDmg += dt;
-      if (timeSinceLastDmg >= 3.0) {
+      if (timeSinceLastDmg >= 3.5) {
         const titanBonus = activeBuffs.titan > 0 ? 6.0 : 0;
         const regenSpeed = 4.0 + Hero.end * 1.5 + titanBonus;
         currentHp = Math.min(maxHp, currentHp + regenSpeed * dt);
@@ -1149,7 +1734,15 @@
       switchMode('world');
     }
 
-    // ТАЙМЕР БАФФОВ
+    function disposeMesh(mesh) {
+      if (!mesh) return;
+      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.material) {
+        if (Array.isArray(mesh.material)) mesh.material.forEach(m => m.dispose());
+        else mesh.material.dispose();
+      }
+    }
+
     setInterval(() => {
       let changed = false;
       for (const k in activeBuffs) {
@@ -1184,66 +1777,19 @@
       }
     }
 
-    // ==========================================
-    // MINECRAFT-STYLE ИНВЕНТАРЬ
-    // ==========================================
-    window.openInventoryModal = function() {
-      renderInventoryGrid();
-      document.getElementById('inv-slot-weapon').innerText = Hero.equipped.sword + (weaponEnchantment ? ` [${weaponEnchantment.toUpperCase()}]` : '');
-      document.getElementById('inv-slot-tool').innerText = currentToolTier === 2 ? '🔩 Бур MK-2' : (hasSledgehammer ? '🔨 Кувалда' : '⛏️ Кирка');
-      document.getElementById('inv-slot-helm').innerText = Hero.equipped.helmet === 'pumpkin_hat' ? '🎃 Шлем Тыквы' : 'Нет';
-      document.getElementById('inv-slot-relic').innerText = hasMagnet ? '🧲 Магнит' : 'Нет';
-      document.getElementById('inventory-modal').style.display = 'flex';
-      AudioEngine.beep(420, 0.08);
-      haptic('light');
-    };
-
-    function renderInventoryGrid() {
-      const grid = document.getElementById('main-inventory-grid');
-      grid.innerHTML = '';
-
-      const items = [
-        { icon: '🪙', name: 'Монеты', count: coins },
-        { icon: '💎', name: 'Руда', count: ores },
-        { icon: '👑', name: 'Золото', count: gold },
-        { icon: '🧱', name: 'Камень', count: stones },
-        { icon: '🎃', name: 'Тыквы', count: pumpkins },
-        { icon: '⚙️', name: 'Чипы', count: chips },
-        { icon: '🖥️', name: 'Техно-чипы', count: techChips },
-        { icon: '📦', name: 'Кейсы', count: caseCount + spookyCaseCount },
-        { icon: '🔩', name: 'Бур', count: currentToolTier >= 2 ? 1 : 0 },
-        { icon: '🔨', name: 'Кувалда', count: hasSledgehammer ? 1 : 0 },
-        { icon: '🔫', name: 'Бластер', count: hasBlaster ? 1 : 0 },
-        { icon: '🧲', name: 'Магнит', count: hasMagnet ? 1 : 0 }
-      ];
-
-      items.forEach(it => {
-        const slot = document.createElement('div');
-        slot.className = 'inv-slot';
-        slot.innerHTML = `
-          <span class="slot-icon">${it.icon}</span>
-          <span class="slot-count">${it.count}</span>
-        `;
-        slot.onclick = () => {
-          showToast(`📦 Предмет: ${it.name} (${it.count} шт.)`, '#00e5ff');
-          haptic('light');
-        };
-        grid.appendChild(slot);
-      });
-    }
-
     window.enchantWeapon = function() {
       if (ores < 5) {
         showToast("Нужно 5 кристаллов руды 💎 для перековки!", '#ff0055');
         return;
       }
       ores -= 5;
+      removeItemFromInventory('ore', 5);
       const pool = ['vampiric', 'hypersonic', 'glitch', 'titan'];
       weaponEnchantment = pool[Math.floor(Math.random() * pool.length)];
 
       AudioEngine.enchant();
       haptic('success');
-      showToast(`✨ ПОЛУЧЕНО ЗАЧАРОВАНИЕ: ${weaponEnchantment.toUpperCase()}!`, '#00ffcc');
+      showToast(`✨ ПОЛУЧЕНО ЗАЧАРОВАНИЕ: ${weaponEnchantment.toUpperCase()}!`, '#00ffff');
       updateHeroUI();
       saveGameData();
     };
@@ -1252,10 +1798,12 @@
       if (type === 'pumpkin_madness') {
         if (pumpkins < 4) { showToast(`Нужно 🎃 4 Тыквы!`, '#ff7700'); return; }
         pumpkins -= 4;
+        removeItemFromInventory('pumpkin', 4);
       } else {
         const costs = { strength: 3, speed: 3, greed: 4 };
         if (ores < costs[type]) { showToast(`Нужно 💎 ${costs[type]} руды!`, '#ff0055'); return; }
         ores -= costs[type];
+        removeItemFromInventory('ore', costs[type]);
       }
       activeBuffs[type] = 600;
       AudioEngine.craft();
@@ -1266,37 +1814,6 @@
       closeModal('dialogue-modal');
       saveGameData();
     };
-
-    window.openCustomMenu = function() {
-      document.getElementById('custom-modal').style.display = 'flex';
-      AudioEngine.beep(400, 0.08);
-      haptic('medium');
-    };
-
-    window.setCustomStyle = function(category, val) {
-      if (category === 'hair') customStyle.hairColor = val;
-      else if (category === 'legGlow') customStyle.legGlowColor = val;
-      else if (category === 'face') customStyle.faceAcc = val;
-      applyCustomizationToMesh();
-      AudioEngine.beep(600, 0.08);
-      haptic('light');
-      saveGameData();
-    };
-
-    function applyCustomizationToMesh() {
-      hairTop.material.color.setHex(customStyle.hairColor);
-      hairBangs.material.color.setHex(customStyle.hairColor);
-      cyberKneeRing.material.color.setHex(customStyle.legGlowColor);
-      cyberPistonCore.material.color.setHex(customStyle.legGlowColor);
-
-      if (customStyle.faceAcc === 'scar') {
-        scarMesh.visible = true; monocularMesh.visible = false;
-      } else if (customStyle.faceAcc === 'monocular') {
-        scarMesh.visible = false; monocularMesh.visible = true;
-      } else {
-        scarMesh.visible = false; monocularMesh.visible = false;
-      }
-    }
 
     window.openCasesMenu = function() {
       updateHeroUI();
@@ -1339,9 +1856,10 @@
           const roll = Math.random();
           if (roll < 0.45) {
             coins += 250; pumpkins += 5;
+            addItemToInventory('pumpkin', 5);
             res.innerText = "🎃 ВЫПАЛО: +250 🪙 И +5 ТЫКВ!";
           } else if (roll < 0.8) {
-            gold += 4; Hero.addExp(100);
+            gold += 4; addItemToInventory('gold', 4); Hero.addExp(100);
             res.innerText = "👑 ВЫПАЛО: +4 ЗОЛОТА И +100 EXP!";
           } else {
             Hero.equipped.helmet = 'pumpkin_hat';
@@ -1353,9 +1871,10 @@
           if (roll < 0.4) {
             coins += 180; res.innerText = "🎁 ВЫПАЛО: +180 🪙 МОНЕТ!";
           } else if (roll < 0.7) {
-            ores += 5; res.innerText = "🎁 ВЫПАЛО: +5 💎 ЧИСТОЙ РУДЫ!";
+            ores += 5; addItemToInventory('ore', 5); res.innerText = "🎁 ВЫПАЛО: +5 💎 ЧИСТОЙ РУДЫ!";
           } else if (roll < 0.9) {
-            chips += 2; Hero.addExp(75); res.innerText = "🎁 ВЫПАЛО: +2 ⚙️ ЧИПА И +75 EXP!";
+            techChips += 2; addItemToInventory('tech_chip', 2); Hero.addExp(75);
+            res.innerText = "🎁 ВЫПАЛО: +2 ⚙️ ТЕХНО-ЧИПА И +75 EXP!";
           } else {
             Hero.statPoints += 2; res.innerText = "🌟 ДЖЕКПОТ: +2 ОЧКА РАЗВИТИЯ ГЕРОЯ!";
           }
@@ -1379,17 +1898,17 @@
         const item = document.createElement('div');
         item.className = 'card-item';
         const isDone = q.cur >= q.max;
-        const btnHtml = q.done ? 
-          '<span style="color:#00ff66; font-size:11px; font-weight:bold;">ВЫПОЛНЕНО</span>' : 
-          (isDone ? 
-            `<button class="btn-action-small" onclick="claimQuest('${q.id}')">ЗАБРАТЬ</button>` : 
+        const btnHtml = q.done ?
+          '<span style="color:var(--neon-green); font-size:11px; font-weight:bold;">ВЫПОЛНЕНО</span>' :
+          (isDone ?
+            `<button class="btn-action-small" onclick="claimQuest('${q.id}')">ЗАБРАТЬ</button>` :
             `<span style="color:#ffcc00; font-size:11px;">${q.cur}/${q.max}</span>`);
 
         item.innerHTML = `
           <div>
-            <div style="font-size:12px; font-weight:bold; color:#ffaa00;">${q.title}</div>
+            <div style="font-size:12px; font-weight:bold; color:var(--neon-orange);">${q.title}</div>
             <div style="font-size:10px; color:#8fa5c4;">${q.desc}</div>
-            <div style="font-size:9px; color:#ffd700; margin-top:2px;">Награда: +${q.rewardCoins} 🪙 ${q.rewardCase > 0 ? '+'+q.rewardCase+' 📦' : ''}</div>
+            <div style="font-size:9px; color:var(--neon-gold); margin-top:2px;">Награда: +${q.rewardCoins} 🪙 ${q.rewardCase > 0 ? '+'+q.rewardCase+' 📦' : ''}</div>
           </div>
           <div>${btnHtml}</div>
         `;
@@ -1458,45 +1977,73 @@
 
     window.startChosenBoss = function(bossType) {
       closeModal('boss-select-modal');
-      currentSelectedBoss = bossType === 'random' ? (Math.random() < 0.5 ? 'centurion' : 'phoenix') : bossType;
+      const bossPool = ['centurion', 'phoenix', 'arachnid', 'syndicate'];
+      currentSelectedBoss = bossType === 'random' ? bossPool[Math.floor(Math.random() * bossPool.length)] : bossType;
       setupBossArenaAppearance(currentSelectedBoss);
       startGameMode('boss');
     };
 
     function setupBossArenaAppearance(type) {
+      bossRig.visible = false;
+      phoenixRig.visible = false;
+      arachnidRig.visible = false;
+      syndicateRig.visible = false;
+
       if (type === 'phoenix') {
-        bossRig.visible = false; phoenixRig.visible = true;
+        phoenixRig.visible = true;
         document.getElementById('boss-name').innerText = "НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»";
-        document.getElementById('boss-name').style.color = "#ff7700";
-        document.getElementById('boss-stage').innerText = "ПОГОНЯ / BULLET-HELL";
-        document.getElementById('boss-stage').style.color = "#ffd700";
+        document.getElementById('boss-name').style.color = "var(--neon-orange)";
+        document.getElementById('boss-stage').innerText = "БРЕЮЩИЙ ПОЛЁТ / BULLET-HELL";
+        document.getElementById('boss-stage').style.color = "var(--neon-gold)";
         AudioEngine.phoenixScreech();
+      } else if (type === 'arachnid') {
+        arachnidRig.visible = true;
+        document.getElementById('boss-name').innerText = "КРИО-АРАХНИД MK-4";
+        document.getElementById('boss-name').style.color = "var(--neon-cyan)";
+        document.getElementById('boss-stage').innerText = "ФАЗА 1: ЛАЗЕРНАЯ ПАУТИНА";
+        document.getElementById('boss-stage').style.color = "#00e5ff";
+        AudioEngine.spiderHiss();
+      } else if (type === 'syndicate') {
+        syndicateRig.visible = true;
+        document.getElementById('boss-name').innerText = "БАНДА: ГЛИТЧ-СИНДИКАТ";
+        document.getElementById('boss-name').style.color = "var(--neon-purple)";
+        document.getElementById('boss-stage').innerText = "3 КИБЕРПСИХА НА АРЕНЕ";
+        document.getElementById('boss-stage').style.color = "var(--neon-crimson)";
+        AudioEngine.glitchBeep();
       } else {
-        bossRig.visible = true; phoenixRig.visible = false;
+        bossRig.visible = true;
         document.getElementById('boss-name').innerText = "КИБЕР-ЦЕНТУРИОН MK-X";
-        document.getElementById('boss-name').style.color = "#ff0055";
-        document.getElementById('boss-stage').innerText = "ФАЗА 1: ЩИТ АКТИВЕН";
-        document.getElementById('boss-stage').style.color = "#ff7700";
+        document.getElementById('boss-name').style.color = "var(--neon-crimson)";
+        document.getElementById('boss-stage').innerText = "ФАЗА 1: ТИТАНОВЫЙ ЩИТ";
+        document.getElementById('boss-stage').style.color = "var(--neon-orange)";
       }
     }
 
     window.craftItem = function(type) {
       if (type === 'titan_drill') {
         if (ores < 6 || gold < 2) { showToast("Нужно 6 руды 💎 и 2 золота 👑!", '#ff0055'); return; }
-        ores -= 6; gold -= 2; currentToolTier = 2;
-        showToast("🔩 СКРАФЧЕН ТИТАНОВЫЙ БУР (x2 СКОРОСТЬ)!", '#00ffcc');
+        ores -= 6; gold -= 2;
+        removeItemFromInventory('ore', 6); removeItemFromInventory('gold', 2);
+        currentToolTier = 2;
+        showToast("🔩 СКРАФЧЕН ТИТАНОВЫЙ БУР (x2 СКОРОСТЬ)!", '#00ffff');
       } else if (type === 'sledgehammer') {
         if (stones < 15 || gold < 3) { showToast("Нужно 15 камня 🧱 и 3 золота 👑!", '#ff0055'); return; }
-        stones -= 15; gold -= 3; hasSledgehammer = true;
+        stones -= 15; gold -= 3;
+        removeItemFromInventory('stone', 15); removeItemFromInventory('gold', 3);
+        hasSledgehammer = true;
         showToast("🔨 СКРАФЧЕНА КИБЕР-КУВАЛДА (СПЛЭШ УРОН)!", '#ff7700');
       } else if (type === 'blaster') {
-        if (ores < 5 || chips < 2) { showToast("Нужно 5 руды 💎 и 2 чипа ⚙️!", '#ff0055'); return; }
-        ores -= 5; chips -= 2; hasBlaster = true;
-        showToast("🔫 СКРАФЧЕН ИМПУЛЬСНЫЙ БЛАСТЕР (С АВТОАИМОМ)!", '#00e5ff');
+        if (ores < 5 || techChips < 2) { showToast("Нужно 5 руды 💎 и 2 техно-чипа ⚙️!", '#ff0055'); return; }
+        ores -= 5; techChips -= 2;
+        removeItemFromInventory('ore', 5); removeItemFromInventory('tech_chip', 2);
+        hasBlaster = true;
+        showToast("🔫 СКРАФЧЕН БЛАСТЕР С АВТОАИМОМ!", '#00e5ff');
       } else if (type === 'magnet') {
         if (ores < 4 || coins < 80) { showToast("Нужно 4 руды 💎 и 80 монет 🪙!", '#ff0055'); return; }
-        ores -= 4; coins -= 80; hasMagnet = true;
-        showToast("🧲 РЕЛИКВИЯ МАГНИТ РУДЫ АКТИВИРОВАНА!", '#e056fd');
+        ores -= 4; coins -= 80;
+        removeItemFromInventory('ore', 4);
+        hasMagnet = true;
+        showToast("🧲 РЕЛИКВИЯ МАГНИТ РУДЫ АКТИВИРОВАНА!", '#c56cf0');
       }
       Hero.addExp(60);
       AudioEngine.craft();
@@ -1528,38 +2075,40 @@
       haptic('light');
     }
 
-    // --- THREE.JS СЦЕНА ---
+    // ==========================================
+    // THREE.JS: СЦЕНА И СВЕТ
+    // ==========================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x12061e, 0.016);
+    scene.fog = new THREE.FogExp2(0x180824, 0.018);
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
-    renderer.setClearColor(0x12061e);
+    renderer.setClearColor(0x180824);
     container.appendChild(renderer.domElement);
 
     const skyGroup = new THREE.Group();
     scene.add(skyGroup);
-    
+
     const spookyMoon = new THREE.Mesh(
-      new THREE.SphereGeometry(19, 32, 32),
+      new THREE.SphereGeometry(19, 24, 24),
       new THREE.MeshBasicMaterial({ color: 0xff4400 })
     );
     spookyMoon.position.set(-25, 22, -65);
     skyGroup.add(spookyMoon);
 
     const moonRing = new THREE.Mesh(
-      new THREE.RingGeometry(23, 29, 32).rotateX(Math.PI / 2.3),
+      new THREE.RingGeometry(23, 29, 24).rotateX(Math.PI / 2.3),
       new THREE.MeshBasicMaterial({ color: 0xff7700, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
     );
     moonRing.position.copy(spookyMoon.position);
     skyGroup.add(moonRing);
 
-    for (let i = 0; i < 40; i++) {
-      const bGeo = new THREE.BoxGeometry(5 + Math.random()*5, 25 + Math.random()*45, 6);
-      const b = new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0x100820, roughness: 0.3 }));
+    for (let i = 0; i < 35; i++) {
+      const bGeo = new THREE.BoxGeometry(5 + Math.random() * 5, 25 + Math.random() * 45, 6);
+      const b = new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0x140a24, roughness: 0.3 }));
       b.position.set((Math.random() - 0.5) * 200, 10, -35 - Math.random() * 40);
       skyGroup.add(b);
     }
@@ -1571,82 +2120,28 @@
     scene.add(sunLight);
 
     // ==========================================
-    // ВЫСОКОДЕТАЛИЗИРОВАННЫЙ ИГРОК
+    // ИГРОК (МЕШИ И ЧАСТИ ТЕЛА)
     // ==========================================
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
 
-    const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.45 });
-    const matHair = new THREE.MeshStandardMaterial({ color: customStyle.hairColor, roughness: 0.75 });
-    const matJacket = new THREE.MeshStandardMaterial({ color: 0x141b29, roughness: 0.6 });
-    const matPants = new THREE.MeshStandardMaterial({ color: 0x090e17 });
-    const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0xc4d4e6, metalness: 0.95, roughness: 0.2 });
-    const matGlowNeon = new THREE.MeshBasicMaterial({ color: customStyle.legGlowColor });
+    const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.8 });
+    const matJacket = new THREE.MeshStandardMaterial({ color: 0x141b29 });
+    const matPants = new THREE.MeshStandardMaterial({ color: 0x0b0f17 });
+    const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0xb0c0d0, metalness: 0.95 });
 
-    // ГОЛОВА
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.46, 0.42), matSkin);
     head.position.y = 1.48;
     playerGroup.add(head);
 
-    // ДЕТАЛИЗАЦИЯ ГЛАЗ (СКЛЕРА + ЗРАЧКИ)
-    const eyeScleraL = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.02), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    eyeScleraL.position.set(-0.11, 1.5, 0.215);
-    playerGroup.add(eyeScleraL);
-    const eyePupilL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.025), new THREE.MeshBasicMaterial({ color: 0x0a1526 }));
-    eyePupilL.position.set(-0.11, 1.5, 0.222);
-    playerGroup.add(eyePupilL);
-
-    const eyeScleraR = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.02), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    eyeScleraR.position.set(0.11, 1.5, 0.215);
-    playerGroup.add(eyeScleraR);
-    const eyePupilR = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.025), new THREE.MeshBasicMaterial({ color: 0x0a1526 }));
-    eyePupilR.position.set(0.11, 1.5, 0.222);
-    playerGroup.add(eyePupilR);
-
-    // БРОВИ И ПРОРЕЗЬ РТА
-    const browL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.025, 0.02), matHair);
-    browL.position.set(-0.11, 1.56, 0.22);
-    playerGroup.add(browL);
-    const browR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.025, 0.02), matHair);
-    browR.position.set(0.11, 1.56, 0.22);
-    playerGroup.add(browR);
-
-    const mouthMesh = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 0.02), new THREE.MeshBasicMaterial({ color: 0x995544 }));
-    mouthMesh.position.set(0, 1.37, 0.215);
-    playerGroup.add(mouthMesh);
-
-    // ШРАМ
-    const scarMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.22, 0.02), new THREE.MeshBasicMaterial({ color: 0xc0392b }));
-    scarMesh.position.set(0.11, 1.5, 0.225);
-    scarMesh.rotation.z = -0.25;
-    playerGroup.add(scarMesh);
-
-    // ДЕТАЛЬНЫЙ КИБЕР-МОНОКУЛЯР СО СВЕТОВЫМ КОЛЬЦОМ
-    const monocularGroup = new THREE.Group();
-    const monocularBody = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 16).rotateX(Math.PI / 2), matCyberChrome);
-    monocularGroup.add(monocularBody);
-    const monocularLens = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
-    monocularLens.position.z = 0.045;
-    monocularGroup.add(monocularLens);
-    monocularGroup.position.set(0.11, 1.5, 0.22);
-    monocularGroup.visible = false;
-    playerGroup.add(monocularGroup);
-    const monocularMesh = monocularGroup;
-
-    // МНОГОСЛОЙНЫЕ ВОЛОСЫ
-    const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.16, 0.46), matHair);
-    hairTop.position.set(0, 1.73, 0);
+    const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.44), matHair);
+    hairTop.position.set(0, 1.72, 0);
     playerGroup.add(hairTop);
-    const hairBangs = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.12, 0.1), matHair);
-    hairBangs.position.set(0, 1.64, 0.21);
-    playerGroup.add(hairBangs);
 
     const pumpkinHatMesh = new THREE.Group();
     const pHatBase = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.4 }));
     pumpkinHatMesh.add(pHatBase);
-    const pHatFace = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.15, 0.04), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
-    pHatFace.position.set(0, 0, 0.31);
-    pumpkinHatMesh.add(pHatFace);
     pumpkinHatMesh.position.set(0, 1.6, 0);
     pumpkinHatMesh.visible = false;
     playerGroup.add(pumpkinHatMesh);
@@ -1656,31 +2151,19 @@
     helmetVisorMesh.visible = false;
     playerGroup.add(helmetVisorMesh);
 
-    // ТОРС С КИБЕРНЕТИЧЕСКИМ РЕАКТОРОМ И НАПЛЕЧНИКАМИ
     const torso = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.72, 0.34), matJacket);
     torso.position.y = 0.95;
     playerGroup.add(torso);
-
-    const chestReactor = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.04, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
-    chestReactor.position.set(0, 1.05, 0.18);
-    playerGroup.add(chestReactor);
-
-    const pauldronL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.22), matCyberChrome);
-    pauldronL.position.set(-0.39, 1.28, 0);
-    playerGroup.add(pauldronL);
-    const pauldronR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.22), matCyberChrome);
-    pauldronR.position.set(0.39, 1.28, 0);
-    playerGroup.add(pauldronR);
 
     const armorPlateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.68, 0.44), new THREE.MeshStandardMaterial({ color: 0x081324, metalness: 0.9 }));
     armorPlateMesh.position.y = 0.96;
     armorPlateMesh.visible = false;
     playerGroup.add(armorPlateMesh);
 
-    // РУКИ
     const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matJacket);
     armL.position.set(-0.39, 0.95, 0);
     playerGroup.add(armL);
+
     const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matJacket);
     armR.position.set(0.39, 0.95, 0);
     playerGroup.add(armR);
@@ -1689,7 +2172,6 @@
     swordMesh.position.set(0, -0.4, 0.2);
     armR.add(swordMesh);
 
-    // НОГИ: ПРАВАЯ В ШТАНИНЕ, ЛЕВАЯ — КИБЕРПРОТЕЗ С ПОРШНЯМИ
     const legRight = new THREE.Group();
     const legRPant = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), matPants);
     legRPant.position.y = -0.31;
@@ -1698,30 +2180,14 @@
     playerGroup.add(legRight);
 
     const legLeftCyber = new THREE.Group();
-    const cyberThigh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), matCyberChrome);
-    cyberThigh.position.y = -0.15;
-    legLeftCyber.add(cyberThigh);
-
-    const cyberKneeRing = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 8, 16).rotateX(Math.PI / 2), matGlowNeon);
-    cyberKneeRing.position.set(0, -0.32, 0);
-    legLeftCyber.add(cyberKneeRing);
-
-    const cyberShin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.14), matCyberChrome);
-    cyberShin.position.set(0, -0.48, 0);
+    const cyberShin = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.6, 0.16), matCyberChrome);
+    cyberShin.position.y = -0.3;
     legLeftCyber.add(cyberShin);
-
-    const cyberPistonCore = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.25, 8), matGlowNeon);
-    cyberPistonCore.position.set(0, -0.48, -0.07);
-    legLeftCyber.add(cyberPistonCore);
-
-    const cyberFoot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.34), matCyberChrome);
-    cyberFoot.position.set(0, -0.62, 0.06);
-    legLeftCyber.add(cyberFoot);
     legLeftCyber.position.set(-0.16, 0.6, 0);
     playerGroup.add(legLeftCyber);
 
     // ==========================================
-    // 2D ЧАНКИ
+    // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ И ПОДЗЕМНЫЙ ДАТАЦЕНТР
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -1735,6 +2201,7 @@
     const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2, emissive: 0xaa8800, emissiveIntensity: 0.5 });
     const matBedrock = new THREE.MeshStandardMaterial({ color: 0x05070a });
     const matPumpkin = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, emissive: 0x441100 });
+
     const matMetalWall = new THREE.MeshStandardMaterial({ color: 0x1c2833, metalness: 0.85, roughness: 0.3 });
     const matServerRack = new THREE.MeshStandardMaterial({ color: 0x0a101d, emissive: 0x00ffcc, emissiveIntensity: 0.45 });
     const matTerminal = new THREE.MeshBasicMaterial({ color: 0xff0055 });
@@ -1743,15 +2210,21 @@
     const columnBlockRegistry = new Map();
     const activeBlocks = [];
 
-    function getSurfaceY(gx) { return Math.floor(Math.sin(gx * 0.25) * 2.2) + 2; }
+    function getSurfaceY(gx) {
+      return Math.floor(Math.sin(gx * 0.25) * 2.2) + 2;
+    }
 
     function generateColumn(gx) {
       if (columnBlockRegistry.has(gx)) return;
+
       const surfaceY = getSurfaceY(gx);
       const colList = [];
 
       for (let gy = -18; gy <= surfaceY; gy++) {
-        let mat = matStone; let type = 'stone';
+        let mat = matStone;
+        let type = 'stone';
+
+        // ГЕНЕРАЦИЯ ДАТАЦЕНТРА В ЗОНЕ X: 18..30, Y: -14..-9
         const isDataCenterZone = (gx >= 18 && gx <= 30 && gy >= -14 && gy <= -9);
 
         if (isDataCenterZone) {
@@ -1762,6 +2235,10 @@
           } else if (gx === 24 && gy === -13) {
             mat = matTerminal; type = 'terminal';
           } else {
+            // ФИКС ТУРЕЛЕЙ: СПАВН СТРОГО В ПУСТОМ ВОЗДУХЕ ПОД ПОТОЛКОМ ДАТАЦЕНТРА
+            if (gy === -10 && Math.random() < 0.15 && !worldEnemies.some(e => Math.abs(e.position.x - gx) < 2)) {
+              spawnCeilingTurret(gx, gy);
+            }
             continue;
           }
         } else {
@@ -1788,19 +2265,15 @@
         const pgy = surfaceY + 1;
         pBlock.position.set(gx * BLOCK_SIZE, pgy * BLOCK_SIZE, 0);
         pBlock.userData = { gx, gy: pgy, type: 'pumpkin', hp: 2 };
-        const pEyes = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
-        pEyes.position.set(0, 0, 0.26);
-        pBlock.add(pEyes);
-
         worldGroup.add(pBlock);
         activeBlocks.push(pBlock);
         blockMap.set(`${gx},${pgy}`, pBlock);
         colList.push(pBlock);
       }
+
       columnBlockRegistry.set(gx, colList);
     }
 
-    // УСТРАНЕНИЕ УТЕЧЕК ПАМЯТИ ЧАНКОВ (DISPOSE)
     function cleanFarChunks(playerGX) {
       for (const [gx, meshList] of columnBlockRegistry.entries()) {
         if (Math.abs(gx - playerGX) > 32) {
@@ -1809,20 +2282,34 @@
             worldGroup.remove(b);
             const aIdx = activeBlocks.indexOf(b);
             if (aIdx !== -1) activeBlocks.splice(aIdx, 1);
+            disposeMesh(b);
           });
           columnBlockRegistry.delete(gx);
         }
       }
     }
 
-    // МОБЫ
+    // ==========================================
+    // МОБЫ И ОХРАНА ДАТАЦЕНТРА
+    // ==========================================
     const worldEnemies = [];
     const passiveMobs = [];
 
+    function spawnCeilingTurret(gx, gy) {
+      const tg = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.4), new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 }));
+      tg.add(base);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+      eye.position.y = -0.15;
+      tg.add(eye);
+      tg.position.set(gx, gy + 0.4, 0);
+      tg.userData = { type: 'turret', hp: 75, maxHp: 75, shootCooldown: 60 };
+      worldGroup.add(tg);
+      worldEnemies.push(tg);
+    }
+
     function spawnEnemy(x) {
       const surfaceY = getSurfaceY(Math.round(x));
-      const spawnY = surfaceY + 2.0;
-
       const eg = new THREE.Group();
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3 }));
       eg.add(body);
@@ -1830,7 +2317,7 @@
       eye.position.set(0, 0, 0.38);
       eg.add(eye);
 
-      eg.position.set(x, spawnY, 0);
+      eg.position.set(x, surfaceY + 2.0, 0);
       eg.userData = {
         type: 'hostile',
         hp: 80 + Hero.level * 20,
@@ -1842,55 +2329,15 @@
       worldEnemies.push(eg);
     }
 
-    function spawnCaveMiniBoss(x, y) {
-      const boss = new THREE.Group();
-      const headMesh = new THREE.Mesh(new THREE.SphereGeometry(1.0, 12, 12), new THREE.MeshStandardMaterial({ color: 0x8e44ad, metalness: 0.8 }));
-      boss.add(headMesh);
-      const glowEyes = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.4), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
-      glowEyes.position.set(0, 0.2, 0.85);
-      boss.add(glowEyes);
-
-      boss.position.set(x, y, 0);
-      boss.userData = {
-        type: 'miniboss',
-        name: 'КИБЕР-ЧЕРВЬ MK-1',
-        hp: 450,
-        maxHp: 450,
-        speed: 0.055,
-        attackCooldown: 0
-      };
-      worldGroup.add(boss);
-      worldEnemies.push(boss);
-      showToast("⚠️ ОБНАРУЖЕН СТРАЖ НЕДР: КИБЕР-ЧЕРВЬ!", "#8e44ad");
-    }
-
     function spawnPassiveBunny(x) {
       const surfaceY = getSurfaceY(Math.round(x));
       const bg = new THREE.Group();
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.3), new THREE.MeshStandardMaterial({ color: 0xffffff }));
       bg.add(body);
-      const earL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
-      earL.position.set(-0.1, 0.25, 0);
-      bg.add(earL);
-      const earR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
-      earR.position.set(0.1, 0.25, 0);
-      bg.add(earR);
-
       bg.position.set(x, surfaceY + 0.65, 0);
-      bg.userData = { hp: 15, speed: 0.025, dir: 1 };
+      bg.userData = { hp: 15, speed: 0.025 };
       worldGroup.add(bg);
       passiveMobs.push(bg);
-    }
-
-    function hasLineOfSight(x1, y1, x2, y2) {
-      const dist = Math.hypot(x2 - x1, y2 - y1);
-      const steps = Math.max(4, Math.ceil(dist * 2.2));
-      for (let i = 1; i < steps; i++) {
-        const cx = Math.round(x1 + (x2 - x1) * (i / steps));
-        const cy = Math.round(y1 + (y2 - y1) * (i / steps));
-        if (blockMap.has(`${cx},${cy}`)) return false;
-      }
-      return true;
     }
 
     // ХАЙЗЕНБЕРГ
@@ -1900,8 +2347,7 @@
     const hSurfaceY = getSurfaceY(hBaseX);
     heisenbergGroup.position.set(hBaseX, hSurfaceY + 0.5, 0);
 
-    const matHazmat = new THREE.MeshStandardMaterial({ color: 0xf4d03f, roughness: 0.4 });
-    const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.76, 0.36), matHazmat);
+    const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.76, 0.36), new THREE.MeshStandardMaterial({ color: 0xf4d03f, roughness: 0.4 }));
     hBody.position.y = 0.95;
     heisenbergGroup.add(hBody);
 
@@ -1909,47 +2355,27 @@
     hHead.position.y = 1.48;
     heisenbergGroup.add(hHead);
 
-    const hGlasses = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: 0x050505 }));
-    hGlasses.position.set(0, 1.52, 0.2);
-    heisenbergGroup.add(hGlasses);
-
-    const hBeard = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a321d }));
-    hBeard.position.set(0, 1.34, 0.2);
-    heisenbergGroup.add(hBeard);
-
-    const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.06, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-    hatBrim.position.set(0, 1.7, 0);
-    heisenbergGroup.add(hatBrim);
     const hatCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.22, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
     hatCrown.position.set(0, 1.82, 0);
     heisenbergGroup.add(hatCrown);
 
-    const chemDesk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.5), new THREE.MeshStandardMaterial({ color: 0x1a2538 }));
-    chemDesk.position.set(1.1, 0.4, 0);
-    heisenbergGroup.add(chemDesk);
-
     // ==========================================
-    // 3D АРЕНА БОССОВ
+    // 3D АРЕНА И ВСЕ 4 БОССА БЕЗ СОКРАЩЕНИЙ
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
     scene.add(bossGroup);
 
     const ARENA_RADIUS = 26;
+
     const arenaFloor = new THREE.Mesh(
-      new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 0.8, 36),
+      new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 0.8, 32),
       new THREE.MeshStandardMaterial({ color: 0x0f0b1a, metalness: 0.85 })
     );
     arenaFloor.position.y = -0.4;
     bossGroup.add(arenaFloor);
 
-    const barrierGeo = new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 5, 36, 1, true);
-    const barrierMat = new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true, transparent: true, opacity: 0.25 });
-    const arenaBarrier = new THREE.Mesh(barrierGeo, barrierMat);
-    arenaBarrier.position.y = 2.5;
-    bossGroup.add(arenaBarrier);
-
-    // 1. ЦЕНТУРИОН
+    // 1. ЦЕНТУРИОН MK-X
     const bossRig = new THREE.Group();
     bossGroup.add(bossRig);
 
@@ -1963,15 +2389,15 @@
 
     const bossWings = new THREE.Group();
     const wingL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    wingL.position.set(-2.8, 4.2, -0.6); wingL.rotation.z = 0.35;
+    wingL.position.set(-2.8, 4.2, -0.6);
     bossWings.add(wingL);
     const wingR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    wingR.position.set(2.8, 4.2, -0.6); wingR.rotation.z = -0.35;
+    wingR.position.set(2.8, 4.2, -0.6);
     bossWings.add(wingR);
     bossWings.visible = false;
     bossRig.add(bossWings);
 
-    // 2. ВЫСОКОДЕТАЛИЗИРОВАННЫЙ НЕОНОВЫЙ ФЕНИКС
+    // 2. НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»
     const phoenixRig = new THREE.Group();
     phoenixRig.visible = false;
     bossGroup.add(phoenixRig);
@@ -1980,39 +2406,42 @@
     pBody.position.y = 3.8;
     phoenixRig.add(pBody);
 
-    const pBeak = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.2, 6).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
-    pBeak.position.set(0, 3.8, 2.4);
-    phoenixRig.add(pBeak);
-
-    const pCrest = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 1.0), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
-    pCrest.position.set(0, 4.6, 0.8);
-    phoenixRig.add(pCrest);
-
-    const pCore = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
-    pCore.position.set(0, 3.8, 0);
-    phoenixRig.add(pCore);
-
-    // СЕГМЕНТИРОВАННЫЕ КРЫЛЬЯ ФЕНИКСА
-    const pWingL = new THREE.Group();
-    const pwL1 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.15, 1.8), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
-    pwL1.position.x = -1.6; pWingL.add(pwL1);
-    const pwL2 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.12, 1.4), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    pwL2.position.set(-3.8, 0, 0.2); pWingL.add(pwL2);
-    pWingL.position.set(-1.2, 4.2, 0);
+    const pWingL = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.15, 2.2), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
+    pWingL.position.set(-3.2, 4.2, 0);
     phoenixRig.add(pWingL);
-
-    const pWingR = new THREE.Group();
-    const pwR1 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.15, 1.8), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
-    pwR1.position.x = 1.6; pWingR.add(pwR1);
-    const pwR2 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.12, 1.4), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    pwR2.position.set(3.8, 0, 0.2); pWingR.add(pwR2);
-    pWingR.position.set(1.2, 4.2, 0);
+    const pWingR = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.15, 2.2), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
+    pWingR.position.set(3.2, 4.2, 0);
     phoenixRig.add(pWingR);
 
-    // ХВОСТ ИЗ ПЕРЬЕВ
-    const pTail = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 3.5), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
-    pTail.position.set(0, 3.6, -2.8);
-    phoenixRig.add(pTail);
+    // 3. КРИО-АРАХНИД MK-4
+    const arachnidRig = new THREE.Group();
+    arachnidRig.visible = false;
+    bossGroup.add(arachnidRig);
+
+    const spBody = new THREE.Mesh(new THREE.SphereGeometry(1.8, 16, 16), new THREE.MeshStandardMaterial({ color: 0x091b29, metalness: 0.9 }));
+    spBody.position.y = 2.2;
+    arachnidRig.add(spBody);
+
+    const spEyeGlow = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 0.4), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+    spEyeGlow.position.set(0, 2.4, 1.6);
+    arachnidRig.add(spEyeGlow);
+
+    // 4. БАНДА: ГЛИТЧ-СИНДИКАТ (ТРИО)
+    const syndicateRig = new THREE.Group();
+    syndicateRig.visible = false;
+    bossGroup.add(syndicateRig);
+
+    const synRazor = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.8), new THREE.MeshStandardMaterial({ color: 0xff0055 }));
+    synRazor.position.set(-4, 1.1, 0);
+    syndicateRig.add(synRazor);
+
+    const synHacker = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.8, 0.8), new THREE.MeshStandardMaterial({ color: 0x00ffff }));
+    synHacker.position.set(0, 2.2, -4);
+    syndicateRig.add(synHacker);
+
+    const synHeavy = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.8, 1.6), new THREE.MeshStandardMaterial({ color: 0x441166 }));
+    synHeavy.position.set(4, 1.4, 0);
+    syndicateRig.add(synHeavy);
 
     let bossHp = 1800, bossMaxHp = 1800;
     let bossShield = 600, bossMaxShield = 600;
@@ -2034,9 +2463,15 @@
     }
 
     function clearAllProjectiles() {
-      for (let i = projectiles.length - 1; i >= 0; i--) bossGroup.remove(projectiles[i].mesh);
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        disposeMesh(projectiles[i].mesh);
+        bossGroup.remove(projectiles[i].mesh);
+      }
       projectiles.length = 0;
-      for (let i = projectiles2D.length - 1; i >= 0; i--) worldGroup.remove(projectiles2D[i].mesh);
+      for (let i = projectiles2D.length - 1; i >= 0; i--) {
+        disposeMesh(projectiles2D[i].mesh);
+        worldGroup.remove(projectiles2D[i].mesh);
+      }
       projectiles2D.length = 0;
     }
 
@@ -2044,30 +2479,6 @@
       document.getElementById('start-menu').style.display = 'none';
       switchMode(targetMode);
     };
-
-    function updateDpadLayout(is3D) {
-      const dpad = document.getElementById('dpad-container');
-      if (is3D) {
-        dpad.className = 'dpad-container dpad-3d';
-        dpad.innerHTML = `
-          <div></div><button class="touch-btn" id="ctrl-up">▲</button><div></div>
-          <button class="touch-btn" id="ctrl-left">◀</button><div></div><button class="touch-btn" id="ctrl-right">▶</button>
-          <div></div><button class="touch-btn" id="ctrl-down">▼</button><div></div>
-        `;
-        setupTouchButton('ctrl-up', () => { inputState.up = true; }, () => { inputState.up = false; });
-        setupTouchButton('ctrl-down', () => { inputState.down = true; }, () => { inputState.down = false; });
-        setupTouchButton('ctrl-left', () => { inputState.left = true; }, () => { inputState.left = false; });
-        setupTouchButton('ctrl-right', () => { inputState.right = true; }, () => { inputState.right = false; });
-      } else {
-        dpad.className = 'dpad-container dpad-2d';
-        dpad.innerHTML = `
-          <button class="touch-btn" id="ctrl-left">◀</button>
-          <button class="touch-btn" id="ctrl-right">▶</button>
-        `;
-        setupTouchButton('ctrl-left', () => { inputState.left = true; }, () => { inputState.left = false; });
-        setupTouchButton('ctrl-right', () => { inputState.right = true; }, () => { inputState.right = false; });
-      }
-    }
 
     function switchMode(newMode) {
       mode = newMode;
@@ -2078,8 +2489,12 @@
 
       document.getElementById('interact-prompt').style.display = 'none';
 
+      // АДАПТИВНЫЙ D-PAD: В 2D ПРЯЧЕМ СТРЕЛКИ ВВЕРХ И ВНИЗ
+      const dpadContainer = document.getElementById('dpad-container');
+      const upBtn = document.getElementById('ctrl-up');
+      const downBtn = document.getElementById('ctrl-down');
+
       if (mode === 'world') {
-        updateDpadLayout(false); // 2D режим: только ◀ ▶
         document.getElementById('btn-mode-world').classList.add('active');
         document.getElementById('btn-mode-boss').classList.remove('active');
         document.getElementById('boss-hud-group').style.display = 'none';
@@ -2088,17 +2503,23 @@
         document.getElementById('act-text').innerText = "ПРЫЖОК";
         document.getElementById('btn-action').classList.remove('combat');
 
-        worldGroup.visible = true; bossGroup.visible = false;
+        upBtn.style.display = 'none';
+        downBtn.style.display = 'none';
+        dpadContainer.classList.add('dpad-horizontal-only');
+
+        worldGroup.visible = true;
+        bossGroup.visible = false;
+
         const surfY = getSurfaceY(Math.round(pX));
-        pY = surfY + 0.5; pZ = 0; pVy = 0;
+        pY = surfY + 0.5;
+        pZ = 0;
+        pVy = 0;
+
         playerGroup.position.set(pX, pY, 0);
         playerGroup.rotation.set(0, 0, 0);
 
-        camera.position.set(pX, pY + 1.4, 10);
-        camera.lookAt(pX, pY + 1.4, 0);
         setTip("🖥️ ИССЛЕДУЙ ДАТАЦЕНТРЫ В НЕДРАХ, ДОБЫВАЙ ЧИПЫ И ЗОЛОТО!");
       } else {
-        updateDpadLayout(true); // 3D режим: полный крест
         document.getElementById('btn-mode-boss').classList.add('active');
         document.getElementById('btn-mode-world').classList.remove('active');
         document.getElementById('boss-hud-group').style.display = 'block';
@@ -2107,21 +2528,24 @@
         document.getElementById('act-text').innerText = "ОГОНЬ";
         document.getElementById('btn-action').classList.add('combat');
 
-        worldGroup.visible = false; bossGroup.visible = true;
+        upBtn.style.display = 'flex';
+        downBtn.style.display = 'flex';
+        dpadContainer.classList.remove('dpad-horizontal-only');
+
+        worldGroup.visible = false;
+        bossGroup.visible = true;
+
         pX = 0; pY = 0; pZ = 16;
         playerGroup.position.set(pX, pY, pZ);
-
-        if (currentSelectedBoss === 'phoenix') {
-          setTip("🦅 ПОГОНЯ ЗА ФЕНИКСОМ: ЛАВИРУЙ СКВОЗЬ СПИРАЛИ ПУЛЬ!");
-        } else {
-          setTip("⚠️ ДУЭЛЬ С ТИТАНОМ: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ!");
-        }
       }
     }
+
     document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
     document.getElementById('btn-mode-boss').addEventListener('click', () => openBossSelectMenu());
 
-    // УМНЫЙ АВТОАИМ БЛАСТЕРА В 2D
+    // ==========================================
+    // АТАКА В 2D И АВТОАИМ ДЛЯ БЛАСТЕРА
+    // ==========================================
     function doWorldAttack() {
       if (mode !== 'world') return;
 
@@ -2129,39 +2553,35 @@
         AudioEngine.laser();
         haptic('light');
 
-        let aimVx = playerGroup.rotation.y >= 0 ? 0.35 : -0.35;
-        let aimVy = 0;
+        // УМНЫЙ АВТОАИМ ПО БЛИЖАЙШЕМУ ВРАГУ В РАДИУСЕ 16 БЛОКОВ
+        let targetEnemy = null;
+        let minDist = 16.0;
 
-        // Поиск ближайшего врага для автоаима
-        let nearestEnemy = null;
-        let minD = 16.0;
-
-        for (let i = 0; i < worldEnemies.length; i++) {
-          const e = worldEnemies[i];
-          const dist = playerGroup.position.distanceTo(e.position);
-          const isForward = (playerGroup.rotation.y >= 0 && e.position.x > pX) || (playerGroup.rotation.y < 0 && e.position.x < pX);
-          if (dist < minD && isForward) {
-            minD = dist;
-            nearestEnemy = e;
+        worldEnemies.forEach(e => {
+          const d = playerGroup.position.distanceTo(e.position);
+          if (d < minDist) {
+            minDist = d;
+            targetEnemy = e;
           }
-        }
+        });
 
-        if (nearestEnemy) {
-          const dx = nearestEnemy.position.x - pX;
-          const dy = (nearestEnemy.position.y + 0.3) - (pY + 1.0);
-          const len = Math.hypot(dx, dy);
-          aimVx = (dx / len) * 0.38;
-          aimVy = (dy / len) * 0.38;
-        }
-
-        const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0x00e5ff }));
-        pMesh.position.set(pX + (aimVx > 0 ? 0.5 : -0.5), pY + 1.0, 0);
+        const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+        pMesh.position.set(pX, pY + 1.0, 0);
         worldGroup.add(pMesh);
-        projectiles2D.push({ mesh: pMesh, vx: aimVx, vy: aimVy, life: 60 });
+
+        let velX = (playerGroup.rotation.y >= 0 ? 1 : -1) * 0.42;
+        let velY = 0;
+
+        if (targetEnemy) {
+          const dir = new THREE.Vector3().subVectors(targetEnemy.position, pMesh.position).normalize();
+          velX = dir.x * 0.45;
+          velY = dir.y * 0.45;
+        }
+
+        projectiles2D.push({ mesh: pMesh, vx: velX, vy: velY, life: 70 });
         return;
       }
 
-      // БЛИЖНИЙ БОЙ
       AudioEngine.slash();
       haptic('light');
 
@@ -2173,14 +2593,14 @@
       for (let i = worldEnemies.length - 1; i >= 0; i--) {
         const e = worldEnemies[i];
         if (playerGroup.position.distanceTo(e.position) < hitDist) {
-          const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.18;
+          const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.2;
           const isCrit = (Math.random() * 100 < Hero.getCritChance()) || isGlitch;
           const baseD = Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg());
           const mult = isGlitch ? 3.0 : (isCrit ? 2.0 : 1.0);
           const dmg = Math.floor(baseD * mult);
 
           e.userData.hp -= dmg;
-          e.position.x += (e.position.x > playerGroup.position.x ? 0.9 : -0.9);
+          e.position.x += (e.position.x > playerGroup.position.x ? 0.8 : -0.8);
           AudioEngine.hit();
           haptic('medium');
           spawnDamageNumber(e.position.x, e.position.y + 0.8, 0, dmg, isCrit);
@@ -2193,46 +2613,30 @@
           }
 
           if (e.userData.hp <= 0) {
+            disposeMesh(e);
             worldGroup.remove(e);
             worldEnemies.splice(i, 1);
             const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-            
-            if (e.userData.type === 'miniboss') {
-              coins += 350 * dropMultiplier;
-              gold += 5 * dropMultiplier;
-              spookyCaseCount += 2;
-              Hero.addExp(180);
-              showToast("🏆 СТРАЖ НЕДР ПОВЕРЖЕН! +350 🪙, +5 ЗОЛОТА!", "#8e44ad");
-            } else {
-              coins += 45 * dropMultiplier;
-              Hero.addExp(45);
-              Hero.wins++;
-              if (Math.random() < 0.35) spookyCaseCount++;
-              updateQuestsProgress('q_drone', 1);
-              setTip(`💥 ТЫКВЕННЫЙ ДРОН СБИТ! +${45 * dropMultiplier} 🪙!`);
+
+            coins += 50 * dropMultiplier;
+            Hero.addExp(45);
+            Hero.wins++;
+            if (e.userData.type === 'turret') {
+              techChips += 1;
+              addItemToInventory('tech_chip', 1);
+              showToast("🖥️ ТУРЕЛЬ УНИЧТОЖЕНА: +1 ТЕХНО-ЧИП!", "#00ffff");
             }
             updateHeroUI();
             saveGameData();
           }
         }
       }
-
-      for (let i = passiveMobs.length - 1; i >= 0; i--) {
-        const b = passiveMobs[i];
-        if (playerGroup.position.distanceTo(b.position) < 2.2) {
-          worldGroup.remove(b);
-          passiveMobs.splice(i, 1);
-          coins += 15;
-          AudioEngine.gem();
-          setTip("🐇 Кролик выронил монетки!");
-          updateHeroUI();
-          saveGameData();
-        }
-      }
     }
     document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
 
+    // ==========================================
     // КОПАНИЕ И СТРОЙКА
+    // ==========================================
     let miningTarget = null;
     let miningProgress = 0;
     const raycaster = new THREE.Raycaster();
@@ -2246,12 +2650,13 @@
 
       const hitHeisenberg = raycaster.intersectObjects(heisenbergGroup.children, true);
       if (hitHeisenberg.length > 0 && playerGroup.position.distanceTo(heisenbergGroup.position) < 5.0) {
-        openHeisenbergDialogue();
+        document.getElementById('dialogue-modal').style.display = 'flex';
         return;
       }
 
       if (currentInteractionMode === 'build') {
-        if (stones <= 0) {
+        const stoneSlot = inventorySlots.find(s => s.itemId === 'stone');
+        if (!stoneSlot || stoneSlot.qty <= 0) {
           showToast("Нет камня в инвентаре для постройки!", "#ff0055");
           return;
         }
@@ -2267,7 +2672,9 @@
         if (dist <= 4.2 && !blockMap.has(`${buildGX},${buildGY}`)) {
           if (Math.abs(buildGX - pX) < 0.6 && Math.abs(buildGY - pY) < 1.2) return;
 
-          stones--;
+          stoneSlot.qty--;
+          if (stoneSlot.qty <= 0) stoneSlot.itemId = null;
+
           const newB = new THREE.Mesh(blockGeo, matStone);
           newB.position.set(buildGX, buildGY, 0);
           newB.userData = { gx: buildGX, gy: buildGY, type: 'stone', hp: 2 };
@@ -2278,6 +2685,7 @@
           AudioEngine.build();
           haptic('light');
           updateHeroUI();
+          renderInventoryGrid();
           saveGameData();
         }
         return;
@@ -2287,7 +2695,7 @@
       if (hits.length > 0) {
         const hit = hits[0].object;
         if (hit.userData.type === 'bedrock') return;
-        const maxMineDist = currentToolTier >= 3 ? 6.5 : 4.5;
+        const maxMineDist = currentToolTier >= 2 ? 6.0 : 4.5;
         if (playerGroup.position.distanceTo(hit.position) < maxMineDist) {
           miningTarget = hit;
           miningProgress = 0;
@@ -2307,9 +2715,9 @@
       document.getElementById('mining-hud').style.display = 'none';
     });
 
-    function updateMining(dt60) {
+    function updateMining(dt) {
       if (!miningTarget || mode !== 'world') return;
-      const maxMineDist = currentToolTier >= 3 ? 6.5 : 4.5;
+      const maxMineDist = currentToolTier >= 2 ? 6.0 : 4.5;
       if (playerGroup.position.distanceTo(miningTarget.position) > maxMineDist) {
         miningTarget = null;
         document.getElementById('mining-hud').style.display = 'none';
@@ -2318,8 +2726,9 @@
 
       armR.rotation.x = Math.sin(Date.now() * 0.02) * 0.5;
 
-      const speedMult = currentToolTier === 3 ? 0.14 : (currentToolTier === 2 ? 0.09 : 0.045);
-      miningProgress += speedMult * dt60;
+      // СКОРОСТЬ КОПАНИЯ С ДЕЛЬТА-ТАЙМОМ
+      const speedMult = (currentToolTier === 2 ? 4.2 : 2.2) * dt;
+      miningProgress += speedMult;
       document.getElementById('mining-bar').style.width = `${Math.min(100, (miningProgress / miningTarget.userData.hp) * 100)}%`;
 
       if (miningProgress >= miningTarget.userData.hp) {
@@ -2327,36 +2736,39 @@
 
         if (miningTarget.userData.type === 'pumpkin') {
           pumpkins += 1 * dropMultiplier;
-          coins += 20 * dropMultiplier;
+          addItemToInventory('pumpkin', 1 * dropMultiplier);
           AudioEngine.pumpkinSmash();
           updateQuestsProgress('q_pumpkin', 1);
-          setTip(`🎃 СРУБЛЕНА ТЫКВА! +${1 * dropMultiplier} шт!`);
         } else if (miningTarget.userData.type === 'gold') {
           gold += 1 * dropMultiplier;
           coins += 65 * dropMultiplier;
+          addItemToInventory('gold', 1 * dropMultiplier);
           AudioEngine.gem();
           updateQuestsProgress('q_gold', 1);
-          setTip(`👑 ДОБЫТО ЗОЛОТО! +${65 * dropMultiplier} 🪙!`);
         } else if (miningTarget.userData.type === 'server_rack') {
           techChips += 1 * dropMultiplier;
-          chips += 2 * dropMultiplier;
           coins += 80 * dropMultiplier;
+          addItemToInventory('tech_chip', 1 * dropMultiplier);
           AudioEngine.gem();
-          setTip(`🖥️ СЕРВЕР ВЗЛОМАН: +${1 * dropMultiplier} ТЕХНО-ЧИП, +80 🪙!`);
+          updateQuestsProgress('q_server', 1);
+          showToast(`🖥️ СЕРВЕР ВЗЛОМАН: +${1 * dropMultiplier} ТЕХНО-ЧИП!`, '#00ffff');
         } else if (miningTarget.userData.type === 'terminal') {
           coins += 300 * dropMultiplier;
           techChips += 3;
           spookyCaseCount += 1;
+          addItemToInventory('tech_chip', 3);
           AudioEngine.lvlUp();
           updateQuestsProgress('q_server', 1);
-          showToast("🏆 ГЛАВНЫЙ СЕРВЕР ДАТАЦЕНТРА ВЗЛОМАН! +300 🪙, +1 КЕЙС!", "#00ffcc");
+          showToast("🏆 ГЛАВНЫЙ СЕРВЕР ВЗЛОМАН! +300 🪙, +1 КЕЙС!", "#00ffff");
         } else if (miningTarget.userData.type === 'ore') {
           ores += 1 * dropMultiplier;
           coins += 25 * dropMultiplier;
+          addItemToInventory('ore', 1 * dropMultiplier);
           Hero.addExp(20);
           AudioEngine.gem();
         } else {
           stones += 1 * dropMultiplier;
+          addItemToInventory('stone', 1 * dropMultiplier);
           AudioEngine.mine();
         }
 
@@ -2369,28 +2781,18 @@
         worldGroup.remove(miningTarget);
         const idx = activeBlocks.indexOf(miningTarget);
         if (idx !== -1) activeBlocks.splice(idx, 1);
+        disposeMesh(miningTarget);
 
         miningTarget = null;
         document.getElementById('mining-hud').style.display = 'none';
       }
     }
 
-    function openHeisenbergDialogue() {
-      document.getElementById('dialogue-modal').style.display = 'flex';
-      AudioEngine.beep(400, 0.08);
-      haptic('medium');
-    }
-
-    const interactBtn = document.getElementById('interact-prompt');
-    interactBtn.addEventListener('click', openHeisenbergDialogue);
-    interactBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault(); e.stopPropagation();
-      openHeisenbergDialogue();
-    }, { passive: false });
-
+    // ==========================================
+    // СЕНСОРНЫЕ КОНТРОЛЛЕРЫ
+    // ==========================================
     function setupTouchButton(id, onDown, onUp) {
       const el = document.getElementById(id);
-      if (!el) return;
       el.addEventListener('touchstart', (e) => {
         e.preventDefault(); e.stopPropagation();
         el.classList.add('active-touch');
@@ -2409,45 +2811,29 @@
       });
     }
 
+    setupTouchButton('ctrl-up', () => { inputState.up = true; }, () => { inputState.up = false; });
+    setupTouchButton('ctrl-down', () => { inputState.down = true; }, () => { inputState.down = false; });
+    setupTouchButton('ctrl-left', () => { inputState.left = true; }, () => { inputState.left = false; });
+    setupTouchButton('ctrl-right', () => { inputState.right = true; }, () => { inputState.right = false; });
+
     setupTouchButton('btn-action', () => { doMainAction(); }, () => {});
 
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') inputState.up = true;
-      if (k === 's' || k === 'arrowdown') inputState.down = true;
-      if (k === 'a' || k === 'arrowleft') inputState.left = true;
-      if (k === 'd' || k === 'arrowright') inputState.right = true;
-      if (k === ' ') doMainAction();
-      if (k === 'f') doWorldAttack();
-      if (k === 'c') openCraftMenu();
-      if (k === 'i') openInventoryModal();
-      if (k === 'b') toggleInteractionMode();
-      if (k === 'e' && playerGroup.position.distanceTo(heisenbergGroup.position) < 4.5) openHeisenbergDialogue();
-    });
-    window.addEventListener('keyup', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') inputState.up = false;
-      if (k === 's' || k === 'arrowdown') inputState.down = false;
-      if (k === 'a' || k === 'arrowleft') inputState.left = false;
-      if (k === 'd' || k === 'arrowright') inputState.right = false;
-    });
-
-    // ПРЫЖОК С УЧЁТОМ COYOTE TIME
     function doMainAction() {
       if (mode === 'world') {
         if (adminFlyMode) {
-          pVy = 0.22;
+          pVy = 12.0;
           return;
         }
+        // МЯГКИЙ ПРЫЖОК С ВРЕМЕНЕМ КОЙОТА И ДВОЙНЫМ БУСТОМ
         if (isGrounded || coyoteTimer > 0) {
-          pVy = 0.28;
+          pVy = 15.5;
           isGrounded = false;
           coyoteTimer = 0;
           canDoubleJump = true;
           AudioEngine.jump();
           haptic('light');
         } else if (canDoubleJump) {
-          pVy = 0.28;
+          pVy = 15.0;
           canDoubleJump = false;
           AudioEngine.doubleJump();
           haptic('medium');
@@ -2460,8 +2846,11 @@
         const shootOrigin = playerGroup.position.clone();
         shootOrigin.y += 1.0;
 
-        const targetPos = currentSelectedBoss === 'phoenix' ? phoenixRig.position.clone() : bossRig.position.clone();
-        targetPos.y += 3.2;
+        let targetPos = bossRig.position.clone();
+        if (currentSelectedBoss === 'phoenix') targetPos = phoenixRig.position.clone();
+        else if (currentSelectedBoss === 'arachnid') targetPos = arachnidRig.position.clone();
+        else if (currentSelectedBoss === 'syndicate') targetPos = syndicateRig.position.clone();
+        targetPos.y += 2.2;
 
         const shootDir = new THREE.Vector3().subVectors(targetPos, shootOrigin).normalize();
 
@@ -2469,71 +2858,52 @@
         p.position.copy(shootOrigin);
         bossGroup.add(p);
 
-        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(0.85), isPlayer: true });
+        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(35.0), isPlayer: true });
       }
     }
 
-    document.getElementById('btn-sync').addEventListener('click', () => {
-      saveGameData();
-      if (tg) {
-        tg.sendData(JSON.stringify({
-          action: "open_world_sync",
-          level: Hero.level,
-          coins: coins,
-          pumpkins: pumpkins,
-          gold: gold,
-          techChips: techChips,
-          toolTier: currentToolTier,
-          enchant: weaponEnchantment,
-          stats: { str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi },
-          equipped: Hero.equipped,
-          wins: Hero.wins
-        }));
-      } else {
-        showToast(`Данные синхронизированы! (LVL: ${Hero.level})`, '#ffd700');
-      }
-    });
-
     // ==========================================
-    // ФИЗИЧЕСКИЙ ДВИЖОК C DELTA-TIME
+    // ФИЗИЧЕСКИЙ ДВИЖОК: ДЕЛЬТА-ТАЙМ И ВСЕ БОССЫ
     // ==========================================
     const clock = new THREE.Clock();
 
     function loop() {
       requestAnimationFrame(loop);
+
+      // ЧЕСТНЫЙ ДЕЛЬТА-ТАЙМ С ЗАЩИТОЙ ОТ ЛАГОВ (CLAMP 0.05)
       const rawDt = clock.getDelta();
-      const dt = Math.min(rawDt, 0.05); // Защита от спайков лагов (Delta Clamp)
-      const dt60 = dt * 60; // Множитель для пересчёта на 60 FPS базу
+      const dt = Math.min(rawDt, 0.05);
       const t = clock.getElapsedTime();
 
-      if (iFrames > 0) iFrames -= dt60;
+      if (iFrames > 0) iFrames--;
       handleNaturalRegen(dt);
 
       if (mode === 'world') {
-        updateMining(dt60);
+        updateMining(dt);
 
-        // ОБНОВЛЕНИЕ КОМПАСА НА ХАЙЗЕНБЕРГА
+        // НЕОНОВЫЙ МАЯК НА ХАЙЗЕНБЕРГА
         const distToH = Math.round(playerGroup.position.distanceTo(heisenbergGroup.position));
         const dirH = heisenbergGroup.position.x > playerGroup.position.x ? '▶' : '◀';
         document.getElementById('heisenberg-compass').innerText = `⚗️ ${distToH}м [${dirH}]`;
 
-        // ПУЛИ БЛАСТЕРА (2D)
+        // ДВИЖЕНИЕ 2D СНАРЯДОВ С АВТОАИМОМ
         for (let i = projectiles2D.length - 1; i >= 0; i--) {
           const bp = projectiles2D[i];
-          bp.mesh.position.x += bp.vx * dt60;
-          bp.mesh.position.y += bp.vy * dt60;
-          bp.life -= dt60;
+          bp.mesh.position.x += bp.vx * (dt * 60);
+          bp.mesh.position.y += (bp.vy || 0) * (dt * 60);
+          bp.life--;
 
           for (let j = worldEnemies.length - 1; j >= 0; j--) {
             const we = worldEnemies[j];
             if (bp.mesh.position.distanceTo(we.position) < 1.2) {
-              const dmg = Math.floor(Hero.getMinDmg() * 0.85);
+              const dmg = Math.floor(Hero.getMinDmg() * 0.9);
               we.userData.hp -= dmg;
               AudioEngine.hit();
               spawnDamageNumber(we.position.x, we.position.y + 0.6, 0, dmg);
               bp.life = 0;
 
               if (we.userData.hp <= 0) {
+                disposeMesh(we);
                 worldGroup.remove(we);
                 worldEnemies.splice(j, 1);
                 coins += 40;
@@ -2546,18 +2916,20 @@
           }
 
           if (bp.life <= 0) {
+            disposeMesh(bp.mesh);
             worldGroup.remove(bp.mesh);
             projectiles2D.splice(i, 1);
           }
         }
 
-        let moveSpeed = 0.12 * adminSpeedTier * dt60;
+        // АДАПТИВНАЯ СКОРОСТЬ ПЕРЕМЕЩЕНИЯ (МЕТРЫ В СЕКУНДУ)
+        let moveSpeed = 7.2 * adminSpeedTier;
         if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0 || weaponEnchantment === 'hypersonic') moveSpeed *= 1.45;
 
         let moveX = 0;
         let isMoving = false;
-        if (inputState.left) { moveX -= moveSpeed; isMoving = true; playerGroup.rotation.y = -Math.PI / 2; }
-        if (inputState.right) { moveX += moveSpeed; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
+        if (inputState.left) { moveX -= moveSpeed * dt; isMoving = true; playerGroup.rotation.y = -Math.PI / 2; }
+        if (inputState.right) { moveX += moveSpeed * dt; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
         if (!inputState.left && !inputState.right) playerGroup.rotation.y = 0;
 
         if (moveX !== 0) {
@@ -2565,40 +2937,36 @@
           const targetX = pX + moveX;
           const checkGX = Math.round(targetX + (moveX > 0 ? skin : -skin));
 
-          const testYPoints = [pY - 0.48, pY, pY + 0.5, pY + 1.0, pY + 1.55];
+          const testYPoints = [pY - 0.45, pY, pY + 0.5, pY + 1.0, pY + 1.55];
           let blocked = false;
 
           for (let i = 0; i < testYPoints.length; i++) {
-            const checkGY = Math.round(testYPoints[i]);
-            if (blockMap.has(`${checkGX},${checkGY}`)) {
-              blocked = true;
-              break;
+            if (blockMap.has(`${checkGX},${Math.round(testYPoints[i])}`)) {
+              blocked = true; break;
             }
           }
 
           if (!blocked) {
             pX = targetX;
           } else {
+            // Плавное авто-восхождение на 1 блок
             const stepGY = Math.round(pY + 0.5);
             const headRoomGY = Math.round(pY + 1.6);
             if (!blockMap.has(`${checkGX},${stepGY}`) && !blockMap.has(`${Math.round(pX)},${headRoomGY}`)) {
-              pY += 0.22;
+              pY += 0.2;
               pX = targetX;
             }
           }
         }
 
-        // АРКАДНАЯ ГРАВИТАЦИЯ, ЗАВИСАНИЕ НА ПИКЕ И COYOTE TIME
+        // АРКАДНАЯ ГРАВИТАЦИЯ С APEX FLOAT И ВРЕМЕНЕМ КОЙОТА
         if (!adminFlyMode) {
-          // Apex Float: в верхней точке прыжка гравитация уменьшается вдвое
-          let currentGravity = 0.008;
-          if (Math.abs(pVy) < 0.04) currentGravity = 0.004;
+          // Apex float: зависание в верхней точке прыжка
+          const gravityAccel = Math.abs(pVy) < 2.5 ? 18.0 : 34.0;
+          pVy -= gravityAccel * dt;
+          pVy = Math.max(-28.0, pVy); // Ограничение терминальной скорости
 
-          pVy -= currentGravity * dt60;
-          // Ограничение максимальной скорости падения (Terminal Velocity)
-          pVy = Math.max(pVy, -0.32);
-
-          let nextY = pY + pVy * dt60;
+          let nextY = pY + pVy * dt;
 
           if (pVy < 0) {
             const targetFootGY = Math.round(nextY - 0.5);
@@ -2610,15 +2978,11 @@
               pVy = 0;
               isGrounded = true;
               canDoubleJump = false;
-              coyoteTimer = 0.12; // 120ms окно койота
+              coyoteTimer = 0.15; // 150 мс окна койота
             } else {
               pY = nextY;
-              if (isGrounded) {
-                isGrounded = false;
-                coyoteTimer = 0.12;
-              } else {
-                coyoteTimer = Math.max(0, coyoteTimer - dt);
-              }
+              isGrounded = false;
+              if (coyoteTimer > 0) coyoteTimer -= dt;
             }
           } else {
             const headGY = Math.round(nextY + 1.6);
@@ -2629,15 +2993,15 @@
               pY = nextY;
             }
             isGrounded = false;
-            coyoteTimer = 0;
           }
         } else {
-          pY += pVy * dt60;
-          pVy *= 0.85;
+          pY += pVy * dt;
+          pVy *= 0.88;
         }
 
         if (pY < -24) damagePlayer(500);
 
+        // ГЕНЕРАЦИЯ И ВЫГРУЗКА ЧАНКОВ
         const playerGX = Math.round(pX);
         for (let x = playerGX - 18; x <= playerGX + 18; x++) generateColumn(x);
         if (Math.abs(playerGX) % 8 === 0) cleanFarChunks(playerGX);
@@ -2645,66 +3009,39 @@
         if (worldEnemies.length < 8 && Math.random() < 0.02) {
           spawnEnemy(pX + (Math.random() > 0.5 ? 15 : -15));
         }
-        if (pY < -10 && !worldEnemies.some(e => e.userData.type === 'miniboss') && Math.random() < 0.03) {
-          spawnCaveMiniBoss(pX + (Math.random() > 0.5 ? 12 : -12), pY);
-        }
-        if (passiveMobs.length < 4 && Math.random() < 0.01) {
-          spawnPassiveBunny(pX + (Math.random() > 0.5 ? 12 : -12));
-        }
 
+        // ЛОГИКА ВРАГОВ В 2D
         worldEnemies.forEach(e => {
+          if (e.userData.type === 'turret') {
+            e.userData.shootCooldown -= dt * 60;
+            if (e.userData.shootCooldown <= 0 && playerGroup.position.distanceTo(e.position) < 12.0) {
+              e.userData.shootCooldown = 90;
+              damagePlayer(25);
+              AudioEngine.laser();
+              showToast("⚠️ ТУРЕЛЬ ДАТАЦЕНТРА ОТКРЫЛА ОГОНЬ!", "#ff0055");
+            }
+            return;
+          }
+
           const dist = playerGroup.position.distanceTo(e.position);
-          const hasVision = hasLineOfSight(e.position.x, e.position.y, playerGroup.position.x, playerGroup.position.y);
-          const groundUnderEnemy = getSurfaceY(Math.round(e.position.x)) + 0.5;
-          const minSafeY = groundUnderEnemy + 1.6;
-
-          if (dist < 14 && hasVision) {
-            const spd = e.userData.speed * dt60;
-            if (e.position.x < pX) e.position.x += spd;
-            else e.position.x -= spd;
-
-            const targetY = e.userData.type === 'miniboss' ? playerGroup.position.y : Math.max(minSafeY, playerGroup.position.y + 0.5);
-            e.position.y += (targetY - e.position.y) * 0.05 * dt60;
+          if (dist < 14) {
+            if (e.position.x < pX) e.position.x += e.userData.speed * (dt * 60);
+            else e.position.x -= e.userData.speed * (dt * 60);
 
             if (dist < 1.4) {
               if (!e.userData.attackCooldown || e.userData.attackCooldown <= 0) {
-                damagePlayer(e.userData.type === 'miniboss' ? 40 : 25);
+                damagePlayer(25);
                 e.userData.attackCooldown = 50;
               }
             }
-          } else {
-            if (e.userData.type !== 'miniboss') {
-              const patTargetY = minSafeY + Math.sin(t * 3 + e.position.x) * 0.3;
-              e.position.y += (patTargetY - e.position.y) * 0.05 * dt60;
-            }
           }
-
-          if (e.userData.attackCooldown > 0) e.userData.attackCooldown -= dt60;
+          if (e.userData.attackCooldown > 0) e.userData.attackCooldown -= dt * 60;
         });
-
-        passiveMobs.forEach(b => {
-          const distToPlayer = playerGroup.position.distanceTo(b.position);
-          if (distToPlayer < 5) {
-            b.position.x += (b.position.x > pX ? 0.04 : -0.04) * dt60;
-          } else {
-            b.position.x += Math.sin(t + b.position.y) * 0.01 * dt60;
-          }
-          const surfY = getSurfaceY(Math.round(b.position.x)) + 0.65;
-          b.position.y = surfY + Math.abs(Math.sin(t * 5)) * 0.2;
-        });
-
-        if (isMoving && isGrounded) {
-          legRight.rotation.x = Math.sin(t * 11) * 0.55;
-          legLeftCyber.rotation.x = -Math.sin(t * 11) * 0.55;
-          if (Math.sin(t * 11) > 0.95) AudioEngine.stepMetal();
-        } else {
-          legRight.rotation.x = 0; legLeftCyber.rotation.x = 0;
-        }
 
         playerGroup.position.set(pX, pY, 0);
 
-        camera.position.x += (pX - camera.position.x) * 0.1 * dt60;
-        camera.position.y += (pY + 1.4 - camera.position.y) * 0.1 * dt60;
+        camera.position.x += (pX - camera.position.x) * (dt * 6);
+        camera.position.y += (pY + 1.4 - camera.position.y) * (dt * 6);
         camera.position.z = 10;
         camera.lookAt(camera.position.x, camera.position.y, 0);
 
@@ -2713,20 +3050,18 @@
       }
       else if (mode === 'boss') {
         let mX = 0, mZ = 0;
-        let isRunning3D = false;
-
         if (inputState.up) mZ -= 1;
         if (inputState.down) mZ += 1;
         if (inputState.left) mX -= 1;
         if (inputState.right) mX += 1;
 
         if (mX !== 0 || mZ !== 0) {
-          isRunning3D = true;
           const len = Math.hypot(mX, mZ);
-          let spd = 0.15 * adminSpeedTier * dt60;
+          let spd = 9.0 * adminSpeedTier;
           if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0 || weaponEnchantment === 'hypersonic') spd *= 1.45;
-          pX += (mX / len) * spd;
-          pZ += (mZ / len) * spd;
+          pX += (mX / len) * spd * dt;
+          pZ += (mZ / len) * spd * dt;
+          playerGroup.rotation.y = Math.atan2(mX, mZ);
         }
 
         const distToCenter = Math.hypot(pX, pZ);
@@ -2738,19 +3073,10 @@
 
         playerGroup.position.set(pX, 0, pZ);
 
-        if (isRunning3D) {
-          const moveAngle = Math.atan2(mX, mZ);
-          playerGroup.rotation.y = moveAngle;
-          legRight.rotation.x = Math.sin(t * 12) * 0.6;
-          legLeftCyber.rotation.x = -Math.sin(t * 12) * 0.6;
-        } else {
-          legRight.rotation.x = 0; legLeftCyber.rotation.x = 0;
-        }
-
         let activeBossCorePos;
 
+        // ПАТТЕРНЫ ВСЕХ 4 БОССОВ
         if (currentSelectedBoss === 'phoenix') {
-          // ВЗМАХИ МНОГОСЛОЙНЫХ КРЫЛЬЕВ
           pWingL.rotation.z = Math.sin(t * 8) * 0.45;
           pWingR.rotation.z = -Math.sin(t * 8) * 0.45;
 
@@ -2758,7 +3084,6 @@
           phoenixRig.position.x = Math.cos(t * 1.5) * flightRadius;
           phoenixRig.position.z = Math.sin(t * 1.5) * flightRadius;
           phoenixRig.position.y = 2.0 + Math.sin(t * 3) * 1.5;
-
           phoenixRig.lookAt(playerGroup.position.x, 2.5, playerGroup.position.z);
           activeBossCorePos = phoenixRig.position.clone();
 
@@ -2766,30 +3091,44 @@
           if (bossAttackTimer >= 0.22) {
             bossAttackTimer = 0;
             bulletHellAngle += 0.35;
+            const bvx = Math.cos(bulletHellAngle) * 16.0;
+            const bvz = Math.sin(bulletHellAngle) * 16.0;
 
-            const bSpd = 0.32;
-            const bvx = Math.cos(bulletHellAngle) * bSpd;
-            const bvz = Math.sin(bulletHellAngle) * bSpd;
-
-            const bProj = new THREE.Mesh(
-              new THREE.SphereGeometry(0.45, 8, 8),
-              new THREE.MeshBasicMaterial({ color: 0xffaa00 })
-            );
+            const bProj = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
             bProj.position.copy(phoenixRig.position);
             bossGroup.add(bProj);
             projectiles.push({ mesh: bProj, vel: new THREE.Vector3(bvx, 0, bvz), isPlayer: false });
+          }
+        } else if (currentSelectedBoss === 'arachnid') {
+          arachnidRig.position.x = Math.sin(t * 0.8) * 6.0;
+          arachnidRig.position.z = Math.cos(t * 0.8) * 6.0;
+          arachnidRig.lookAt(pX, 0, pZ);
+          activeBossCorePos = arachnidRig.position.clone();
 
-            if (Math.random() < 0.25) {
-              const aimDir = new THREE.Vector3().subVectors(playerGroup.position, phoenixRig.position).normalize();
-              const fProj = new THREE.Mesh(
-                new THREE.BoxGeometry(0.3, 0.3, 1.4),
-                new THREE.MeshBasicMaterial({ color: 0xff0055 })
-              );
-              fProj.position.copy(phoenixRig.position);
-              fProj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), aimDir);
-              bossGroup.add(fProj);
-              projectiles.push({ mesh: fProj, vel: aimDir.multiplyScalar(0.55), isPlayer: false });
-            }
+          bossAttackTimer += dt;
+          if (bossAttackTimer >= 1.2) {
+            bossAttackTimer = 0;
+            const aimDir = new THREE.Vector3().subVectors(playerGroup.position, arachnidRig.position).normalize();
+            const webProj = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 2.0), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+            webProj.position.copy(arachnidRig.position);
+            webProj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), aimDir);
+            bossGroup.add(webProj);
+            projectiles.push({ mesh: webProj, vel: aimDir.multiplyScalar(22.0), isPlayer: false });
+          }
+        } else if (currentSelectedBoss === 'syndicate') {
+          synRazor.position.x = Math.sin(t * 2.5) * 8.0;
+          synRazor.position.z = Math.cos(t * 2.5) * 8.0;
+          synHeavy.lookAt(pX, 1.4, pZ);
+          activeBossCorePos = syndicateRig.position.clone();
+
+          bossAttackTimer += dt;
+          if (bossAttackTimer >= 0.8) {
+            bossAttackTimer = 0;
+            const aimDir = new THREE.Vector3().subVectors(playerGroup.position, synHeavy.position).normalize();
+            const synProj = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+            synProj.position.copy(synHeavy.position);
+            bossGroup.add(synProj);
+            projectiles.push({ mesh: synProj, vel: aimDir.multiplyScalar(24.0), isPlayer: false });
           }
         } else {
           bossRig.lookAt(pX, bossRig.position.y, pZ);
@@ -2801,59 +3140,48 @@
             AudioEngine.enrage();
             haptic('heavy');
             document.getElementById('boss-stage').innerText = "🔥 ФАЗА 2: ОВЕРДРАЙВ ТИТАНА!";
-            document.getElementById('boss-stage').style.color = "#ff0055";
-            showToast("⚠️ ВНИМАНИЕ: БОСС ПЕРЕШЁЛ В РЕЖИМ ЯРОСТИ!", "#ff0055");
+            document.getElementById('boss-stage').style.color = "var(--neon-crimson)";
           }
 
-          const attackInterval = isBossPhase2 ? 1.0 : 1.5;
+          const attackInterval = isBossPhase2 ? 0.9 : 1.4;
           bossAttackTimer += dt;
           if (bossAttackTimer >= attackInterval) {
             bossAttackTimer = 0;
-
-            const bossShootOrigin = new THREE.Vector3(bossRig.position.x, 3.5, bossRig.position.z);
-            const playerAimTarget = new THREE.Vector3(playerGroup.position.x, 1.0, playerGroup.position.z);
-            const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
-
+            const aimDir = new THREE.Vector3().subVectors(playerGroup.position, bossRig.position).normalize();
             const bProj = new THREE.Mesh(
               new THREE.SphereGeometry(isBossPhase2 ? 0.8 : 0.65, 8, 8),
               new THREE.MeshBasicMaterial({ color: isBossPhase2 ? 0xff0055 : 0xff7700, wireframe: true })
             );
-            bProj.position.copy(bossShootOrigin);
+            bProj.position.set(bossRig.position.x, 3.5, bossRig.position.z);
             bossGroup.add(bProj);
-
-            projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(isBossPhase2 ? 0.58 : 0.48), isPlayer: false });
+            projectiles.push({ mesh: bProj, vel: aimDir.multiplyScalar(isBossPhase2 ? 26.0 : 18.0), isPlayer: false });
           }
         }
 
         const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
-        camera.position.lerp(camTarget, 0.08 * dt60);
+        camera.position.lerp(camTarget, 0.08);
         camera.lookAt(pX * 0.4, 2.5, pZ * 0.4);
 
+        // РАСЧЁТ 3D СНАРЯДОВ
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
-          p.mesh.position.addScaledVector(p.vel, dt60);
+          p.mesh.position.addScaledVector(p.vel, dt);
 
           if (p.isPlayer) {
-            if (p.mesh.position.distanceTo(activeBossCorePos) < 2.6) {
+            if (p.mesh.position.distanceTo(activeBossCorePos) < 2.8) {
               AudioEngine.hit();
               haptic('light');
+              disposeMesh(p.mesh);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
 
-              const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.18;
+              const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.2;
               const isCrit = (Math.random() * 100 < Hero.getCritChance()) || isGlitch;
               const baseD = Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg());
               const mult = isGlitch ? 3.0 : (isCrit ? 2.0 : 1.0);
               const dmg = Math.floor(baseD * mult);
 
               spawnDamageNumber(activeBossCorePos.x, activeBossCorePos.y + 0.8, activeBossCorePos.z, dmg, isCrit);
-
-              if (weaponEnchantment === 'vampiric') {
-                const heal = Math.max(2, Math.floor(dmg * 0.04));
-                currentHp = Math.min(Hero.getMaxHp(), currentHp + heal);
-                updatePlayerHpBar();
-                spawnDamageNumber(playerGroup.position.x, playerGroup.position.y + 1.4, playerGroup.position.z, heal, false, true);
-              }
 
               if (bossShield > 0) {
                 bossShield = Math.max(0, bossShield - dmg);
@@ -2866,11 +3194,11 @@
 
               if (bossHp <= 0) {
                 const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-                coins += 650 * dropMultiplier;
-                Hero.addExp(280);
+                coins += 700 * dropMultiplier;
+                Hero.addExp(300);
                 Hero.wins++;
                 spookyCaseCount++;
-                showToast(`🏆 ${currentSelectedBoss === 'phoenix' ? 'НЕОНОВЫЙ ФЕНИКС' : 'ТИТАН'} ПОВЕРЖЕН! +${650 * dropMultiplier} 🪙!`, '#ff7700');
+                showToast(`🏆 БОСС ПОВЕРЖЕН! +${700 * dropMultiplier} 🪙!`, '#ff7700');
                 updateQuestsProgress('q_boss', 1);
                 bossHp = bossMaxHp; bossShield = bossMaxShield;
                 isBossPhase2 = false;
@@ -2885,11 +3213,13 @@
           } else {
             if (p.mesh.position.distanceTo(playerGroup.position) < 1.4) {
               damagePlayer(isBossPhase2 ? 45 : 32);
+              disposeMesh(p.mesh);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
               continue;
             }
             if (p.mesh.position.distanceTo(new THREE.Vector3(0, 0, 0)) > 42) {
+              disposeMesh(p.mesh);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
             }
