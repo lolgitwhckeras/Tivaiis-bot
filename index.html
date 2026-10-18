@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN v1.2</title>
+  <title>CYBERCORE: TITAN v1.3 HALLOWEEN & GOLD</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -23,7 +23,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background-color: #0b071a;
+      background-color: #0d061c;
       color: #00ffcc;
       position: fixed;
       top: 0;
@@ -45,7 +45,7 @@
       height: 100%;
       z-index: 2;
       pointer-events: none;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 68, 0, 0.03), rgba(0, 255, 204, 0.01), rgba(255, 0, 85, 0.03));
       background-size: 100% 3px, 3px 100%;
       opacity: 0.35;
     }
@@ -55,8 +55,8 @@
       top: 90px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(8, 14, 30, 0.96);
-      border: 2px solid #00ffcc;
+      background: rgba(14, 8, 30, 0.96);
+      border: 2px solid #ff7700;
       border-radius: 8px;
       padding: 8px 18px;
       color: #fff;
@@ -65,7 +65,7 @@
       text-align: center;
       z-index: 3000;
       display: none;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+      box-shadow: 0 0 25px rgba(255, 119, 0, 0.5);
       pointer-events: none;
       max-width: 90vw;
       white-space: nowrap;
@@ -79,7 +79,7 @@
       width: 120px;
       height: 10px;
       background: rgba(0,0,0,0.85);
-      border: 1px solid #00ffcc;
+      border: 1px solid #ff7700;
       border-radius: 4px;
       display: none;
       z-index: 20;
@@ -89,10 +89,10 @@
     #mining-bar {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, #ff9900, #00ffcc);
+      background: linear-gradient(90deg, #ff7700, #ffd700);
     }
 
-    /* POTION BUFFS HUD (10 MINUTES) */
+    /* BUFF TRAY (10 MINUTES) */
     #buff-tray {
       position: absolute;
       top: 130px;
@@ -104,8 +104,8 @@
       pointer-events: none;
     }
     .buff-badge {
-      background: rgba(4, 9, 22, 0.9);
-      border: 1px solid #00ffcc;
+      background: rgba(8, 14, 30, 0.92);
+      border: 1px solid #ff7700;
       border-radius: 4px;
       padding: 3px 8px;
       font-size: 10px;
@@ -114,7 +114,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+      box-shadow: 0 0 8px rgba(255, 119, 0, 0.3);
     }
 
     #hud {
@@ -135,23 +135,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(8, 14, 30, 0.94);
-      border: 1px solid #00ffcc;
+      background: rgba(12, 10, 32, 0.94);
+      border: 1px solid #ff7700;
       border-radius: 8px;
       padding: 6px 10px;
-      box-shadow: 0 0 15px rgba(0, 255, 204, 0.35);
+      box-shadow: 0 0 15px rgba(255, 119, 0, 0.35);
       backdrop-filter: blur(8px);
       pointer-events: auto;
-      max-width: 880px;
+      max-width: 900px;
       margin: 36px auto 0;
       width: 100%;
       gap: 4px;
     }
 
     .nav-btn {
-      background: rgba(0, 255, 204, 0.12);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
+      background: rgba(255, 119, 0, 0.12);
+      border: 1px solid #ff7700;
+      color: #ffaa00;
       padding: 6px 8px;
       border-radius: 4px;
       font-size: 10px;
@@ -162,17 +162,17 @@
       gap: 3px;
     }
     .nav-btn:active { transform: scale(0.95); }
-    .nav-btn.active { background: #00ffcc; color: #000; box-shadow: 0 0 10px #00ffcc; }
+    .nav-btn.active { background: #ff7700; color: #000; box-shadow: 0 0 10px #ff7700; }
     .nav-btn.boss { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.15); }
     .nav-btn.boss.active { background: #ff0055; color: #fff; box-shadow: 0 0 12px #ff0055; }
     .nav-btn.craft { border-color: #ff9900; color: #ff9900; background: rgba(255, 153, 0, 0.15); }
-    .nav-btn.hero { border-color: #ffcc00; color: #ffcc00; background: rgba(255, 204, 0, 0.15); }
+    .nav-btn.hero { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.15); }
     .nav-btn.quest { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.15); }
     .nav-btn.cases { border-color: #e056fd; color: #e056fd; background: rgba(224, 86, 253, 0.15); }
     .nav-btn.menu { border-color: #8899aa; color: #fff; background: rgba(255, 255, 255, 0.1); }
     
     .version-tag {
-      background: #00ffcc;
+      background: #ff7700;
       color: #000;
       font-size: 9px;
       font-weight: 900;
@@ -182,10 +182,10 @@
 
     #status-bars {
       width: 100%;
-      max-width: 880px;
+      max-width: 900px;
       margin: 4px auto 0;
-      background: rgba(6, 10, 24, 0.94);
-      border: 1px solid #00ffcc;
+      background: rgba(10, 8, 28, 0.94);
+      border: 1px solid #ff7700;
       padding: 5px 8px;
       border-radius: 6px;
       pointer-events: auto;
@@ -201,27 +201,27 @@
     }
     .bar-fill-hp { height: 100%; width: 100%; background: #00ff66; transition: width 0.15s ease; }
     .bar-fill-hp.regen-active { box-shadow: 0 0 10px #00ff66; }
-    .bar-fill-boss-hp { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ffcc00); transition: width 0.1s; }
+    .bar-fill-boss-hp { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ff7700); transition: width 0.1s; }
     .bar-fill-boss-shield { height: 100%; width: 100%; background: linear-gradient(90deg, #0088ff, #00ffff); transition: width 0.1s; }
 
     #tip-banner {
       align-self: center;
       font-size: 11px;
       font-weight: bold;
-      background: rgba(0, 255, 204, 0.15);
-      border: 1px solid #00ffcc;
-      padding: 4px 10px;
+      background: rgba(255, 119, 0, 0.18);
+      border: 1px solid #ff7700;
+      padding: 4px 12px;
       border-radius: 4px;
       color: #fff;
       text-align: center;
-      box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+      box-shadow: 0 0 10px rgba(255, 119, 0, 0.3);
     }
 
     #interact-prompt {
       align-self: center;
-      background: rgba(255, 204, 0, 0.25);
-      border: 1px solid #ffcc00;
-      color: #ffcc00;
+      background: rgba(255, 119, 0, 0.28);
+      border: 1px solid #ff7700;
+      color: #ffaa00;
       padding: 5px 12px;
       border-radius: 6px;
       font-size: 11px;
@@ -236,7 +236,7 @@
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      max-width: 880px;
+      max-width: 900px;
       margin: 0 auto;
       pointer-events: none;
       margin-bottom: 2px;
@@ -249,26 +249,26 @@
       gap: 3px;
     }
     .touch-btn {
-      background: rgba(0, 255, 204, 0.15);
-      border: 1px solid #00ffcc;
+      background: rgba(255, 119, 0, 0.15);
+      border: 1px solid #ff7700;
       border-radius: 8px;
-      color: #00ffcc;
+      color: #ffaa00;
       font-size: 18px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .touch-btn.active-touch { background: #00ffcc; color: #000; }
+    .touch-btn.active-touch { background: #ff7700; color: #000; }
 
     .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 6px; }
     .act-btn {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: rgba(255, 204, 0, 0.15);
-      border: 1px solid #ffcc00;
-      color: #ffcc00;
+      background: rgba(255, 119, 0, 0.15);
+      border: 1px solid #ff7700;
+      color: #ffaa00;
       font-size: 9px;
       font-weight: bold;
       display: flex;
@@ -277,7 +277,7 @@
       justify-content: center;
       cursor: pointer;
     }
-    .act-btn.active-touch { background: #ffcc00; color: #000; transform: scale(0.92); }
+    .act-btn.active-touch { background: #ff7700; color: #000; transform: scale(0.92); }
     .act-btn.combat { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.2); }
     .act-btn.combat.active-touch { background: #ff0055; color: #fff; }
     .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
@@ -285,7 +285,7 @@
     .modal {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(3, 5, 14, 0.96);
+      background: rgba(6, 4, 16, 0.96);
       z-index: 2000;
       display: none;
       justify-content: center;
@@ -294,20 +294,20 @@
       backdrop-filter: blur(10px);
     }
     .modal-box {
-      width: 100%; max-width: 450px;
-      background: #081020;
-      border: 2px solid #00ffcc;
+      width: 100%; max-width: 460px;
+      background: #0f0a24;
+      border: 2px solid #ff7700;
       border-radius: 12px;
       padding: 16px;
       position: relative;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.35);
+      box-shadow: 0 0 30px rgba(255, 119, 0, 0.35);
       max-height: 90vh;
       overflow-y: auto;
     }
 
     .card-item {
-      background: #0c162b;
-      border: 1px solid #1c2e50;
+      background: #140d33;
+      border: 1px solid #281a54;
       border-radius: 8px;
       padding: 9px;
       margin: 7px 0;
@@ -316,7 +316,7 @@
       align-items: center;
     }
     .btn-action-small {
-      background: #ff9900;
+      background: #ff7700;
       border: none;
       color: #000;
       font-weight: 900;
@@ -329,7 +329,7 @@
     #start-menu {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at center, #130a2a 0%, #04050e 100%);
+      background: radial-gradient(circle at center, #260c38 0%, #06020c 100%);
       z-index: 1000;
       display: flex;
       flex-direction: column;
@@ -339,16 +339,16 @@
     }
     .menu-btn {
       width: 100%; max-width: 290px;
-      background: rgba(0, 255, 204, 0.12);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
+      background: rgba(255, 119, 0, 0.12);
+      border: 1px solid #ff7700;
+      color: #ffaa00;
       font-size: 13px; font-weight: 900;
       padding: 13px; margin: 6px 0;
       border-radius: 8px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .menu-btn:active { background: #00ffcc; color: #000; }
+    .menu-btn:active { background: #ff7700; color: #000; }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -361,11 +361,11 @@
 
   <!-- START MENU -->
   <div id="start-menu">
-    <div style="font-size:26px; font-weight:900; color:#00ffcc; text-shadow:0 0 20px #00ffcc; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN <span class="version-tag">v1.2</span>
+    <div style="font-size:26px; font-weight:900; color:#ff7700; text-shadow:0 0 20px #ff7700; margin-bottom:4px; text-align:center;">
+      CYBERCORE: TITAN <span class="version-tag">v1.3</span>
     </div>
-    <div style="font-size:11px; color:#ffcc00; margin-bottom:20px; letter-spacing:1px;">
-      TERRARIA 2D & FULL 3D BOSS PROTOCOL
+    <div style="font-size:11px; color:#ffd700; margin-bottom:20px; letter-spacing:1px;">
+      🎃 HALLOWEEN EVENT & GOLD MINING PROTOCOL
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
@@ -380,7 +380,7 @@
     <button class="menu-btn" style="border-color:#00ffff; color:#00ffff;" onclick="openQuestsMenu()">
       <span>📜</span> <span>КОНТРАКТЫ / КВЕСТЫ</span>
     </button>
-    <button class="menu-btn" style="border-color:#ffcc00; color:#ffcc00;" onclick="openHeroProfile()">
+    <button class="menu-btn" style="border-color:#ffd700; color:#ffd700;" onclick="openHeroProfile()">
       <span>👤</span> <span>КИБЕР-ПРОФИЛЬ ГЕРОЯ</span>
     </button>
   </div>
@@ -395,13 +395,14 @@
       <button class="nav-btn quest" onclick="openQuestsMenu()">📜</button>
       <button class="nav-btn cases" onclick="openCasesMenu()">📦</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
-      <span class="version-tag">v1.2</span>
+      <span class="version-tag">v1.3</span>
       <div style="font-size:10px; font-weight:bold;">
-        🪙 <span id="val-coins" style="color:#ffcc00;">100</span> | 
+        🪙 <span id="val-coins" style="color:#ffd700;">100</span> | 
+        🎃 <span id="val-pumpkins" style="color:#ff7700;">0</span> | 
         💎 <span id="val-ores" style="color:#00ffff;">0</span> | 
-        🧱 <span id="val-stone" style="color:#aaa;">0</span>
+        👑 <span id="val-gold" style="color:#ffd700;">0</span>
       </div>
-      <button class="nav-btn" id="btn-sync" style="background:#00ffcc; color:#000;">💾</button>
+      <button class="nav-btn" id="btn-sync" style="background:#ff7700; color:#000;">💾</button>
     </div>
 
     <div id="status-bars">
@@ -414,16 +415,16 @@
       </div>
       <div id="boss-hud-group" style="display:none; margin-top:4px;">
         <div style="display:flex; justify-content:space-between; font-size:10px;">
-          <span id="boss-name" style="color:#ff0055; font-weight:bold;">КИБЕР-ЦЕНТУРИОН MK-X</span>
-          <span id="boss-stage" style="color:#00ffff;">ЩИТ АКТИВЕН</span>
+          <span id="boss-name" style="color:#ff0055; font-weight:bold;">ТЫКВЕННЫЙ ТИТАН ЦЕНТУРИОН</span>
+          <span id="boss-stage" style="color:#ff7700;">ПЛАМЯ ТЫКВЫ</span>
         </div>
         <div class="bar-bg" style="height:5px;"><div class="bar-fill-boss-shield" id="boss-shield"></div></div>
         <div class="bar-bg" style="height:6px;"><div class="bar-fill-boss-hp" id="boss-hp"></div></div>
       </div>
     </div>
 
-    <div id="interact-prompt">⚗️ ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА [E]</div>
-    <div id="tip-banner">⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, БЕЙ МОБОВ КНОПКОЙ «УДАР»!</div>
+    <div id="interact-prompt">⚗️ ХЭЛЛОУИН-ЛАБОРАТОРИЯ [E]</div>
+    <div id="tip-banner">🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!</div>
 
     <div class="bottom-panel">
       <div class="dpad-cross" id="dpad-container">
@@ -455,38 +456,41 @@
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
       <h3 style="color:#ff9900; font-size:15px; margin-bottom:6px;">⚒️ КИБЕР-ВЕРСТАК КРАФТА</h3>
+      
+      <div class="card-item">
+        <div>
+          <div style="font-size:12px; font-weight:900; color:#ff7700;">🎃 Шлем: Неоновая Тыква</div>
+          <div style="font-size:10px; color:#ffd700;">🎃 6 Тыкв + 👑 2 Золота</div>
+          <div style="font-size:9px; color:#8fa5c4;">+25% урона и шанс крита!</div>
+        </div>
+        <button class="btn-action-small" onclick="craftItem('pumpkin_hat')">КРАФТ</button>
+      </div>
+
       <div class="card-item">
         <div>
           <div style="font-size:12px; font-weight:900; color:#00ffcc;">🗡️ Неоновый Клинок MK-2</div>
-          <div style="font-size:10px; color:#ffcc00;">💎 4 Руды + 🧱 8 Камня</div>
+          <div style="font-size:10px; color:#ffd700;">💎 4 Руды + 🧱 8 Камня</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('sword')">КРАФТ</button>
       </div>
       <div class="card-item">
         <div>
           <div style="font-size:12px; font-weight:900; color:#00ffcc;">🛡️ Титановый Экзо-Панцирь</div>
-          <div style="font-size:10px; color:#ffcc00;">💎 8 Руды + ⚙️ 2 Чипа</div>
+          <div style="font-size:10px; color:#ffd700;">💎 8 Руды + ⚙️ 2 Чипа</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('chest')">КРАФТ</button>
       </div>
       <div class="card-item">
         <div>
           <div style="font-size:12px; font-weight:900; color:#00ffcc;">🦿 Усиленный Гидро-Протез</div>
-          <div style="font-size:10px; color:#ffcc00;">💎 6 Руды + 🧱 12 Камня</div>
+          <div style="font-size:10px; color:#ffd700;">💎 6 Руды + 🧱 12 Камня</div>
         </div>
         <button class="btn-action-small" onclick="craftItem('leg')">КРАФТ</button>
-      </div>
-      <div class="card-item">
-        <div>
-          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🥽 Тактический Визор «Снайпер»</div>
-          <div style="font-size:10px; color:#ffcc00;">💎 5 Руды + 🪙 60 Монет</div>
-        </div>
-        <button class="btn-action-small" onclick="craftItem('visor')">КРАФТ</button>
       </div>
     </div>
   </div>
 
-  <!-- КВЕСТЫ / КОНТРАКТЫ -->
+  <!-- КВЕСТЫ -->
   <div class="modal" id="quests-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('quests-modal')">✕</button>
@@ -495,68 +499,72 @@
     </div>
   </div>
 
-  <!-- КЕЙСЫ (LOOTBOXES) -->
+  <!-- КЕЙСЫ (ОБЫЧНЫЙ И ХЭЛЛОУИНСКИЙ SPOOKY CASE) -->
   <div class="modal" id="cases-modal">
     <div class="modal-box" style="text-align:center;">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('cases-modal')">✕</button>
-      <h3 style="color:#e056fd; font-size:16px; margin-bottom:6px;">📦 КИБЕР-КЕЙС ТИТАНА</h3>
-      <p style="font-size:11px; color:#8fa5c4; margin-bottom:14px;">Кейсов в наличии: <b id="case-count-txt" style="color:#e056fd;">1</b></p>
+      <h3 style="color:#e056fd; font-size:16px; margin-bottom:4px;">📦 КИБЕР-КЕЙСЫ</h3>
+      <div style="font-size:11px; color:#8fa5c4; margin-bottom:12px;">
+        Обычные: <b id="case-count-txt" style="color:#e056fd;">1</b> | 
+        Хэллоуинские: <b id="spooky-case-count-txt" style="color:#ff7700;">1</b>
+      </div>
       
-      <div style="width:100px; height:100px; margin:0 auto 16px; border:2px dashed #e056fd; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:42px; background:rgba(224, 86, 253, 0.1);" id="box-anim-target">
-        📦
+      <div style="width:100px; height:100px; margin:0 auto 12px; border:2px dashed #ff7700; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:42px; background:rgba(255, 119, 0, 0.1);" id="box-anim-target">
+        🎃
       </div>
 
-      <div style="display:flex; gap:8px; justify-content:center;">
-        <button class="btn-action-small" style="background:#e056fd; color:#fff;" onclick="openCyberCase()">ОТКРЫТЬ КЕЙС</button>
-        <button class="btn-action-small" style="background:#ffcc00; color:#000;" onclick="buyCyberCase()">КУПИТЬ (150 🪙)</button>
+      <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+        <button class="btn-action-small" style="background:#e056fd; color:#fff;" onclick="openCyberCase('normal')">ОТКРЫТЬ КЕЙС</button>
+        <button class="btn-action-small" style="background:#ff7700; color:#000;" onclick="openCyberCase('spooky')">🎃 SPOOKY КЕЙС</button>
+        <button class="btn-action-small" style="background:#ffd700; color:#000;" onclick="buyCyberCase()">КУПИТЬ (150 🪙)</button>
       </div>
-      <div id="case-reward-txt" style="margin-top:14px; font-size:12px; font-weight:bold; color:#00ffcc; min-height:16px;"></div>
+      <div id="case-reward-txt" style="margin-top:12px; font-size:12px; font-weight:bold; color:#00ffcc; min-height:16px;"></div>
     </div>
   </div>
 
-  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА (ЗЕЛЬЯ НА 10 МИНУТ) -->
+  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА (С ЭЛИКСИРОМ БЕЗУМИЯ) -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-        <span style="font-size:32px;">⚗️</span>
+        <span style="font-size:32px;">🎃</span>
         <div>
-          <h3 style="color:#ffcc00; font-size:15px;">УОЛТЕР «ХАЙЗЕНБЕРГ» ВАКАСИ</h3>
-          <span style="font-size:10px; color:#00ffff;">Архитектор Неонового Синтеза</span>
+          <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ [ХЭЛЛОУИН-ЭДИШН]</h3>
+          <span style="font-size:10px; color:#ff7700;">Синтез Тыквенного Экстракта 99.1%</span>
         </div>
       </div>
       <p style="font-size:11px; line-height:1.5; color:#cbd9ec; margin-bottom:10px;">
-        "Say my name... Мои формулы чистейшие на 99.1%. Каждое зелье действует ровно 10 минут реального времени и работает даже в арене босса!"
+        "Сладость или кибер-смерть? Мои сезонные зелья действуют 10 минут реального времени и работают во всех режимах!"
       </p>
 
       <div class="card-item">
         <div>
+          <div style="font-size:12px; font-weight:bold; color:#ff7700;">🎃 Эликсир Тыквенного Безумия (10 мин)</div>
+          <div style="font-size:10px; color:#8fa5c4;">Огненный след +40% скор +35 урон | 🎃 4 Тыквы</div>
+        </div>
+        <button class="btn-action-small" onclick="buyPotion('pumpkin_madness')">СВАРИТЬ</button>
+      </div>
+
+      <div class="card-item">
+        <div>
           <div style="font-size:12px; font-weight:bold; color:#00e5ff;">🧪 Зелье Силы «Blue Sky» (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">+50 к урону всех атак | Цена: 💎 3 Руды</div>
+          <div style="font-size:10px; color:#8fa5c4;">+50 к урону | 💎 3 Руды</div>
         </div>
         <button class="btn-action-small" onclick="buyPotion('strength')">СВАРИТЬ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:bold; color:#ffcc00;">⚡ Зелье Скорости «Overdrive» (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">+45% скорости бега | Цена: 💎 3 Руды</div>
+          <div style="font-size:12px; font-weight:bold; color:#ffd700;">⚡ Зелье Скорости «Overdrive» (10 мин)</div>
+          <div style="font-size:10px; color:#8fa5c4;">+45% скорости бега | 💎 3 Руды</div>
         </div>
         <button class="btn-action-small" onclick="buyPotion('speed')">СВАРИТЬ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:bold; color:#ff0055;">🛡️ Зелье Титана «Химзащита» (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">+50% поглощения урона + реген | Цена: 💎 4 Руды</div>
-        </div>
-        <button class="btn-action-small" onclick="buyPotion('titan')">СВАРИТЬ</button>
-      </div>
-
-      <div class="card-item">
-        <div>
           <div style="font-size:12px; font-weight:bold; color:#00ff66;">🪙 Зелье Удачи «Жадность» (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">x2 дроп монет и руды | Цена: 💎 4 Руды</div>
+          <div style="font-size:10px; color:#8fa5c4;">x2 дроп монет, золота и руды | 💎 4 Руды</div>
         </div>
         <button class="btn-action-small" onclick="buyPotion('greed')">СВАРИТЬ</button>
       </div>
@@ -567,12 +575,12 @@
   <div class="modal" id="hero-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
-      <h3 style="color:#ffcc00; font-size:15px; margin-bottom:10px;">КИБЕР-ПРОФИЛЬ ГЕРОЯ</h3>
-      <div style="background:#0b1426; border:1px solid #182845; border-radius:8px; padding:10px; margin-bottom:10px;">
-        <div style="font-size:14px; font-weight:900; color:#00ffcc;">Tivaiis [Cyber-Titan]</div>
-        <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:#ffcc00; font-weight:bold;">1</span></div>
+      <h3 style="color:#ffaa00; font-size:15px; margin-bottom:10px;">КИБЕР-ПРОФИЛЬ ГЕРОЯ</h3>
+      <div style="background:#130b2e; border:1px solid #ff7700; border-radius:8px; padding:10px; margin-bottom:10px;">
+        <div style="font-size:14px; font-weight:900; color:#ff7700;">Tivaiis [Cyber-Titan]</div>
+        <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:#ffd700; font-weight:bold;">1</span></div>
         <div class="bar-bg" style="height:6px; margin-top:4px;">
-          <div id="ui-exp-fill" style="height:100%; width:15%; background:#00ffcc;"></div>
+          <div id="ui-exp-fill" style="height:100%; width:15%; background:#ff7700;"></div>
         </div>
         <div style="font-size:9px; color:#6b829e; text-align:right; margin-top:2px;">
           <span id="ui-exp-cur">15</span> / <span id="ui-exp-max">100</span> EXP
@@ -586,7 +594,7 @@
           <div style="font-size:11px; color:#8fa5c4;">Победы: <b id="stat-wins" style="color:#ffe600;">0</b></div>
         </div>
       </div>
-      <div style="font-size:12px; font-weight:bold; color:#ffcc00; margin-bottom:6px;">
+      <div style="font-size:12px; font-weight:bold; color:#ffaa00; margin-bottom:6px;">
         Очки развития: <span id="ui-stat-pts" style="font-size:14px; color:#00ffcc;">0</span>
       </div>
       <div class="card-item" style="padding:6px 10px;">
@@ -621,7 +629,7 @@
     }
 
     let toastTimer = null;
-    function showToast(text, color = '#00ffcc') {
+    function showToast(text, color = '#ff7700') {
       const el = document.getElementById('toast-banner');
       el.innerText = text;
       el.style.borderColor = color;
@@ -664,33 +672,36 @@
       gem() { this.beep(1200, 0.18, 'sine', 1600, 0.2); },
       laser() { this.beep(850, 0.12, 'sawtooth', 180, 0.2); },
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
+      pumpkinSmash() { this.beep(350, 0.2, 'square', 80, 0.25); },
       craft() { [300, 450, 600, 900].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70)); },
       lvlUp() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80)); }
     };
 
     // ==========================================
-    // STATE & LOCALSTORAGE AUTOSAVE (v1.2)
+    // ИГРОВОЙ СТЕЙТ И АВТОСОХРАНЕНИЕ
     // ==========================================
     let coins = 100;
     let ores = 0;
     let stones = 0;
     let chips = 1;
+    let pumpkins = 0;
+    let gold = 0;
     let caseCount = 1;
+    let spookyCaseCount = 1;
 
-    // Зелья на 10 минут (в секундах)
     const activeBuffs = {
       strength: 0,
       speed: 0,
       titan: 0,
-      greed: 0
+      greed: 0,
+      pumpkin_madness: 0
     };
 
-    // Квесты
     const Quests = [
-      { id: 'q_ore', title: '⛏️ Первая руда', desc: 'Добыть 5 неоновой руды', cur: 0, max: 5, rewardCoins: 120, rewardCase: 1, done: false },
-      { id: 'q_drone', title: '💥 Охотник на дронов', desc: 'Уничтожить 4 патрульных дрона', cur: 0, max: 4, rewardCoins: 160, rewardCase: 1, done: false },
-      { id: 'q_potion', title: '⚗️ Секреты Хайзенберга', desc: 'Сварить любое 10-минутное зелье', cur: 0, max: 1, rewardCoins: 100, rewardCase: 0, done: false },
-      { id: 'q_boss', title: '🏆 Падение Титана', desc: 'Победить Центуриона MK-X в 3D', cur: 0, max: 1, rewardCoins: 500, rewardCase: 2, done: false }
+      { id: 'q_pumpkin', title: '🎃 Тыквенный Сборщик', desc: 'Срубить 4 кибер-тыквы на поверхности', cur: 0, max: 4, rewardCoins: 150, rewardCase: 1, done: false },
+      { id: 'q_gold', title: '👑 Золотая Лихорадка', desc: 'Добыть 3 золотые жилы в глубинах', cur: 0, max: 3, rewardCoins: 200, rewardCase: 1, done: false },
+      { id: 'q_drone', title: '💥 Охотник на Дронов', desc: 'Уничтожить 4 тыквенных дрона', cur: 0, max: 4, rewardCoins: 180, rewardCase: 1, done: false },
+      { id: 'q_boss', title: '🏆 Падение Тыквенного Титана', desc: 'Победить Центуриона в 3D', cur: 0, max: 1, rewardCoins: 600, rewardCase: 2, done: false }
     ];
 
     const Hero = {
@@ -709,7 +720,8 @@
         sword: "Кибер-Клинок MK.1",
         chest: "Обычная одежда",
         leg: "Хромовый протез",
-        visor: "Нет"
+        visor: "Нет",
+        helmet: "Нет" // pumpkin_hat
       },
       craftBonusDmg: 0,
       craftBonusHp: 0,
@@ -725,22 +737,27 @@
           this.statPoints += 3;
           AudioEngine.lvlUp();
           haptic('success');
-          showToast(`🎉 НОВЫЙ КИБЕР-УРОВЕНЬ: ${this.level}! (+3 очка)`, '#ffcc00');
+          showToast(`🎉 НОВЫЙ УРОВЕНЬ: ${this.level}! (+3 очка)`, '#ffd700');
         }
         updateHeroUI();
         saveGameData();
       },
 
       getMinDmg() { 
-        const pDmg = activeBuffs.strength > 0 ? 50 : 0;
-        return 50 + this.str * 8 + this.craftBonusDmg + pDmg; 
+        const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
+        const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
+        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg; 
       },
       getMaxDmg() { 
-        const pDmg = activeBuffs.strength > 0 ? 50 : 0;
-        return 70 + this.str * 8 + this.craftBonusDmg + pDmg; 
+        const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
+        const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
+        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg; 
       },
       getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp; },
-      getCritChance() { return 5 + this.acc * 2 + this.craftBonusCrit; },
+      getCritChance() { 
+        const helmCrit = this.equipped.helmet === 'pumpkin_hat' ? 15 : 0;
+        return 5 + this.acc * 2 + this.craftBonusCrit + helmCrit; 
+      },
       getDodgeChance() { return this.agi * 2 + this.craftBonusDodge; },
       getArmorReduction() { 
         const pDef = activeBuffs.titan > 0 ? 30 : 0;
@@ -750,7 +767,7 @@
 
     function saveGameData() {
       const data = {
-        coins, ores, stones, chips, caseCount,
+        coins, ores, stones, chips, pumpkins, gold, caseCount, spookyCaseCount,
         activeBuffs,
         hero: {
           level: Hero.level, exp: Hero.exp, expMax: Hero.expMax, statPoints: Hero.statPoints,
@@ -759,24 +776,28 @@
         },
         quests: Quests.map(q => ({ id: q.id, cur: q.cur, done: q.done }))
       };
-      localStorage.setItem('CYBERCORE_TITAN_SAVE_v12', JSON.stringify(data));
+      localStorage.setItem('CYBERCORE_TITAN_SAVE_v13', JSON.stringify(data));
     }
 
     function loadGameData() {
       try {
-        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v12');
+        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v13');
         if (!raw) return;
         const d = JSON.parse(raw);
         coins = d.coins ?? coins;
         ores = d.ores ?? ores;
         stones = d.stones ?? stones;
         chips = d.chips ?? chips;
+        pumpkins = d.pumpkins ?? pumpkins;
+        gold = d.gold ?? gold;
         caseCount = d.caseCount ?? caseCount;
+        spookyCaseCount = d.spookyCaseCount ?? spookyCaseCount;
         if (d.activeBuffs) Object.assign(activeBuffs, d.activeBuffs);
         if (d.hero) {
           Object.assign(Hero, d.hero);
           if (Hero.equipped?.chest && Hero.equipped.chest !== "Обычная одежда") armorPlateMesh.visible = true;
           if (Hero.equipped?.visor && Hero.equipped.visor !== "Нет") helmetVisorMesh.visible = true;
+          if (Hero.equipped?.helmet === 'pumpkin_hat') pumpkinHatMesh.visible = true;
         }
         if (d.quests) {
           d.quests.forEach(sq => {
@@ -806,9 +827,9 @@
       banner.innerText = text;
       if (tipClearTimer) clearTimeout(tipClearTimer);
       tipClearTimer = setTimeout(() => {
-        if (mode === 'world') banner.innerText = "⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, БЕЙ МОБОВ КНОПКОЙ «УДАР»!";
+        if (mode === 'world') banner.innerText = "🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!";
         else if (mode === 'boss') banner.innerText = "⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!";
-      }, 2000);
+      }, 2200);
     }
 
     function updateHeroUI() {
@@ -831,9 +852,11 @@
       document.getElementById('val-agi').innerText = Hero.agi;
 
       document.getElementById('val-coins').innerText = coins;
+      document.getElementById('val-pumpkins').innerText = pumpkins;
       document.getElementById('val-ores').innerText = ores;
-      document.getElementById('val-stone').innerText = stones;
+      document.getElementById('val-gold').innerText = gold;
       document.getElementById('case-count-txt').innerText = caseCount;
+      document.getElementById('spooky-case-count-txt').innerText = spookyCaseCount;
       updatePlayerHpBar();
     }
 
@@ -844,7 +867,7 @@
       bar.style.width = `${pct}%`;
       document.getElementById('player-hp-txt').innerText = `${Math.round(currentHp)} / ${maxHp}`;
       if (pct < 30) bar.style.background = '#ff0055';
-      else if (pct < 60) bar.style.background = '#ffcc00';
+      else if (pct < 60) bar.style.background = '#ffaa00';
       else bar.style.background = '#00ff66';
     }
 
@@ -899,7 +922,7 @@
       switchMode('world');
     }
 
-    // ТАЙМЕРЫ ЗЕЛИЙ НА 10 МИНУТ
+    // ТАЙМЕРЫ ЗЕЛИЙ
     setInterval(() => {
       let changed = false;
       for (const k in activeBuffs) {
@@ -918,7 +941,8 @@
         strength: { icon: '🗡️', name: 'СИЛА' },
         speed: { icon: '⚡', name: 'СКОРОСТЬ' },
         titan: { icon: '🛡️', name: 'ТИТАН' },
-        greed: { icon: '🪙', name: 'УДАЧА' }
+        greed: { icon: '🪙', name: 'УДАЧА' },
+        pumpkin_madness: { icon: '🎃', name: 'ТЫКВА' }
       };
       for (const k in activeBuffs) {
         if (activeBuffs[k] > 0) {
@@ -934,25 +958,32 @@
     }
 
     window.buyPotion = function(type) {
-      const costs = { strength: 3, speed: 3, titan: 4, greed: 4 };
-      if (ores < costs[type]) {
-        showToast(`Не хватает руды! Нужно 💎 ${costs[type]} шт.`, '#ff0055');
-        return;
+      if (type === 'pumpkin_madness') {
+        if (pumpkins < 4) {
+          showToast(`Нужно 🎃 4 Тыквы! Сруби их на поверхности.`, '#ff7700');
+          return;
+        }
+        pumpkins -= 4;
+      } else {
+        const costs = { strength: 3, speed: 3, greed: 4 };
+        if (ores < costs[type]) {
+          showToast(`Не хватает руды! Нужно 💎 ${costs[type]} шт.`, '#ff0055');
+          return;
+        }
+        ores -= costs[type];
       }
-      ores -= costs[type];
-      activeBuffs[type] = 600; // 10 МИНУТ РОВНО
+      activeBuffs[type] = 600; // 10 МИНУТ
       AudioEngine.craft();
       haptic('success');
-      showToast(`⚗️ СВАРЕНО: Эффект действует ровно 10 минут!`, '#00ffcc');
+      showToast(`⚗️ СВАРЕНО: Бафф активен ровно 10 минут!`, '#ffaa00');
       updateHeroUI();
       updateBuffTrayUI();
-      updateQuestsProgress('q_potion', 1);
       closeModal('dialogue-modal');
       saveGameData();
     };
 
     // ==========================================
-    // ЛУТБОКСЫ (КИБЕР-КЕЙСЫ)
+    // ЛУТБОКСЫ (КЕЙСЫ)
     // ==========================================
     window.openCasesMenu = function() {
       updateHeroUI();
@@ -974,12 +1005,14 @@
       saveGameData();
     };
 
-    window.openCyberCase = function() {
-      if (caseCount <= 0) {
-        showToast("У вас нет кейсов! Купите или выполните квест.", '#ff0055');
-        return;
+    window.openCyberCase = function(type) {
+      if (type === 'normal') {
+        if (caseCount <= 0) { showToast("Нет обычных кейсов! Купи за 150 монет.", '#ff0055'); return; }
+        caseCount--;
+      } else {
+        if (spookyCaseCount <= 0) { showToast("Нет Spooky-кейсов! Добудь за победу над боссом или квесты.", '#ff7700'); return; }
+        spookyCaseCount--;
       }
-      caseCount--;
       updateHeroUI();
 
       const box = document.getElementById('box-anim-target');
@@ -992,28 +1025,37 @@
         AudioEngine.craft();
         haptic('success');
 
-        const roll = Math.random();
-        if (roll < 0.4) {
-          coins += 180;
-          res.innerText = "🎁 ВЫПАЛО: +180 🪙 МОНЕТ!";
-        } else if (roll < 0.7) {
-          ores += 5;
-          res.innerText = "🎁 ВЫПАЛО: +5 💎 ЧИСТОЙ РУДЫ!";
-        } else if (roll < 0.9) {
-          chips += 2; Hero.addExp(75);
-          res.innerText = "🎁 ВЫПАЛО: +2 ⚙️ ЧИПА И +75 EXP!";
+        if (type === 'spooky') {
+          const roll = Math.random();
+          if (roll < 0.45) {
+            coins += 250; pumpkins += 5;
+            res.innerText = "🎃 ВЫПАЛО: +250 🪙 И +5 ТЫКВ!";
+          } else if (roll < 0.8) {
+            gold += 4; Hero.addExp(100);
+            res.innerText = "👑 ВЫПАЛО: +4 ЗОЛОТА И +100 EXP!";
+          } else {
+            Hero.equipped.helmet = 'pumpkin_hat';
+            pumpkinHatMesh.visible = true;
+            res.innerText = "🌟 ЭКСКЛЮЗИВ: ШЛЕМ НЕОНОВОЙ ТЫКВЫ (+25% УРОНА)!";
+          }
         } else {
-          Hero.statPoints += 2;
-          res.innerText = "🌟 ДЖЕКПОТ: +2 ОЧКА РАЗВИТИЯ ГЕРОЯ!";
+          const roll = Math.random();
+          if (roll < 0.4) {
+            coins += 180; res.innerText = "🎁 ВЫПАЛО: +180 🪙 МОНЕТ!";
+          } else if (roll < 0.7) {
+            ores += 5; res.innerText = "🎁 ВЫПАЛО: +5 💎 ЧИСТОЙ РУДЫ!";
+          } else if (roll < 0.9) {
+            chips += 2; Hero.addExp(75); res.innerText = "🎁 ВЫПАЛО: +2 ⚙️ ЧИПА И +75 EXP!";
+          } else {
+            Hero.statPoints += 2; res.innerText = "🌟 ДЖЕКПОТ: +2 ОЧКА РАЗВИТИЯ ГЕРОЯ!";
+          }
         }
         updateHeroUI();
         saveGameData();
       }, 700);
     };
 
-    // ==========================================
-    // КВЕСТЫ (UI)
-    // ==========================================
+    // КВЕСТЫ
     window.openQuestsMenu = function() {
       renderQuestsList();
       document.getElementById('quests-modal').style.display = 'flex';
@@ -1036,9 +1078,9 @@
 
         item.innerHTML = `
           <div>
-            <div style="font-size:12px; font-weight:bold; color:#00ffcc;">${q.title}</div>
+            <div style="font-size:12px; font-weight:bold; color:#ffaa00;">${q.title}</div>
             <div style="font-size:10px; color:#8fa5c4;">${q.desc}</div>
-            <div style="font-size:9px; color:#ffcc00; margin-top:2px;">Награда: +${q.rewardCoins} 🪙 ${q.rewardCase > 0 ? '+'+q.rewardCase+' 📦' : ''}</div>
+            <div style="font-size:9px; color:#ffd700; margin-top:2px;">Награда: +${q.rewardCoins} 🪙 ${q.rewardCase > 0 ? '+'+q.rewardCase+' 📦' : ''}</div>
           </div>
           <div>${btnHtml}</div>
         `;
@@ -1051,10 +1093,10 @@
       if (q && !q.done && q.cur >= q.max) {
         q.done = true;
         coins += q.rewardCoins;
-        caseCount += q.rewardCase;
+        spookyCaseCount += q.rewardCase;
         AudioEngine.gem();
         haptic('success');
-        showToast(`📜 КОНТРАКТ ЗАКРЫТ: +${q.rewardCoins} 🪙 получено!`, '#00ffcc');
+        showToast(`📜 КОНТРАКТ ЗАКРЫТ: +${q.rewardCoins} 🪙!`, '#ffaa00');
         renderQuestsList();
         updateHeroUI();
         saveGameData();
@@ -1100,87 +1142,96 @@
     };
 
     window.craftItem = function(type) {
-      if (type === 'sword') {
-        if (ores < 4 || stones < 8) { showToast("Не хватает ресурсов! Нужно 4 руды и 8 камня.", '#ff0055'); return; }
+      if (type === 'pumpkin_hat') {
+        if (pumpkins < 6 || gold < 2) { showToast("Нужно 🎃 6 Тыкв и 👑 2 Золота!", '#ff7700'); return; }
+        pumpkins -= 6; gold -= 2;
+        Hero.equipped.helmet = 'pumpkin_hat';
+        pumpkinHatMesh.visible = true;
+        showToast("🎃 ЭКИПИРОВАН ШЛЕМ НЕОНОВОЙ ТЫКВЫ (+25% УРОНА)!", '#ff7700');
+      } else if (type === 'sword') {
+        if (ores < 4 || stones < 8) { showToast("Нужно 4 руды и 8 камня.", '#ff0055'); return; }
         ores -= 4; stones -= 8;
         Hero.equipped.sword = "Неоновый Клинок MK-2";
         Hero.craftBonusDmg = 25;
         swordMesh.material.color.setHex(0x00ffcc);
       } else if (type === 'chest') {
-        if (ores < 8 || chips < 2) { showToast("Не хватает ресурсов! Нужно 8 руды и 2 чипа.", '#ff0055'); return; }
+        if (ores < 8 || chips < 2) { showToast("Нужно 8 руды и 2 чипа.", '#ff0055'); return; }
         ores -= 8; chips -= 2;
         Hero.equipped.chest = "Титановый Экзо-Панцирь";
         Hero.craftBonusHp = 80;
         armorPlateMesh.visible = true;
       } else if (type === 'leg') {
-        if (ores < 6 || stones < 12) { showToast("Не хватает ресурсов! Нужно 6 руды и 12 камня.", '#ff0055'); return; }
+        if (ores < 6 || stones < 12) { showToast("Нужно 6 руды и 12 камня.", '#ff0055'); return; }
         ores -= 6; stones -= 12;
         Hero.equipped.leg = "Усиленный Гидро-Протез";
         Hero.craftBonusDodge = 15;
-      } else if (type === 'visor') {
-        if (ores < 5 || coins < 60) { showToast("Не хватает ресурсов! Нужно 5 руды и 60 монет.", '#ff0055'); return; }
-        ores -= 5; coins -= 60;
-        Hero.equipped.visor = "Визор Снайпер";
-        Hero.craftBonusCrit = 15;
-        helmetVisorMesh.visible = true;
       }
       Hero.addExp(50);
       AudioEngine.craft();
       haptic('success');
-      showToast(`⚒️ УСПЕШНО СКРАФЧЕНО!`, '#00ffcc');
       updateHeroUI();
       saveGameData();
     };
 
-    // --- THREE.JS SCENE ---
+    // --- THREE.JS СЦЕНА ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x130a2a, 0.018);
+    scene.fog = new THREE.FogExp2(0x180824, 0.018); // Праздничный фиолетово-тыквенный туман
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
-    renderer.setClearColor(0x130a2a);
+    renderer.setClearColor(0x180824);
     container.appendChild(renderer.domElement);
 
+    // ФОН: КРОВАВО-ОРАНЖЕВАЯ ЛУНА С КОЛЬЦОМ
     const skyGroup = new THREE.Group();
     scene.add(skyGroup);
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(18, 32, 32), new THREE.MeshBasicMaterial({ color: 0x9900ff }));
-    moon.position.set(-25, 22, -65);
-    skyGroup.add(moon);
+    
+    const spookyMoon = new THREE.Mesh(
+      new THREE.SphereGeometry(19, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff4400 }) // Огненно-оранжевая луна
+    );
+    spookyMoon.position.set(-25, 22, -65);
+    skyGroup.add(spookyMoon);
+
+    const moonRing = new THREE.Mesh(
+      new THREE.RingGeometry(23, 29, 32).rotateX(Math.PI / 2.3),
+      new THREE.MeshBasicMaterial({ color: 0xff7700, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
+    );
+    moonRing.position.copy(spookyMoon.position);
+    skyGroup.add(moonRing);
 
     for (let i = 0; i < 40; i++) {
       const bGeo = new THREE.BoxGeometry(5 + Math.random()*5, 25 + Math.random()*45, 6);
-      const b = new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0x0e1526, roughness: 0.3 }));
+      const b = new THREE.Mesh(bGeo, new THREE.MeshStandardMaterial({ color: 0x140a24, roughness: 0.3 }));
       b.position.set((Math.random() - 0.5) * 200, 10, -35 - Math.random() * 40);
       skyGroup.add(b);
     }
 
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
+    const ambLight = new THREE.AmbientLight(0xffeedd, 0.95);
     scene.add(ambLight);
-    const sunLight = new THREE.DirectionalLight(0x00ffcc, 1.3);
+    const sunLight = new THREE.DirectionalLight(0xff7700, 1.3);
     sunLight.position.set(15, 30, 20);
     scene.add(sunLight);
 
     // ==========================================
-    // ДЕТАЛИЗИРОВАННЫЙ ИГРОК: БЕЛЫЙ ЧЕЛОВЕК, БРЮНЕТ СО ШРАМОМ
+    // ДЕТАЛИЗИРОВАННЫЙ ИГРОК
     // ==========================================
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
 
-    const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 }); // Белая человеческая кожа
-    const matHair = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.8 }); // Брюнет (темные волосы)
+    const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.8 });
     const matJacket = new THREE.MeshStandardMaterial({ color: 0x141b29 });
     const matPants = new THREE.MeshStandardMaterial({ color: 0x0b0f17 });
     const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0xb0c0d0, metalness: 0.95 });
 
-    // Голова
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.46, 0.42), matSkin);
     head.position.y = 1.48;
     playerGroup.add(head);
 
-    // Глаза
     const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.02), new THREE.MeshBasicMaterial({ color: 0x111111 }));
     eyeL.position.set(-0.11, 1.5, 0.22);
     playerGroup.add(eyeL);
@@ -1188,19 +1239,30 @@
     eyeR.position.set(0.11, 1.5, 0.22);
     playerGroup.add(eyeR);
 
-    // Боевой кибер-шрам через правый глаз
+    // Шрам через глаз
     const scarMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.22, 0.02), new THREE.MeshBasicMaterial({ color: 0xc0392b }));
     scarMesh.position.set(0.11, 1.5, 0.222);
     scarMesh.rotation.z = -0.25;
     playerGroup.add(scarMesh);
 
-    // Причёска брюнета
+    // Волосы брюнета
     const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.44), matHair);
     hairTop.position.set(0, 1.72, 0);
     playerGroup.add(hairTop);
     const hairBangs = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.1, 0.08), matHair);
     hairBangs.position.set(0, 1.64, 0.2);
     playerGroup.add(hairBangs);
+
+    // ШЛЕМ НЕОНОВОЙ ТЫКВЫ (ЭКСКЛЮЗИВ)
+    const pumpkinHatMesh = new THREE.Group();
+    const pHatBase = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.4 }));
+    pumpkinHatMesh.add(pHatBase);
+    const pHatFace = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.15, 0.04), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
+    pHatFace.position.set(0, 0, 0.31);
+    pumpkinHatMesh.add(pHatFace);
+    pumpkinHatMesh.position.set(0, 1.6, 0);
+    pumpkinHatMesh.visible = false;
+    playerGroup.add(pumpkinHatMesh);
 
     const helmetVisorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.16, 0.26), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
     helmetVisorMesh.position.set(0, 1.5, 0.16);
@@ -1251,8 +1313,11 @@
     legLeftCyber.position.set(-0.16, 0.6, 0);
     playerGroup.add(legLeftCyber);
 
+    // Огненные искры следа от зелья безумия
+    const fireParticles = [];
+
     // ==========================================
-    // 2D ЧАНКИ
+    // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ И РУДА
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -1260,10 +1325,14 @@
     const BLOCK_SIZE = 1.0;
     const blockGeo = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, 0.6);
     const matDirt = new THREE.MeshStandardMaterial({ color: 0x241812, roughness: 0.8 });
-    const matGrass = new THREE.MeshStandardMaterial({ color: 0x00cc66, roughness: 0.6 });
+    const matGrass = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.6 });
     const matStone = new THREE.MeshStandardMaterial({ color: 0x141e30, roughness: 0.7 });
     const matOre = new THREE.MeshStandardMaterial({ color: 0x00e1ff, emissive: 0x00aacc, emissiveIntensity: 0.7 });
+    const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2, emissive: 0xaa8800, emissiveIntensity: 0.5 });
     const matBedrock = new THREE.MeshStandardMaterial({ color: 0x05070a });
+
+    // Материал кибер-тыквы
+    const matPumpkin = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, emissive: 0x441100 });
 
     const blockMap = new Map();
     const columnBlockRegistry = new Map();
@@ -1286,18 +1355,39 @@
         if (gy === -18) { mat = matBedrock; type = 'bedrock'; }
         else if (gy === surfaceY) { mat = matGrass; type = 'grass'; }
         else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
+        else if (gy < -6 && Math.random() < 0.12) { mat = matGold; type = 'gold'; } // ЗОЛОТЫЕ ЖИЛЫ В ГЛУБИНАХ
         else if (Math.random() < 0.13) { mat = matOre; type = 'ore'; }
 
+        // Пещеры
         if (gy > -18 && gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
         b.position.set(gx * BLOCK_SIZE, gy * BLOCK_SIZE, 0);
-        b.userData = { gx, gy, type, hp: type === 'ore' ? 3 : (type === 'stone' ? 2 : 1) };
+        b.userData = { gx, gy, type, hp: type === 'gold' ? 4 : (type === 'ore' ? 3 : (type === 'stone' ? 2 : 1)) };
         worldGroup.add(b);
         activeBlocks.push(b);
         blockMap.set(`${gx},${gy}`, b);
         colList.push(b);
       }
+
+      // Спавн светящейся кибер-тыквы на поверхности
+      if (Math.abs(gx) > 3 && Math.random() < 0.16) {
+        const pBlock = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.85, 0.5), matPumpkin);
+        const pgy = surfaceY + 1;
+        pBlock.position.set(gx * BLOCK_SIZE, pgy * BLOCK_SIZE, 0);
+        pBlock.userData = { gx, gy: pgy, type: 'pumpkin', hp: 2 };
+
+        // Вырезанное лицо
+        const pEyes = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
+        pEyes.position.set(0, 0, 0.26);
+        pBlock.add(pEyes);
+
+        worldGroup.add(pBlock);
+        activeBlocks.push(pBlock);
+        blockMap.set(`${gx},${pgy}`, pBlock);
+        colList.push(pBlock);
+      }
+
       columnBlockRegistry.set(gx, colList);
     }
 
@@ -1316,7 +1406,7 @@
     }
 
     // ==========================================
-    // МОБЫ: ВРАЖЕСКИЕ, НЕЙТРАЛЬНЫЕ И МИРНЫЕ
+    // ХЭЛЛОУИНСКИЕ МОБЫ И КРОЛИКИ
     // ==========================================
     const worldEnemies = [];
     const passiveMobs = [];
@@ -1326,17 +1416,19 @@
       const spawnY = surfaceY + 2.0;
 
       const eg = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: 0xff0055 }));
+      // Оранжевый тыквенный корпус дрона
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3 }));
       eg.add(body);
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffcc00 }));
-      eye.position.set(0, 0, 0.35);
+      // Злые светящиеся жёлтые глаза
+      const eye = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
+      eye.position.set(0, 0, 0.38);
       eg.add(eye);
 
       eg.position.set(x, spawnY, 0);
       eg.userData = {
         type: 'hostile',
-        hp: 75 + Hero.level * 20,
-        maxHp: 75 + Hero.level * 20,
+        hp: 80 + Hero.level * 22,
+        maxHp: 80 + Hero.level * 22,
         speed: 0.045,
         attackCooldown: 0
       };
@@ -1344,16 +1436,15 @@
       worldEnemies.push(eg);
     }
 
-    // Мирный Кибер-Кролик
     function spawnPassiveBunny(x) {
       const surfaceY = getSurfaceY(Math.round(x));
       const bg = new THREE.Group();
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.3), new THREE.MeshStandardMaterial({ color: 0xffffff }));
       bg.add(body);
-      const earL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+      const earL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
       earL.position.set(-0.1, 0.25, 0);
       bg.add(earL);
-      const earR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+      const earR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.06), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
       earR.position.set(0.1, 0.25, 0);
       bg.add(earR);
 
@@ -1374,16 +1465,13 @@
       return true;
     }
 
-    // ==========================================
-    // ПРОРАБОТАННЫЙ ХАЙЗЕНБЕРГ И ЛАБОРАТОРИЯ
-    // ==========================================
+    // ХАЙЗЕНБЕРГ В ТЫКВЕННОЙ МАСКЕ
     const heisenbergGroup = new THREE.Group();
     worldGroup.add(heisenbergGroup);
     const hBaseX = 7.0;
     const hSurfaceY = getSurfaceY(hBaseX);
     heisenbergGroup.position.set(hBaseX, hSurfaceY + 0.5, 0);
 
-    // Желтый hazmat-костюм
     const matHazmat = new THREE.MeshStandardMaterial({ color: 0xf4d03f, roughness: 0.4 });
     const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.76, 0.36), matHazmat);
     hBody.position.y = 0.95;
@@ -1393,17 +1481,14 @@
     hHead.position.y = 1.48;
     heisenbergGroup.add(hHead);
 
-    // Черные очки
     const hGlasses = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: 0x050505 }));
     hGlasses.position.set(0, 1.52, 0.2);
     heisenbergGroup.add(hGlasses);
 
-    // Эспаньолка
     const hBeard = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a321d }));
     hBeard.position.set(0, 1.34, 0.2);
     heisenbergGroup.add(hBeard);
 
-    // Шляпа Pork Pie
     const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.06, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
     hatBrim.position.set(0, 1.7, 0);
     heisenbergGroup.add(hatBrim);
@@ -1411,22 +1496,21 @@
     hatCrown.position.set(0, 1.82, 0);
     heisenbergGroup.add(hatCrown);
 
-    // Колба со светящейся синей жижей в руках
-    const flask = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.35, 8), new THREE.MeshBasicMaterial({ color: 0x00e5ff, wireframe: true }));
+    // Праздничная мини-тыква на шляпе
+    const miniP = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff5500 }));
+    miniP.position.set(0, 2.0, 0);
+    heisenbergGroup.add(miniP);
+
+    const flask = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.35, 8), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
     flask.position.set(0.38, 0.95, 0.22);
     heisenbergGroup.add(flask);
 
-    // Лабораторный столик с аппаратурой рядом
     const chemDesk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.5), new THREE.MeshStandardMaterial({ color: 0x1a2538 }));
     chemDesk.position.set(1.1, 0.4, 0);
     heisenbergGroup.add(chemDesk);
 
-    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.4, 8), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
-    tube.position.set(1.1, 0.95, 0);
-    heisenbergGroup.add(tube);
-
     // ==========================================
-    // 3D АРЕНА БОССА
+    // 3D АРЕНА ТЫКВЕННОГО БОССА
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
@@ -1436,13 +1520,13 @@
 
     const arenaFloor = new THREE.Mesh(
       new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 0.8, 36),
-      new THREE.MeshStandardMaterial({ color: 0x0a101d, metalness: 0.85 })
+      new THREE.MeshStandardMaterial({ color: 0x0f0b1a, metalness: 0.85 })
     );
     arenaFloor.position.y = -0.4;
     bossGroup.add(arenaFloor);
 
     const barrierGeo = new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 5, 36, 1, true);
-    const barrierMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.25 });
+    const barrierMat = new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true, transparent: true, opacity: 0.25 });
     const arenaBarrier = new THREE.Mesh(barrierGeo, barrierMat);
     arenaBarrier.position.y = 2.5;
     bossGroup.add(arenaBarrier);
@@ -1450,20 +1534,14 @@
     const bossRig = new THREE.Group();
     bossGroup.add(bossRig);
 
-    const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.8, 3.6, 2.4), new THREE.MeshStandardMaterial({ color: 0x0d121c, metalness: 0.9 }));
+    const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.8, 3.6, 2.4), new THREE.MeshStandardMaterial({ color: 0x150d26, metalness: 0.9 }));
     bTorso.position.y = 3.2;
     bossRig.add(bTorso);
 
-    const bCore = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.4, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+    // Пламенеющий тыквенный реактор
+    const bCore = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.4, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff5500 }));
     bCore.position.set(0, 3.5, 1.25);
     bossRig.add(bCore);
-
-    const pylonL = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2.5, 8), new THREE.MeshStandardMaterial({ color: 0x1a2436 }));
-    pylonL.position.set(-2.5, 3.5, 0);
-    bossRig.add(pylonL);
-    const pylonR = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2.5, 8), new THREE.MeshStandardMaterial({ color: 0x1a2436 }));
-    pylonR.position.set(2.5, 3.5, 0);
-    bossRig.add(pylonR);
 
     let bossHp = 1800, bossMaxHp = 1800;
     let bossShield = 600, bossMaxShield = 600;
@@ -1524,7 +1602,7 @@
         camera.position.set(pX, pY + 1.4, 10);
         camera.lookAt(pX, pY + 1.4, 0);
 
-        setTip("⛏️ ТЕРРАРИЯ 2D: КОПАЙ РУДУ И БЕЙ МОБОВ!");
+        setTip("🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!");
       } else {
         document.getElementById('btn-mode-boss').classList.add('active');
         document.getElementById('btn-mode-world').classList.remove('active');
@@ -1553,7 +1631,6 @@
       armR.rotation.x = -Math.PI / 2;
       setTimeout(() => { armR.rotation.x = 0; }, 180);
 
-      // Проверка врагов
       for (let i = worldEnemies.length - 1; i >= 0; i--) {
         const e = worldEnemies[i];
         if (playerGroup.position.distanceTo(e.position) < 2.6) {
@@ -1569,19 +1646,18 @@
             worldGroup.remove(e);
             worldEnemies.splice(i, 1);
             const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-            coins += 40 * dropMultiplier;
+            coins += 45 * dropMultiplier;
             Hero.addExp(45);
             Hero.wins++;
-            if (Math.random() < 0.4) chips++;
+            if (Math.random() < 0.35) spookyCaseCount++; // Шанс выпадения Spooky кейса
             updateHeroUI();
             updateQuestsProgress('q_drone', 1);
-            setTip(`💥 МОНСТР УНИЧТОЖЕН! +${40 * dropMultiplier} 🪙, +45 EXP!`);
+            setTip(`💥 ТЫКВЕННЫЙ ДРОН СБИТ! +${45 * dropMultiplier} 🪙!`);
             saveGameData();
           }
         }
       }
 
-      // Проверка мирных кроликов
       for (let i = passiveMobs.length - 1; i >= 0; i--) {
         const b = passiveMobs[i];
         if (playerGroup.position.distanceTo(b.position) < 2.2) {
@@ -1589,7 +1665,7 @@
           passiveMobs.splice(i, 1);
           coins += 15;
           AudioEngine.gem();
-          setTip("🐇 Кролик испугался и обронил 15 монет!");
+          setTip("🐇 Кролик выронил монетки!");
           updateHeroUI();
           saveGameData();
         }
@@ -1597,7 +1673,7 @@
     }
     document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
 
-    // КОПАНИЕ БЛОКОВ
+    // КОПАНИЕ
     let miningTarget = null;
     let miningProgress = 0;
     const raycaster = new THREE.Raycaster();
@@ -1645,20 +1721,31 @@
       document.getElementById('mining-bar').style.width = `${Math.min(100, (miningProgress / miningTarget.userData.hp) * 100)}%`;
 
       if (miningProgress >= miningTarget.userData.hp) {
-        AudioEngine.mine();
-        haptic('light');
-
         const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
 
-        if (miningTarget.userData.type === 'ore') {
+        if (miningTarget.userData.type === 'pumpkin') {
+          pumpkins += 1 * dropMultiplier;
+          coins += 20 * dropMultiplier;
+          AudioEngine.pumpkinSmash();
+          updateQuestsProgress('q_pumpkin', 1);
+          setTip(`🎃 СРУБЛЕНА ТЫКВА! +${1 * dropMultiplier} шт!`);
+        } else if (miningTarget.userData.type === 'gold') {
+          gold += 1 * dropMultiplier;
+          coins += 65 * dropMultiplier;
+          AudioEngine.gem();
+          updateQuestsProgress('q_gold', 1);
+          setTip(`👑 ДОБЫТО ЗОЛОТО! +${65 * dropMultiplier} 🪙!`);
+        } else if (miningTarget.userData.type === 'ore') {
           ores += 1 * dropMultiplier;
           coins += 25 * dropMultiplier;
           Hero.addExp(20);
           AudioEngine.gem();
-          updateQuestsProgress('q_ore', 1);
         } else {
           stones += 1 * dropMultiplier;
+          AudioEngine.mine();
         }
+
+        haptic('light');
         updateHeroUI();
         saveGameData();
 
@@ -1741,7 +1828,7 @@
         const bossTarget = new THREE.Vector3(bossRig.position.x, 3.2, bossRig.position.z);
         const shootDir = new THREE.Vector3().subVectors(bossTarget, shootOrigin).normalize();
 
-        const p = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+        const p = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
         p.position.copy(shootOrigin);
         bossGroup.add(p);
 
@@ -1756,14 +1843,14 @@
           action: "open_world_sync",
           level: Hero.level,
           coins: coins,
-          ores: ores,
-          stones: stones,
+          pumpkins: pumpkins,
+          gold: gold,
           stats: { str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi },
           equipped: Hero.equipped,
           wins: Hero.wins
         }));
       } else {
-        showToast(`Данные синхронизированы! (LVL: ${Hero.level})`, '#00ffcc');
+        showToast(`Данные синхронизированы! (LVL: ${Hero.level})`, '#ffd700');
       }
     });
 
@@ -1784,7 +1871,7 @@
         updateMining();
 
         let moveSpeed = 0.12;
-        if (activeBuffs.speed > 0) moveSpeed *= 1.45; // Бафф зелья скорости
+        if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0) moveSpeed *= 1.45;
 
         let moveX = 0;
         let isMoving = false;
@@ -1854,14 +1941,13 @@
         for (let x = playerGX - 18; x <= playerGX + 18; x++) generateColumn(x);
         if (Math.abs(playerGX) % 8 === 0) cleanFarChunks(playerGX);
 
-        if (worldEnemies.length < 7 && Math.random() < 0.02) {
+        if (worldEnemies.length < 8 && Math.random() < 0.02) {
           spawnEnemy(pX + (Math.random() > 0.5 ? 15 : -15));
         }
         if (passiveMobs.length < 4 && Math.random() < 0.01) {
           spawnPassiveBunny(pX + (Math.random() > 0.5 ? 12 : -12));
         }
 
-        // Враги
         worldEnemies.forEach(e => {
           const dist = playerGroup.position.distanceTo(e.position);
           const hasVision = hasLineOfSight(e.position.x, e.position.y, playerGroup.position.x, playerGroup.position.y);
@@ -1890,11 +1976,10 @@
           if (e.userData.attackCooldown > 0) e.userData.attackCooldown--;
         });
 
-        // Мирные кролики
         passiveMobs.forEach(b => {
           const distToPlayer = playerGroup.position.distanceTo(b.position);
           if (distToPlayer < 5) {
-            b.position.x += (b.position.x > pX ? 0.04 : -0.04); // Убегает
+            b.position.x += (b.position.x > pX ? 0.04 : -0.04);
           } else {
             b.position.x += Math.sin(t + b.position.y) * 0.01;
           }
@@ -1933,7 +2018,7 @@
           isRunning3D = true;
           const len = Math.hypot(mX, mZ);
           let spd = 0.15;
-          if (activeBuffs.speed > 0) spd *= 1.45;
+          if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0) spd *= 1.45;
           pX += (mX / len) * spd;
           pZ += (mZ / len) * spd;
         }
@@ -1960,16 +2045,17 @@
         bossRig.lookAt(pX, bossRig.position.y, pZ);
 
         bossAttackTimer += dt;
-        if (bossAttackTimer >= 1.6) {
+        if (bossAttackTimer >= 1.5) {
           bossAttackTimer = 0;
 
           const bossShootOrigin = new THREE.Vector3(bossRig.position.x, 3.5, bossRig.position.z);
           const playerAimTarget = new THREE.Vector3(playerGroup.position.x, 1.0, playerGroup.position.z);
           const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
 
+          // Огненный тыквенный снаряд босса
           const bProj = new THREE.Mesh(
-            new THREE.SphereGeometry(0.65, 8, 8),
-            new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true })
+            new THREE.SphereGeometry(0.7, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0xff4400, wireframe: true })
           );
           bProj.position.copy(bossShootOrigin);
           bossGroup.add(bProj);
@@ -2007,11 +2093,11 @@
 
               if (bossHp <= 0) {
                 const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-                coins += 500 * dropMultiplier;
+                coins += 600 * dropMultiplier;
                 Hero.addExp(250);
                 Hero.wins++;
-                caseCount++; // Кейс за победу над боссом
-                showToast(`🏆 ТИТАН ПОВЕРЖЕН! +${500 * dropMultiplier} 🪙, +1 📦 КЕЙС!`, '#00ffcc');
+                spookyCaseCount++;
+                showToast(`🏆 ТЫКВЕННЫЙ ТИТАН ПОВЕРЖЕН! +${600 * dropMultiplier} 🪙, +1 🎃 КЕЙС!`, '#ff7700');
                 updateQuestsProgress('q_boss', 1);
                 bossHp = bossMaxHp; bossShield = bossMaxShield;
                 document.getElementById('boss-hp').style.width = '100%';
@@ -2039,7 +2125,6 @@
       renderer.render(scene, camera);
     }
 
-    // Инициализация загрузки и старт
     loadGameData();
     updateHeroUI();
     updateBuffTrayUI();
