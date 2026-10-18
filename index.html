@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN v1.3 HALLOWEEN & GOLD</title>
+  <title>CYBERCORE: TITAN v1.4 OVERDRIVE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -50,6 +50,37 @@
       opacity: 0.35;
     }
 
+    /* FLOATING DAMAGE NUMBERS */
+    #dmg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 25;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .dmg-num {
+      position: absolute;
+      font-weight: 900;
+      font-size: 16px;
+      color: #fff;
+      text-shadow: 0 0 6px #000;
+      transform: translate(-50%, -50%);
+      animation: floatUp 0.75s ease-out forwards;
+    }
+    .dmg-crit {
+      font-size: 22px;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ff7700;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+      30% { transform: translate(-50%, -80px) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -120px) scale(1); }
+    }
+
     #toast-banner {
       position: absolute;
       top: 90px;
@@ -92,7 +123,6 @@
       background: linear-gradient(90deg, #ff7700, #ffd700);
     }
 
-    /* BUFF TRAY (10 MINUTES) */
     #buff-tray {
       position: absolute;
       top: 130px;
@@ -217,18 +247,25 @@
       box-shadow: 0 0 10px rgba(255, 119, 0, 0.3);
     }
 
+    /* ИСПРАВЛЕННАЯ СЕНСОРНАЯ КНОПКА ХАЙЗЕНБЕРГА ДЛЯ ТЕЛЕФОНОВ */
     #interact-prompt {
       align-self: center;
-      background: rgba(255, 119, 0, 0.28);
-      border: 1px solid #ff7700;
-      color: #ffaa00;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
+      background: rgba(255, 119, 0, 0.85);
+      border: 2px solid #ffd700;
+      color: #000;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 900;
       display: none;
       pointer-events: auto;
       cursor: pointer;
+      box-shadow: 0 0 15px #ff7700;
+      animation: pulseBtn 1s infinite alternate;
+    }
+    @keyframes pulseBtn {
+      from { transform: scale(1); }
+      to { transform: scale(1.06); box-shadow: 0 0 22px #ffd700; }
     }
 
     .bottom-panel {
@@ -354,6 +391,7 @@
 <body oncontextmenu="return false;">
   <div id="canvas-container"></div>
   <div id="crt-overlay"></div>
+  <div id="dmg-layer"></div>
 
   <div id="toast-banner"></div>
   <div id="mining-hud"><div id="mining-bar"></div></div>
@@ -362,10 +400,10 @@
   <!-- START MENU -->
   <div id="start-menu">
     <div style="font-size:26px; font-weight:900; color:#ff7700; text-shadow:0 0 20px #ff7700; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN <span class="version-tag">v1.3</span>
+      CYBERCORE: TITAN <span class="version-tag">v1.4</span>
     </div>
     <div style="font-size:11px; color:#ffd700; margin-bottom:20px; letter-spacing:1px;">
-      🎃 HALLOWEEN EVENT & GOLD MINING PROTOCOL
+      ⚡ OVERDRIVE & TITAN PHASE 2 UPDATE
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
@@ -395,7 +433,7 @@
       <button class="nav-btn quest" onclick="openQuestsMenu()">📜</button>
       <button class="nav-btn cases" onclick="openCasesMenu()">📦</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
-      <span class="version-tag">v1.3</span>
+      <span class="version-tag">v1.4</span>
       <div style="font-size:10px; font-weight:bold;">
         🪙 <span id="val-coins" style="color:#ffd700;">100</span> | 
         🎃 <span id="val-pumpkins" style="color:#ff7700;">0</span> | 
@@ -415,16 +453,17 @@
       </div>
       <div id="boss-hud-group" style="display:none; margin-top:4px;">
         <div style="display:flex; justify-content:space-between; font-size:10px;">
-          <span id="boss-name" style="color:#ff0055; font-weight:bold;">ТЫКВЕННЫЙ ТИТАН ЦЕНТУРИОН</span>
-          <span id="boss-stage" style="color:#ff7700;">ПЛАМЯ ТЫКВЫ</span>
+          <span id="boss-name" style="color:#ff0055; font-weight:bold;">ЦЕНТУРИОН MK-X</span>
+          <span id="boss-stage" style="color:#ff7700;">ФАЗА 1: ЩИТ АКТИВЕН</span>
         </div>
         <div class="bar-bg" style="height:5px;"><div class="bar-fill-boss-shield" id="boss-shield"></div></div>
         <div class="bar-bg" style="height:6px;"><div class="bar-fill-boss-hp" id="boss-hp"></div></div>
       </div>
     </div>
 
-    <div id="interact-prompt">⚗️ ХЭЛЛОУИН-ЛАБОРАТОРИЯ [E]</div>
-    <div id="tip-banner">🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!</div>
+    <!-- ТАЧ-КНОПКА ХАЙЗЕНБЕРГА ДЛЯ ТЕЛЕФОНОВ -->
+    <div id="interact-prompt">⚗️ ОТКРЫТЬ ЛАБОРАТОРИЮ ХАЙЗЕНБЕРГА</div>
+    <div id="tip-banner">⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, ДВОЙНОЙ ТАП ПРЫЖКА = РЕАКТИВНЫЙ БУСТ!</div>
 
     <div class="bottom-panel">
       <div class="dpad-cross" id="dpad-container">
@@ -499,7 +538,7 @@
     </div>
   </div>
 
-  <!-- КЕЙСЫ (ОБЫЧНЫЙ И ХЭЛЛОУИНСКИЙ SPOOKY CASE) -->
+  <!-- КЕЙСЫ -->
   <div class="modal" id="cases-modal">
     <div class="modal-box" style="text-align:center;">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('cases-modal')">✕</button>
@@ -522,25 +561,25 @@
     </div>
   </div>
 
-  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА (С ЭЛИКСИРОМ БЕЗУМИЯ) -->
+  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
         <span style="font-size:32px;">🎃</span>
         <div>
-          <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ [ХЭЛЛОУИН-ЭДИШН]</h3>
-          <span style="font-size:10px; color:#ff7700;">Синтез Тыквенного Экстракта 99.1%</span>
+          <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ [МОБИЛЬНАЯ ЛАБОРАТОРИЯ]</h3>
+          <span style="font-size:10px; color:#ff7700;">Синтез Эликсиров 99.1% Чистоты</span>
         </div>
       </div>
       <p style="font-size:11px; line-height:1.5; color:#cbd9ec; margin-bottom:10px;">
-        "Сладость или кибер-смерть? Мои сезонные зелья действуют 10 минут реального времени и работают во всех режимах!"
+        "Say my name... Ты нажал на меня или на сенсорную плашку! Каждое зелье действует ровно 10 минут (600 сек) и не сбрасывается в бою с Титаном."
       </p>
 
       <div class="card-item">
         <div>
           <div style="font-size:12px; font-weight:bold; color:#ff7700;">🎃 Эликсир Тыквенного Безумия (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">Огненный след +40% скор +35 урон | 🎃 4 Тыквы</div>
+          <div style="font-size:10px; color:#8fa5c4;">+40% скорость, +35 урон | 🎃 4 Тыквы</div>
         </div>
         <button class="btn-action-small" onclick="buyPotion('pumpkin_madness')">СВАРИТЬ</button>
       </div>
@@ -666,6 +705,7 @@
         o.start(); o.stop(this.ctx.currentTime + dur);
       },
       jump() { this.beep(240, 0.14, 'sine', 520, 0.15); },
+      doubleJump() { this.beep(420, 0.18, 'sawtooth', 840, 0.2); },
       slash() { this.beep(550, 0.12, 'sawtooth', 120, 0.2); },
       stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.04); },
       mine() { this.beep(120, 0.08, 'sawtooth', 50, 0.15); },
@@ -673,12 +713,29 @@
       laser() { this.beep(850, 0.12, 'sawtooth', 180, 0.2); },
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
       pumpkinSmash() { this.beep(350, 0.2, 'square', 80, 0.25); },
+      enrage() { this.beep(160, 0.6, 'sawtooth', 60, 0.4); },
       craft() { [300, 450, 600, 900].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70)); },
       lvlUp() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80)); }
     };
 
+    // ФУНКЦИЯ ВСПЛЫВАЮЩИХ ЦИФР УРОНА
+    function spawnDamageNumber(x3d, y3d, z3d, val, isCrit = false) {
+      const v = new THREE.Vector3(x3d, y3d, z3d);
+      v.project(camera);
+      const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
+      const sy = (-(v.y * 0.5) + 0.5) * window.innerHeight;
+
+      const el = document.createElement('div');
+      el.className = 'dmg-num' + (isCrit ? ' dmg-crit' : '');
+      el.innerText = (isCrit ? '🔥 ' : '') + Math.round(val);
+      el.style.left = `${sx}px`;
+      el.style.top = `${sy}px`;
+      document.getElementById('dmg-layer').appendChild(el);
+      setTimeout(() => el.remove(), 750);
+    }
+
     // ==========================================
-    // ИГРОВОЙ СТЕЙТ И АВТОСОХРАНЕНИЕ
+    // ИГРОВОЙ СТЕЙТ
     // ==========================================
     let coins = 100;
     let ores = 0;
@@ -721,7 +778,7 @@
         chest: "Обычная одежда",
         leg: "Хромовый протез",
         visor: "Нет",
-        helmet: "Нет" // pumpkin_hat
+        helmet: "Нет"
       },
       craftBonusDmg: 0,
       craftBonusHp: 0,
@@ -776,12 +833,12 @@
         },
         quests: Quests.map(q => ({ id: q.id, cur: q.cur, done: q.done }))
       };
-      localStorage.setItem('CYBERCORE_TITAN_SAVE_v13', JSON.stringify(data));
+      localStorage.setItem('CYBERCORE_TITAN_SAVE_v14', JSON.stringify(data));
     }
 
     function loadGameData() {
       try {
-        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v13');
+        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v14') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v13');
         if (!raw) return;
         const d = JSON.parse(raw);
         coins = d.coins ?? coins;
@@ -820,16 +877,11 @@
     let currentHp = 150;
     let iFrames = 0;
     let timeSinceLastDmg = 0;
-    let tipClearTimer = null;
+    let canDoubleJump = false; // Флаг двойного прыжка
 
     function setTip(text) {
       const banner = document.getElementById('tip-banner');
       banner.innerText = text;
-      if (tipClearTimer) clearTimeout(tipClearTimer);
-      tipClearTimer = setTimeout(() => {
-        if (mode === 'world') banner.innerText = "🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!";
-        else if (mode === 'boss') banner.innerText = "⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!";
-      }, 2200);
     }
 
     function updateHeroUI() {
@@ -887,7 +939,7 @@
       AudioEngine.hit();
       haptic('heavy');
       updatePlayerHpBar();
-      setTip(`💥 ПОЛУЧЕН УРОН: -${Math.round(finalDmg)} HP!`);
+      spawnDamageNumber(playerGroup.position.x, playerGroup.position.y + 1.2, playerGroup.position.z, finalDmg);
 
       if (currentHp <= 0) {
         showToast("☠️ ЭКЗОСКЕЛЕТ КРИТИЧЕСКИ ПОВРЕЖДЁН!", '#ff0055');
@@ -922,7 +974,6 @@
       switchMode('world');
     }
 
-    // ТАЙМЕРЫ ЗЕЛИЙ
     setInterval(() => {
       let changed = false;
       for (const k in activeBuffs) {
@@ -959,20 +1010,14 @@
 
     window.buyPotion = function(type) {
       if (type === 'pumpkin_madness') {
-        if (pumpkins < 4) {
-          showToast(`Нужно 🎃 4 Тыквы! Сруби их на поверхности.`, '#ff7700');
-          return;
-        }
+        if (pumpkins < 4) { showToast(`Нужно 🎃 4 Тыквы!`, '#ff7700'); return; }
         pumpkins -= 4;
       } else {
         const costs = { strength: 3, speed: 3, greed: 4 };
-        if (ores < costs[type]) {
-          showToast(`Не хватает руды! Нужно 💎 ${costs[type]} шт.`, '#ff0055');
-          return;
-        }
+        if (ores < costs[type]) { showToast(`Нужно 💎 ${costs[type]} руды!`, '#ff0055'); return; }
         ores -= costs[type];
       }
-      activeBuffs[type] = 600; // 10 МИНУТ
+      activeBuffs[type] = 600;
       AudioEngine.craft();
       haptic('success');
       showToast(`⚗️ СВАРЕНО: Бафф активен ровно 10 минут!`, '#ffaa00');
@@ -982,9 +1027,6 @@
       saveGameData();
     };
 
-    // ==========================================
-    // ЛУТБОКСЫ (КЕЙСЫ)
-    // ==========================================
     window.openCasesMenu = function() {
       updateHeroUI();
       document.getElementById('cases-modal').style.display = 'flex';
@@ -993,10 +1035,7 @@
     };
 
     window.buyCyberCase = function() {
-      if (coins < 150) {
-        showToast("Недостаточно монет! Нужно 150 🪙", '#ff0055');
-        return;
-      }
+      if (coins < 150) { showToast("Нужно 150 🪙", '#ff0055'); return; }
       coins -= 150;
       caseCount++;
       AudioEngine.gem();
@@ -1007,10 +1046,10 @@
 
     window.openCyberCase = function(type) {
       if (type === 'normal') {
-        if (caseCount <= 0) { showToast("Нет обычных кейсов! Купи за 150 монет.", '#ff0055'); return; }
+        if (caseCount <= 0) { showToast("Нет обычных кейсов!", '#ff0055'); return; }
         caseCount--;
       } else {
-        if (spookyCaseCount <= 0) { showToast("Нет Spooky-кейсов! Добудь за победу над боссом или квесты.", '#ff7700'); return; }
+        if (spookyCaseCount <= 0) { showToast("Нет Spooky-кейсов!", '#ff7700'); return; }
         spookyCaseCount--;
       }
       updateHeroUI();
@@ -1055,7 +1094,6 @@
       }, 700);
     };
 
-    // КВЕСТЫ
     window.openQuestsMenu = function() {
       renderQuestsList();
       document.getElementById('quests-modal').style.display = 'flex';
@@ -1176,7 +1214,7 @@
     // --- THREE.JS СЦЕНА ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x180824, 0.018); // Праздничный фиолетово-тыквенный туман
+    scene.fog = new THREE.FogExp2(0x180824, 0.018);
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -1185,13 +1223,12 @@
     renderer.setClearColor(0x180824);
     container.appendChild(renderer.domElement);
 
-    // ФОН: КРОВАВО-ОРАНЖЕВАЯ ЛУНА С КОЛЬЦОМ
     const skyGroup = new THREE.Group();
     scene.add(skyGroup);
     
     const spookyMoon = new THREE.Mesh(
       new THREE.SphereGeometry(19, 32, 32),
-      new THREE.MeshBasicMaterial({ color: 0xff4400 }) // Огненно-оранжевая луна
+      new THREE.MeshBasicMaterial({ color: 0xff4400 })
     );
     spookyMoon.position.set(-25, 22, -65);
     skyGroup.add(spookyMoon);
@@ -1239,13 +1276,11 @@
     eyeR.position.set(0.11, 1.5, 0.22);
     playerGroup.add(eyeR);
 
-    // Шрам через глаз
     const scarMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.22, 0.02), new THREE.MeshBasicMaterial({ color: 0xc0392b }));
     scarMesh.position.set(0.11, 1.5, 0.222);
     scarMesh.rotation.z = -0.25;
     playerGroup.add(scarMesh);
 
-    // Волосы брюнета
     const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.44), matHair);
     hairTop.position.set(0, 1.72, 0);
     playerGroup.add(hairTop);
@@ -1253,7 +1288,6 @@
     hairBangs.position.set(0, 1.64, 0.2);
     playerGroup.add(hairBangs);
 
-    // ШЛЕМ НЕОНОВОЙ ТЫКВЫ (ЭКСКЛЮЗИВ)
     const pumpkinHatMesh = new THREE.Group();
     const pHatBase = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.4 }));
     pumpkinHatMesh.add(pHatBase);
@@ -1296,7 +1330,6 @@
     legRight.position.set(0.16, 0.6, 0);
     playerGroup.add(legRight);
 
-    // Левая кибер-нога
     const legLeftCyber = new THREE.Group();
     const cyberThigh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), matCyberChrome);
     cyberThigh.position.y = -0.15;
@@ -1313,9 +1346,6 @@
     legLeftCyber.position.set(-0.16, 0.6, 0);
     playerGroup.add(legLeftCyber);
 
-    // Огненные искры следа от зелья безумия
-    const fireParticles = [];
-
     // ==========================================
     // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ И РУДА
     // ==========================================
@@ -1330,8 +1360,6 @@
     const matOre = new THREE.MeshStandardMaterial({ color: 0x00e1ff, emissive: 0x00aacc, emissiveIntensity: 0.7 });
     const matGold = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2, emissive: 0xaa8800, emissiveIntensity: 0.5 });
     const matBedrock = new THREE.MeshStandardMaterial({ color: 0x05070a });
-
-    // Материал кибер-тыквы
     const matPumpkin = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, emissive: 0x441100 });
 
     const blockMap = new Map();
@@ -1355,10 +1383,9 @@
         if (gy === -18) { mat = matBedrock; type = 'bedrock'; }
         else if (gy === surfaceY) { mat = matGrass; type = 'grass'; }
         else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
-        else if (gy < -6 && Math.random() < 0.12) { mat = matGold; type = 'gold'; } // ЗОЛОТЫЕ ЖИЛЫ В ГЛУБИНАХ
+        else if (gy < -6 && Math.random() < 0.12) { mat = matGold; type = 'gold'; }
         else if (Math.random() < 0.13) { mat = matOre; type = 'ore'; }
 
-        // Пещеры
         if (gy > -18 && gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
@@ -1370,14 +1397,12 @@
         colList.push(b);
       }
 
-      // Спавн светящейся кибер-тыквы на поверхности
       if (Math.abs(gx) > 3 && Math.random() < 0.16) {
         const pBlock = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.85, 0.5), matPumpkin);
         const pgy = surfaceY + 1;
         pBlock.position.set(gx * BLOCK_SIZE, pgy * BLOCK_SIZE, 0);
         pBlock.userData = { gx, gy: pgy, type: 'pumpkin', hp: 2 };
 
-        // Вырезанное лицо
         const pEyes = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
         pEyes.position.set(0, 0, 0.26);
         pBlock.add(pEyes);
@@ -1406,7 +1431,7 @@
     }
 
     // ==========================================
-    // ХЭЛЛОУИНСКИЕ МОБЫ И КРОЛИКИ
+    // МОБЫ
     // ==========================================
     const worldEnemies = [];
     const passiveMobs = [];
@@ -1416,10 +1441,8 @@
       const spawnY = surfaceY + 2.0;
 
       const eg = new THREE.Group();
-      // Оранжевый тыквенный корпус дрона
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3 }));
       eg.add(body);
-      // Злые светящиеся жёлтые глаза
       const eye = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.1), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
       eye.position.set(0, 0, 0.38);
       eg.add(eye);
@@ -1465,7 +1488,7 @@
       return true;
     }
 
-    // ХАЙЗЕНБЕРГ В ТЫКВЕННОЙ МАСКЕ
+    // ХАЙЗЕНБЕРГ
     const heisenbergGroup = new THREE.Group();
     worldGroup.add(heisenbergGroup);
     const hBaseX = 7.0;
@@ -1496,7 +1519,6 @@
     hatCrown.position.set(0, 1.82, 0);
     heisenbergGroup.add(hatCrown);
 
-    // Праздничная мини-тыква на шляпе
     const miniP = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff5500 }));
     miniP.position.set(0, 2.0, 0);
     heisenbergGroup.add(miniP);
@@ -1510,7 +1532,7 @@
     heisenbergGroup.add(chemDesk);
 
     // ==========================================
-    // 3D АРЕНА ТЫКВЕННОГО БОССА
+    // 3D АРЕНА БОССА: ФАЗА 1 И ФАЗА 2 (ЭНРЕЙДЖ)
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
@@ -1538,13 +1560,26 @@
     bTorso.position.y = 3.2;
     bossRig.add(bTorso);
 
-    // Пламенеющий тыквенный реактор
     const bCore = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.4, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff5500 }));
     bCore.position.set(0, 3.5, 1.25);
     bossRig.add(bCore);
 
+    // КРЫЛЬЯ ФАЗЫ 2 (ОТКРЫВАЮТСЯ ПРИ HP < 50%)
+    const bossWings = new THREE.Group();
+    const wingL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
+    wingL.position.set(-2.8, 4.2, -0.6);
+    wingL.rotation.z = 0.35;
+    bossWings.add(wingL);
+    const wingR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
+    wingR.position.set(2.8, 4.2, -0.6);
+    wingR.rotation.z = -0.35;
+    bossWings.add(wingR);
+    bossWings.visible = false;
+    bossRig.add(bossWings);
+
     let bossHp = 1800, bossMaxHp = 1800;
     let bossShield = 600, bossMaxShield = 600;
+    let isBossPhase2 = false;
 
     const projectiles = [];
     let bossAttackTimer = 0;
@@ -1641,6 +1676,7 @@
           e.position.x += (e.position.x > playerGroup.position.x ? 0.8 : -0.8);
           AudioEngine.hit();
           haptic('medium');
+          spawnDamageNumber(e.position.x, e.position.y + 0.8, 0, dmg, isCrit);
 
           if (e.userData.hp <= 0) {
             worldGroup.remove(e);
@@ -1649,7 +1685,7 @@
             coins += 45 * dropMultiplier;
             Hero.addExp(45);
             Hero.wins++;
-            if (Math.random() < 0.35) spookyCaseCount++; // Шанс выпадения Spooky кейса
+            if (Math.random() < 0.35) spookyCaseCount++;
             updateHeroUI();
             updateQuestsProgress('q_drone', 1);
             setTip(`💥 ТЫКВЕННЫЙ ДРОН СБИТ! +${45 * dropMultiplier} 🪙!`);
@@ -1684,6 +1720,13 @@
       mouse.x = (clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
+
+      // ПРЯМОЙ ТАП ПО ХАЙЗЕНБЕРГУ ОТКРЫВАЕТ ДИАЛОГ
+      const hitHeisenberg = raycaster.intersectObjects(heisenbergGroup.children, true);
+      if (hitHeisenberg.length > 0 && playerGroup.position.distanceTo(heisenbergGroup.position) < 5.0) {
+        openHeisenbergDialogue();
+        return;
+      }
 
       const hits = raycaster.intersectObjects(activeBlocks);
       if (hits.length > 0) {
@@ -1760,6 +1803,23 @@
       }
     }
 
+    // ==========================================
+    // СЕНСОРНОЕ ОТКРЫТИЕ ДИАЛОГА ХАЙЗЕНБЕРГА
+    // ==========================================
+    function openHeisenbergDialogue() {
+      document.getElementById('dialogue-modal').style.display = 'flex';
+      AudioEngine.beep(400, 0.08);
+      haptic('medium');
+    }
+
+    const interactBtn = document.getElementById('interact-prompt');
+    interactBtn.addEventListener('click', openHeisenbergDialogue);
+    interactBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openHeisenbergDialogue();
+    }, { passive: false });
+
     function setupTouchButton(id, onDown, onUp) {
       const el = document.getElementById(id);
       el.addEventListener('touchstart', (e) => {
@@ -1798,8 +1858,8 @@
       if (k === ' ') doMainAction();
       if (k === 'f') doWorldAttack();
       if (k === 'c') openCraftMenu();
-      if (k === 'e' && playerGroup.position.distanceTo(heisenbergGroup.position) < 4.2) {
-        document.getElementById('dialogue-modal').style.display = 'flex';
+      if (k === 'e' && playerGroup.position.distanceTo(heisenbergGroup.position) < 4.5) {
+        openHeisenbergDialogue();
       }
     });
     window.addEventListener('keyup', (e) => {
@@ -1810,15 +1870,25 @@
       if (k === 'd' || k === 'arrowright') inputState.right = false;
     });
 
+    // ДВОЙНОЙ ПРЫЖОК В 2D / ВЫСТРЕЛ В 3D
     function doMainAction() {
       if (mode === 'world') {
         if (isGrounded) {
           pVy = 0.28;
           isGrounded = false;
+          canDoubleJump = true; // Разрешаем второй прыжок в воздухе
           AudioEngine.jump();
           haptic('light');
+        } else if (canDoubleJump) {
+          // ДВОЙНОЙ РЕАКТИВНЫЙ БУСТ КИБЕР-НОГИ
+          pVy = 0.28;
+          canDoubleJump = false;
+          AudioEngine.doubleJump();
+          haptic('medium');
+          setTip("⚡ РЕАКТИВНЫЙ ДВОЙНОЙ ПРЫЖОК!");
         }
       } else {
+        // ВЫСТРЕЛ В 3D
         AudioEngine.laser();
         haptic('light');
 
@@ -1920,6 +1990,7 @@
             pY = targetFootGY + 0.5;
             pVy = 0;
             isGrounded = true;
+            canDoubleJump = false; // Сброс при приземлении
           } else {
             pY = nextY;
             isGrounded = false;
@@ -2002,8 +2073,9 @@
         camera.position.z = 10;
         camera.lookAt(camera.position.x, camera.position.y, 0);
 
+        // ПОКАЗ СЕНСОРНОЙ ПЛАШКИ ХАЙЗЕНБЕРГА
         const hDist = playerGroup.position.distanceTo(heisenbergGroup.position);
-        document.getElementById('interact-prompt').style.display = hDist < 4.2 ? 'block' : 'none';
+        document.getElementById('interact-prompt').style.display = hDist < 4.5 ? 'block' : 'none';
       }
       else if (mode === 'boss') {
         let mX = 0, mZ = 0;
@@ -2044,23 +2116,35 @@
 
         bossRig.lookAt(pX, bossRig.position.y, pZ);
 
+        // ПРОВЕРКА ФАЗЫ 2 (ЭНРЕЙДЖ ПРИ HP < 50%)
+        if (bossHp <= bossMaxHp * 0.5 && !isBossPhase2) {
+          isBossPhase2 = true;
+          bossWings.visible = true;
+          AudioEngine.enrage();
+          haptic('heavy');
+          document.getElementById('boss-stage').innerText = "🔥 ФАЗА 2: ОВЕРДРАЙВ ТИТАНА!";
+          document.getElementById('boss-stage').style.color = "#ff0055";
+          showToast("⚠️ ВНИМАНИЕ: БОСС ПЕРЕШЁЛ В РЕЖИМ ЯРОСТИ!", "#ff0055");
+        }
+
+        // АТАКА БОССА (СКОРОСТЬ ВЫШЕ В ФАЗЕ 2)
+        const attackInterval = isBossPhase2 ? 1.0 : 1.5;
         bossAttackTimer += dt;
-        if (bossAttackTimer >= 1.5) {
+        if (bossAttackTimer >= attackInterval) {
           bossAttackTimer = 0;
 
           const bossShootOrigin = new THREE.Vector3(bossRig.position.x, 3.5, bossRig.position.z);
           const playerAimTarget = new THREE.Vector3(playerGroup.position.x, 1.0, playerGroup.position.z);
           const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
 
-          // Огненный тыквенный снаряд босса
           const bProj = new THREE.Mesh(
-            new THREE.SphereGeometry(0.7, 8, 8),
-            new THREE.MeshBasicMaterial({ color: 0xff4400, wireframe: true })
+            new THREE.SphereGeometry(isBossPhase2 ? 0.8 : 0.65, 8, 8),
+            new THREE.MeshBasicMaterial({ color: isBossPhase2 ? 0xff0055 : 0xff7700, wireframe: true })
           );
           bProj.position.copy(bossShootOrigin);
           bossGroup.add(bProj);
 
-          projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(0.48), isPlayer: false });
+          projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(isBossPhase2 ? 0.58 : 0.48), isPlayer: false });
         }
 
         const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
@@ -2081,6 +2165,7 @@
 
               const isCrit = Math.random() * 100 < Hero.getCritChance();
               const dmg = Math.floor(Hero.getMinDmg() * (isCrit ? 2.0 : 1.0));
+              spawnDamageNumber(targetCorePos.x, targetCorePos.y + 0.8, targetCorePos.z, dmg, isCrit);
 
               if (bossShield > 0) {
                 bossShield = Math.max(0, bossShield - dmg);
@@ -2097,9 +2182,11 @@
                 Hero.addExp(250);
                 Hero.wins++;
                 spookyCaseCount++;
-                showToast(`🏆 ТЫКВЕННЫЙ ТИТАН ПОВЕРЖЕН! +${600 * dropMultiplier} 🪙, +1 🎃 КЕЙС!`, '#ff7700');
+                showToast(`🏆 ТИТАН ПОВЕРЖЕН! +${600 * dropMultiplier} 🪙, +1 🎃 КЕЙС!`, '#ff7700');
                 updateQuestsProgress('q_boss', 1);
                 bossHp = bossMaxHp; bossShield = bossMaxShield;
+                isBossPhase2 = false;
+                bossWings.visible = false;
                 document.getElementById('boss-hp').style.width = '100%';
                 document.getElementById('boss-shield').style.width = '100%';
                 saveGameData();
@@ -2109,7 +2196,7 @@
             }
           } else {
             if (p.mesh.position.distanceTo(playerGroup.position) < 1.4) {
-              damagePlayer(35);
+              damagePlayer(isBossPhase2 ? 45 : 35);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
               continue;
