@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN v1.4 OVERDRIVE</title>
+  <title>CYBERCORE: TITAN v1.5 ENCHANT & FORGE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -74,6 +74,11 @@
       font-size: 22px;
       color: #ffd700;
       text-shadow: 0 0 10px #ff7700;
+    }
+    .dmg-heal {
+      font-size: 18px;
+      color: #00ff66;
+      text-shadow: 0 0 8px #00ff66;
     }
     @keyframes floatUp {
       0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
@@ -172,7 +177,7 @@
       box-shadow: 0 0 15px rgba(255, 119, 0, 0.35);
       backdrop-filter: blur(8px);
       pointer-events: auto;
-      max-width: 900px;
+      max-width: 920px;
       margin: 36px auto 0;
       width: 100%;
       gap: 4px;
@@ -212,7 +217,7 @@
 
     #status-bars {
       width: 100%;
-      max-width: 900px;
+      max-width: 920px;
       margin: 4px auto 0;
       background: rgba(10, 8, 28, 0.94);
       border: 1px solid #ff7700;
@@ -247,7 +252,6 @@
       box-shadow: 0 0 10px rgba(255, 119, 0, 0.3);
     }
 
-    /* ИСПРАВЛЕННАЯ СЕНСОРНАЯ КНОПКА ХАЙЗЕНБЕРГА ДЛЯ ТЕЛЕФОНОВ */
     #interact-prompt {
       align-self: center;
       background: rgba(255, 119, 0, 0.85);
@@ -273,7 +277,7 @@
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      max-width: 900px;
+      max-width: 920px;
       margin: 0 auto;
       pointer-events: none;
       margin-bottom: 2px;
@@ -298,15 +302,15 @@
     }
     .touch-btn.active-touch { background: #ff7700; color: #000; }
 
-    .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 6px; }
+    .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 5px; }
     .act-btn {
-      width: 64px;
-      height: 64px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       background: rgba(255, 119, 0, 0.15);
       border: 1px solid #ff7700;
       color: #ffaa00;
-      font-size: 9px;
+      font-size: 8px;
       font-weight: bold;
       display: flex;
       flex-direction: column;
@@ -318,6 +322,7 @@
     .act-btn.combat { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.2); }
     .act-btn.combat.active-touch { background: #ff0055; color: #fff; }
     .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
+    .act-btn.mode-toggle { border-color: #ffd700; color: #ffd700; background: rgba(255, 215, 0, 0.2); }
 
     .modal {
       position: absolute;
@@ -331,7 +336,7 @@
       backdrop-filter: blur(10px);
     }
     .modal-box {
-      width: 100%; max-width: 460px;
+      width: 100%; max-width: 480px;
       background: #0f0a24;
       border: 2px solid #ff7700;
       border-radius: 12px;
@@ -346,8 +351,8 @@
       background: #140d33;
       border: 1px solid #281a54;
       border-radius: 8px;
-      padding: 9px;
-      margin: 7px 0;
+      padding: 8px;
+      margin: 6px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -357,7 +362,7 @@
       border: none;
       color: #000;
       font-weight: 900;
-      padding: 7px 12px;
+      padding: 6px 10px;
       border-radius: 5px;
       cursor: pointer;
       font-size: 11px;
@@ -380,7 +385,7 @@
       border: 1px solid #ff7700;
       color: #ffaa00;
       font-size: 13px; font-weight: 900;
-      padding: 13px; margin: 6px 0;
+      padding: 12px; margin: 5px 0;
       border-radius: 8px;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -400,10 +405,10 @@
   <!-- START MENU -->
   <div id="start-menu">
     <div style="font-size:26px; font-weight:900; color:#ff7700; text-shadow:0 0 20px #ff7700; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN <span class="version-tag">v1.4</span>
+      CYBERCORE: TITAN <span class="version-tag">v1.5</span>
     </div>
-    <div style="font-size:11px; color:#ffd700; margin-bottom:20px; letter-spacing:1px;">
-      ⚡ OVERDRIVE & TITAN PHASE 2 UPDATE
+    <div style="font-size:11px; color:#ffd700; margin-bottom:18px; letter-spacing:1px;">
+      ⚡ FORGE, ENCHANT & CUSTOMIZATION UPDATE
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
@@ -421,6 +426,9 @@
     <button class="menu-btn" style="border-color:#ffd700; color:#ffd700;" onclick="openHeroProfile()">
       <span>👤</span> <span>КИБЕР-ПРОФИЛЬ ГЕРОЯ</span>
     </button>
+    <button class="menu-btn" style="border-color:#00ffcc; color:#00ffcc;" onclick="openCustomMenu()">
+      <span>🎨</span> <span>ГАРДЕРОБ / ВИД ПЕРСОНАЖА</span>
+    </button>
   </div>
 
   <!-- HUD -->
@@ -433,7 +441,7 @@
       <button class="nav-btn quest" onclick="openQuestsMenu()">📜</button>
       <button class="nav-btn cases" onclick="openCasesMenu()">📦</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
-      <span class="version-tag">v1.4</span>
+      <span class="version-tag">v1.5</span>
       <div style="font-size:10px; font-weight:bold;">
         🪙 <span id="val-coins" style="color:#ffd700;">100</span> | 
         🎃 <span id="val-pumpkins" style="color:#ff7700;">0</span> | 
@@ -461,9 +469,8 @@
       </div>
     </div>
 
-    <!-- ТАЧ-КНОПКА ХАЙЗЕНБЕРГА ДЛЯ ТЕЛЕФОНОВ -->
-    <div id="interact-prompt">⚗️ ОТКРЫТЬ ЛАБОРАТОРИЮ ХАЙЗЕНБЕРГА</div>
-    <div id="tip-banner">⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, ДВОЙНОЙ ТАП ПРЫЖКА = РЕАКТИВНЫЙ БУСТ!</div>
+    <div id="interact-prompt">⚗️ ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА [ТАП]</div>
+    <div id="tip-banner">⛏️ ТАПАЙ РЯДОМ ЧТОБЫ СТРОИТЬ/КОПАТЬ, ДВОЙНОЙ ПРЫЖОК = БУСТ!</div>
 
     <div class="bottom-panel">
       <div class="dpad-cross" id="dpad-container">
@@ -478,9 +485,14 @@
         <div></div>
       </div>
       <div class="touch-actions">
+        <!-- ПЕРЕКЛЮЧАТЕЛЬ СТРОИТЬ / КОПАТЬ -->
+        <button class="act-btn mode-toggle" id="btn-build-toggle">
+          <span id="build-mode-icon">⛏️</span>
+          <span id="build-mode-text">КОПАТЬ</span>
+        </button>
         <button class="act-btn attack-world" id="btn-attack-world">
-          <span>🗡️</span>
-          <span>УДАР</span>
+          <span id="attack-icon">🗡️</span>
+          <span id="attack-text">УДАР</span>
         </button>
         <button class="act-btn" id="btn-action">
           <span id="act-icon">▲</span>
@@ -490,41 +502,54 @@
     </div>
   </div>
 
-  <!-- КРАФТ ВЕРСТАК -->
+  <!-- КРАФТ ВЕРСТАК (КИРКИ, БУРЫ, КУВАЛДА, БЛАСТЕР) -->
   <div class="modal" id="craft-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
-      <h3 style="color:#ff9900; font-size:15px; margin-bottom:6px;">⚒️ КИБЕР-ВЕРСТАК КРАФТА</h3>
+      <h3 style="color:#ff9900; font-size:15px; margin-bottom:6px;">⚒️ КИБЕР-КУЗНИЦА И ИНСТРУМЕНТЫ</h3>
       
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#ff7700;">🎃 Шлем: Неоновая Тыква</div>
-          <div style="font-size:10px; color:#ffd700;">🎃 6 Тыкв + 👑 2 Золота</div>
-          <div style="font-size:9px; color:#8fa5c4;">+25% урона и шанс крита!</div>
+          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🔩 Титановый Бур (Кирка 2 уровня)</div>
+          <div style="font-size:10px; color:#ffd700;">💎 6 Руды + 👑 2 Золота</div>
+          <div style="font-size:9px; color:#8fa5c4;">x2 скорость добычи любых пород!</div>
         </div>
-        <button class="btn-action-small" onclick="craftItem('pumpkin_hat')">КРАФТ</button>
+        <button class="btn-action-small" onclick="craftItem('titan_drill')">КРАФТ</button>
       </div>
 
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🗡️ Неоновый Клинок MK-2</div>
-          <div style="font-size:10px; color:#ffd700;">💎 4 Руды + 🧱 8 Камня</div>
+          <div style="font-size:12px; font-weight:900; color:#ff7700;">🔨 Кибер-Кувалда «Разрушитель»</div>
+          <div style="font-size:10px; color:#ffd700;">🧱 15 Камня + 👑 3 Золота</div>
+          <div style="font-size:9px; color:#8fa5c4;">Мгновенный снос камня + AoE-удар по мобам!</div>
         </div>
-        <button class="btn-action-small" onclick="craftItem('sword')">КРАФТ</button>
+        <button class="btn-action-small" onclick="craftItem('sledgehammer')">КРАФТ</button>
       </div>
+
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🛡️ Титановый Экзо-Панцирь</div>
-          <div style="font-size:10px; color:#ffd700;">💎 8 Руды + ⚙️ 2 Чипа</div>
+          <div style="font-size:12px; font-weight:900; color:#00e5ff;">🔫 Импульсный Бластер (2D Огнестрел)</div>
+          <div style="font-size:10px; color:#ffd700;">💎 5 Руды + ⚙️ 2 Чипа</div>
+          <div style="font-size:9px; color:#8fa5c4;">Стреляет плазмой по дронам на расстоянии!</div>
         </div>
-        <button class="btn-action-small" onclick="craftItem('chest')">КРАФТ</button>
+        <button class="btn-action-small" onclick="craftItem('blaster')">КРАФТ</button>
       </div>
+
       <div class="card-item">
         <div>
-          <div style="font-size:12px; font-weight:900; color:#00ffcc;">🦿 Усиленный Гидро-Протез</div>
-          <div style="font-size:10px; color:#ffd700;">💎 6 Руды + 🧱 12 Камня</div>
+          <div style="font-size:12px; font-weight:900; color:#e056fd;">🧲 Реликвия: Магнит Руды</div>
+          <div style="font-size:10px; color:#ffd700;">💎 4 Руды + 🪙 80 Монет</div>
+          <div style="font-size:9px; color:#8fa5c4;">Авто-притяжение дропа с дистанции 8 блоков!</div>
         </div>
-        <button class="btn-action-small" onclick="craftItem('leg')">КРАФТ</button>
+        <button class="btn-action-small" onclick="craftItem('magnet')">КРАФТ</button>
+      </div>
+
+      <div class="card-item">
+        <div>
+          <div style="font-size:12px; font-weight:900; color:#ff7700;">🎃 Шлем: Неоновая Тыква</div>
+          <div style="font-size:10px; color:#ffd700;">🎃 6 Тыкв + 👑 2 Золота</div>
+        </div>
+        <button class="btn-action-small" onclick="craftItem('pumpkin_hat')">КРАФТ</button>
       </div>
     </div>
   </div>
@@ -549,7 +574,7 @@
       </div>
       
       <div style="width:100px; height:100px; margin:0 auto 12px; border:2px dashed #ff7700; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:42px; background:rgba(255, 119, 0, 0.1);" id="box-anim-target">
-        🎃
+        📦
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
@@ -561,20 +586,28 @@
     </div>
   </div>
 
-  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА -->
+  <!-- ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА И ЗАЧАРОВАНИЯ -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-        <span style="font-size:32px;">🎃</span>
+        <span style="font-size:32px;">🔮</span>
         <div>
-          <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ [МОБИЛЬНАЯ ЛАБОРАТОРИЯ]</h3>
-          <span style="font-size:10px; color:#ff7700;">Синтез Эликсиров 99.1% Чистоты</span>
+          <h3 style="color:#ffaa00; font-size:15px;">ХАЙЗЕНБЕРГ: МОДИФИКАТОР & АЛХИМИЯ</h3>
+          <span style="font-size:10px; color:#00ffcc;">Зачарования оружия и 10-минутные зелья</span>
         </div>
       </div>
-      <p style="font-size:11px; line-height:1.5; color:#cbd9ec; margin-bottom:10px;">
-        "Say my name... Ты нажал на меня или на сенсорную плашку! Каждое зелье действует ровно 10 минут (600 сек) и не сбрасывается в бою с Титаном."
-      </p>
+      
+      <!-- СЕКЦИЯ ЗАЧАРОВАНИЙ -->
+      <div style="background:#1b1238; border:1px solid #00ffcc; border-radius:8px; padding:10px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:900; color:#00ffcc; margin-bottom:3px;">🔮 КИБЕР-ЗАЧАРОВАНИЕ ОРУЖИЯ</div>
+        <div style="font-size:10px; color:#cbd9ec; margin-bottom:6px;">
+          Текущее оружие: <b id="current-enchant-txt" style="color:#ffd700;">Без зачарования</b>
+        </div>
+        <button class="btn-action-small" style="background:#00ffcc; color:#000; width:100%; padding:8px;" onclick="enchantWeapon()">
+          ⚡ ЗАЧАРОВАТЬ ЗА 5 КРИСТАЛЛОВ 💎
+        </button>
+      </div>
 
       <div class="card-item">
         <div>
@@ -599,13 +632,42 @@
         </div>
         <button class="btn-action-small" onclick="buyPotion('speed')">СВАРИТЬ</button>
       </div>
+    </div>
+  </div>
 
-      <div class="card-item">
-        <div>
-          <div style="font-size:12px; font-weight:bold; color:#00ff66;">🪙 Зелье Удачи «Жадность» (10 мин)</div>
-          <div style="font-size:10px; color:#8fa5c4;">x2 дроп монет, золота и руды | 💎 4 Руды</div>
+  <!-- КИБЕР-ГАРДЕРОБ / КАСТОМИЗАЦИЯ ВНЕШНОСТИ -->
+  <div class="modal" id="custom-modal">
+    <div class="modal-box">
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('custom-modal')">✕</button>
+      <h3 style="color:#00ffcc; font-size:15px; margin-bottom:8px;">🎨 КИБЕР-ГАРДЕРОБ / ВИД ГЕРОЯ</h3>
+
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">ЦВЕТ ВОЛОС:</div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-action-small" style="background:#1f140e; color:#fff;" onclick="setCustomStyle('hair', 0x1f140e)">Брюнет</button>
+          <button class="btn-action-small" style="background:#00e5ff; color:#000;" onclick="setCustomStyle('hair', 0x00e5ff)">Неон</button>
+          <button class="btn-action-small" style="background:#f1c40f; color:#000;" onclick="setCustomStyle('hair', 0xf1c40f)">Блонд</button>
+          <button class="btn-action-small" style="background:#e74c3c; color:#fff;" onclick="setCustomStyle('hair', 0xe74c3c)">Огонь</button>
         </div>
-        <button class="btn-action-small" onclick="buyPotion('greed')">СВАРИТЬ</button>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">НЕОН КИБЕР-ПРОТЕЗА НОГИ:</div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-action-small" style="background:#00ffcc; color:#000;" onclick="setCustomStyle('legGlow', 0x00ffcc)">Бирюза</button>
+          <button class="btn-action-small" style="background:#e056fd; color:#fff;" onclick="setCustomStyle('legGlow', 0xe056fd)">Пурпур</button>
+          <button class="btn-action-small" style="background:#ff7700; color:#000;" onclick="setCustomStyle('legGlow', 0xff7700)">Пламя</button>
+          <button class="btn-action-small" style="background:#00ff66; color:#000;" onclick="setCustomStyle('legGlow', 0x00ff66)">Изумруд</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">МОДИФИКАЦИИ ЛИЦА:</div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-action-small" onclick="setCustomStyle('face', 'scar')">Боевой шрам</button>
+          <button class="btn-action-small" onclick="setCustomStyle('face', 'monocular')">Кибер-глаз</button>
+          <button class="btn-action-small" onclick="setCustomStyle('face', 'none')">Чистое лицо</button>
+        </div>
       </div>
     </div>
   </div>
@@ -616,7 +678,10 @@
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
       <h3 style="color:#ffaa00; font-size:15px; margin-bottom:10px;">КИБЕР-ПРОФИЛЬ ГЕРОЯ</h3>
       <div style="background:#130b2e; border:1px solid #ff7700; border-radius:8px; padding:10px; margin-bottom:10px;">
-        <div style="font-size:14px; font-weight:900; color:#ff7700;">Tivaiis [Cyber-Titan]</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:14px; font-weight:900; color:#ff7700;">Tivaiis [Cyber-Titan]</div>
+          <button class="btn-action-small" style="background:#00ffcc; color:#000; font-size:9px;" onclick="openCustomMenu()">🎨 ВИД</button>
+        </div>
         <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:#ffd700; font-weight:bold;">1</span></div>
         <div class="bar-bg" style="height:6px; margin-top:4px;">
           <div id="ui-exp-fill" style="height:100%; width:15%; background:#ff7700;"></div>
@@ -709,25 +774,26 @@
       slash() { this.beep(550, 0.12, 'sawtooth', 120, 0.2); },
       stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.04); },
       mine() { this.beep(120, 0.08, 'sawtooth', 50, 0.15); },
+      build() { this.beep(600, 0.08, 'square', null, 0.15); },
       gem() { this.beep(1200, 0.18, 'sine', 1600, 0.2); },
       laser() { this.beep(850, 0.12, 'sawtooth', 180, 0.2); },
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
       pumpkinSmash() { this.beep(350, 0.2, 'square', 80, 0.25); },
+      enchant() { [500, 750, 1000, 1350].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'sine', null, 0.25), i * 80)); },
       enrage() { this.beep(160, 0.6, 'sawtooth', 60, 0.4); },
       craft() { [300, 450, 600, 900].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70)); },
       lvlUp() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80)); }
     };
 
-    // ФУНКЦИЯ ВСПЛЫВАЮЩИХ ЦИФР УРОНА
-    function spawnDamageNumber(x3d, y3d, z3d, val, isCrit = false) {
+    function spawnDamageNumber(x3d, y3d, z3d, val, isCrit = false, isHeal = false) {
       const v = new THREE.Vector3(x3d, y3d, z3d);
       v.project(camera);
       const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
       const sy = (-(v.y * 0.5) + 0.5) * window.innerHeight;
 
       const el = document.createElement('div');
-      el.className = 'dmg-num' + (isCrit ? ' dmg-crit' : '');
-      el.innerText = (isCrit ? '🔥 ' : '') + Math.round(val);
+      el.className = 'dmg-num' + (isCrit ? ' dmg-crit' : '') + (isHeal ? ' dmg-heal' : '');
+      el.innerText = (isHeal ? '+💚 ' : (isCrit ? '🔥 ' : '')) + Math.round(val);
       el.style.left = `${sx}px`;
       el.style.top = `${sy}px`;
       document.getElementById('dmg-layer').appendChild(el);
@@ -735,7 +801,7 @@
     }
 
     // ==========================================
-    // ИГРОВОЙ СТЕЙТ
+    // ИГРОВОЙ СТЕЙТ И ПЕРЕМЕННЫЕ
     // ==========================================
     let coins = 100;
     let ores = 0;
@@ -745,6 +811,25 @@
     let gold = 0;
     let caseCount = 1;
     let spookyCaseCount = 1;
+
+    // Режим взаимодействия в 2D: 'mine' | 'build'
+    let currentInteractionMode = 'mine';
+
+    // Инструменты и зачарование
+    let currentToolTier = 1; // 1: Кирка, 2: Бур (x2), 3: Резак (x3)
+    let hasSledgehammer = false; // Кувалда
+    let hasBlaster = false; // Огнестрел
+    let hasMagnet = false; // Магнит руды
+
+    // Зачарование: null | 'vampiric' | 'hypersonic' | 'glitch' | 'titan'
+    let weaponEnchantment = null;
+
+    // Внешность персонажа (кастомизация)
+    const customStyle = {
+      hairColor: 0x1f140e,
+      legGlowColor: 0x00ffcc,
+      faceAcc: 'scar' // 'scar' | 'monocular' | 'none'
+    };
 
     const activeBuffs = {
       strength: 0,
@@ -758,6 +843,7 @@
       { id: 'q_pumpkin', title: '🎃 Тыквенный Сборщик', desc: 'Срубить 4 кибер-тыквы на поверхности', cur: 0, max: 4, rewardCoins: 150, rewardCase: 1, done: false },
       { id: 'q_gold', title: '👑 Золотая Лихорадка', desc: 'Добыть 3 золотые жилы в глубинах', cur: 0, max: 3, rewardCoins: 200, rewardCase: 1, done: false },
       { id: 'q_drone', title: '💥 Охотник на Дронов', desc: 'Уничтожить 4 тыквенных дрона', cur: 0, max: 4, rewardCoins: 180, rewardCase: 1, done: false },
+      { id: 'q_worm', title: '🪱 Страж Недр', desc: 'Уничтожить Кибер-Червя в глубинах пещер', cur: 0, max: 1, rewardCoins: 350, rewardCase: 2, done: false },
       { id: 'q_boss', title: '🏆 Падение Тыквенного Титана', desc: 'Победить Центуриона в 3D', cur: 0, max: 1, rewardCoins: 600, rewardCase: 2, done: false }
     ];
 
@@ -803,12 +889,14 @@
       getMinDmg() { 
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
-        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg; 
+        const hammerDmg = hasSledgehammer ? 30 : 0;
+        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
       },
       getMaxDmg() { 
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
-        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg; 
+        const hammerDmg = hasSledgehammer ? 30 : 0;
+        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
       },
       getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp; },
       getCritChance() { 
@@ -818,13 +906,15 @@
       getDodgeChance() { return this.agi * 2 + this.craftBonusDodge; },
       getArmorReduction() { 
         const pDef = activeBuffs.titan > 0 ? 30 : 0;
-        return Math.min(80, this.end * 2 + (this.equipped.chest !== "Обычная одежда" ? 35 : 0) + pDef); 
+        const enchDef = weaponEnchantment === 'titan' ? 25 : 0;
+        return Math.min(85, this.end * 2 + (this.equipped.chest !== "Обычная одежда" ? 35 : 0) + pDef + enchDef); 
       }
     };
 
     function saveGameData() {
       const data = {
         coins, ores, stones, chips, pumpkins, gold, caseCount, spookyCaseCount,
+        currentToolTier, hasSledgehammer, hasBlaster, hasMagnet, weaponEnchantment, customStyle,
         activeBuffs,
         hero: {
           level: Hero.level, exp: Hero.exp, expMax: Hero.expMax, statPoints: Hero.statPoints,
@@ -833,12 +923,12 @@
         },
         quests: Quests.map(q => ({ id: q.id, cur: q.cur, done: q.done }))
       };
-      localStorage.setItem('CYBERCORE_TITAN_SAVE_v14', JSON.stringify(data));
+      localStorage.setItem('CYBERCORE_TITAN_SAVE_v15', JSON.stringify(data));
     }
 
     function loadGameData() {
       try {
-        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v14') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v13');
+        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v15') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v14');
         if (!raw) return;
         const d = JSON.parse(raw);
         coins = d.coins ?? coins;
@@ -849,6 +939,12 @@
         gold = d.gold ?? gold;
         caseCount = d.caseCount ?? caseCount;
         spookyCaseCount = d.spookyCaseCount ?? spookyCaseCount;
+        currentToolTier = d.currentToolTier ?? currentToolTier;
+        hasSledgehammer = d.hasSledgehammer ?? hasSledgehammer;
+        hasBlaster = d.hasBlaster ?? hasBlaster;
+        hasMagnet = d.hasMagnet ?? hasMagnet;
+        weaponEnchantment = d.weaponEnchantment ?? weaponEnchantment;
+        if (d.customStyle) Object.assign(customStyle, d.customStyle);
         if (d.activeBuffs) Object.assign(activeBuffs, d.activeBuffs);
         if (d.hero) {
           Object.assign(Hero, d.hero);
@@ -862,6 +958,7 @@
             if (f) { f.cur = sq.cur; f.done = sq.done; }
           });
         }
+        applyCustomizationToMesh();
       } catch (e) {}
     }
 
@@ -877,11 +974,10 @@
     let currentHp = 150;
     let iFrames = 0;
     let timeSinceLastDmg = 0;
-    let canDoubleJump = false; // Флаг двойного прыжка
+    let canDoubleJump = false;
 
     function setTip(text) {
-      const banner = document.getElementById('tip-banner');
-      banner.innerText = text;
+      document.getElementById('tip-banner').innerText = text;
     }
 
     function updateHeroUI() {
@@ -909,6 +1005,21 @@
       document.getElementById('val-gold').innerText = gold;
       document.getElementById('case-count-txt').innerText = caseCount;
       document.getElementById('spooky-case-count-txt').innerText = spookyCaseCount;
+
+      const enchNames = {
+        vampiric: "🩸 Вампирский (+4% HP кража)",
+        hypersonic: "⚡ Гиперзвуковой (+35% скорость)",
+        glitch: "👾 Глитчевый (Шанс x3 урон)",
+        titan: "🛡️ Титановый (+25 броня)"
+      };
+      document.getElementById('current-enchant-txt').innerText = weaponEnchantment ? enchNames[weaponEnchantment] : "Без зачарования";
+
+      // Текст кнопки атаки/огнестрела
+      if (hasBlaster) {
+        document.getElementById('attack-icon').innerText = "🔫";
+        document.getElementById('attack-text').innerText = "БЛАСТЕР";
+      }
+
       updatePlayerHpBar();
     }
 
@@ -1008,6 +1119,25 @@
       }
     }
 
+    // ==========================================
+    // ЗАЧАРОВАНИЕ У ХАЙЗЕНБЕРГА
+    // ==========================================
+    window.enchantWeapon = function() {
+      if (ores < 5) {
+        showToast("Нужно 5 кристаллов руды 💎 для перековки!", '#ff0055');
+        return;
+      }
+      ores -= 5;
+      const pool = ['vampiric', 'hypersonic', 'glitch', 'titan'];
+      weaponEnchantment = pool[Math.floor(Math.random() * pool.length)];
+
+      AudioEngine.enchant();
+      haptic('success');
+      showToast(`✨ ПОЛУЧЕНО ЗАЧАРОВАНИЕ: ${weaponEnchantment.toUpperCase()}!`, '#00ffcc');
+      updateHeroUI();
+      saveGameData();
+    };
+
     window.buyPotion = function(type) {
       if (type === 'pumpkin_madness') {
         if (pumpkins < 4) { showToast(`Нужно 🎃 4 Тыквы!`, '#ff7700'); return; }
@@ -1027,6 +1157,49 @@
       saveGameData();
     };
 
+    // ==========================================
+    // КАСТОМИЗАЦИЯ ВНЕШНОСТИ
+    // ==========================================
+    window.openCustomMenu = function() {
+      document.getElementById('custom-modal').style.display = 'flex';
+      AudioEngine.beep(400, 0.08);
+      haptic('medium');
+    };
+
+    window.setCustomStyle = function(category, val) {
+      if (category === 'hair') {
+        customStyle.hairColor = val;
+      } else if (category === 'legGlow') {
+        customStyle.legGlowColor = val;
+      } else if (category === 'face') {
+        customStyle.faceAcc = val;
+      }
+      applyCustomizationToMesh();
+      AudioEngine.beep(600, 0.08);
+      haptic('light');
+      saveGameData();
+    };
+
+    function applyCustomizationToMesh() {
+      hairTop.material.color.setHex(customStyle.hairColor);
+      hairBangs.material.color.setHex(customStyle.hairColor);
+      cyberKnee.material.color.setHex(customStyle.legGlowColor);
+
+      if (customStyle.faceAcc === 'scar') {
+        scarMesh.visible = true;
+        monocularMesh.visible = false;
+      } else if (customStyle.faceAcc === 'monocular') {
+        scarMesh.visible = false;
+        monocularMesh.visible = true;
+      } else {
+        scarMesh.visible = false;
+        monocularMesh.visible = false;
+      }
+    }
+
+    // ==========================================
+    // ЛУТБОКСЫ
+    // ==========================================
     window.openCasesMenu = function() {
       updateHeroUI();
       document.getElementById('cases-modal').style.display = 'flex';
@@ -1179,37 +1352,67 @@
       haptic('medium');
     };
 
+    // КРАФТ ИНСТРУМЕНТОВ
     window.craftItem = function(type) {
-      if (type === 'pumpkin_hat') {
+      if (type === 'titan_drill') {
+        if (ores < 6 || gold < 2) { showToast("Нужно 6 руды 💎 и 2 золота 👑!", '#ff0055'); return; }
+        ores -= 6; gold -= 2;
+        currentToolTier = 2;
+        showToast("🔩 СКРАФЧЕН ТИТАНОВЫЙ БУР (x2 СКОРОСТЬ)!", '#00ffcc');
+      } else if (type === 'sledgehammer') {
+        if (stones < 15 || gold < 3) { showToast("Нужно 15 камня 🧱 и 3 золота 👑!", '#ff0055'); return; }
+        stones -= 15; gold -= 3;
+        hasSledgehammer = true;
+        showToast("🔨 СКРАФЧЕНА КИБЕР-КУВАЛДА (СПЛЭШ УРОН)!", '#ff7700');
+      } else if (type === 'blaster') {
+        if (ores < 5 || chips < 2) { showToast("Нужно 5 руды 💎 и 2 чипа ⚙️!", '#ff0055'); return; }
+        ores -= 5; chips -= 2;
+        hasBlaster = true;
+        showToast("🔫 СКРАФЧЕН ИМПУЛЬСНЫЙ БЛАСТЕР (ОГНЕСТРЕЛ)!", '#00e5ff');
+      } else if (type === 'magnet') {
+        if (ores < 4 || coins < 80) { showToast("Нужно 4 руды 💎 и 80 монет 🪙!", '#ff0055'); return; }
+        ores -= 4; coins -= 80;
+        hasMagnet = true;
+        showToast("🧲 РЕЛИКВИЯ МАГНИТ РУДЫ АКТИВИРОВАНА!", '#e056fd');
+      } else if (type === 'pumpkin_hat') {
         if (pumpkins < 6 || gold < 2) { showToast("Нужно 🎃 6 Тыкв и 👑 2 Золота!", '#ff7700'); return; }
         pumpkins -= 6; gold -= 2;
         Hero.equipped.helmet = 'pumpkin_hat';
         pumpkinHatMesh.visible = true;
         showToast("🎃 ЭКИПИРОВАН ШЛЕМ НЕОНОВОЙ ТЫКВЫ (+25% УРОНА)!", '#ff7700');
-      } else if (type === 'sword') {
-        if (ores < 4 || stones < 8) { showToast("Нужно 4 руды и 8 камня.", '#ff0055'); return; }
-        ores -= 4; stones -= 8;
-        Hero.equipped.sword = "Неоновый Клинок MK-2";
-        Hero.craftBonusDmg = 25;
-        swordMesh.material.color.setHex(0x00ffcc);
-      } else if (type === 'chest') {
-        if (ores < 8 || chips < 2) { showToast("Нужно 8 руды и 2 чипа.", '#ff0055'); return; }
-        ores -= 8; chips -= 2;
-        Hero.equipped.chest = "Титановый Экзо-Панцирь";
-        Hero.craftBonusHp = 80;
-        armorPlateMesh.visible = true;
-      } else if (type === 'leg') {
-        if (ores < 6 || stones < 12) { showToast("Нужно 6 руды и 12 камня.", '#ff0055'); return; }
-        ores -= 6; stones -= 12;
-        Hero.equipped.leg = "Усиленный Гидро-Протез";
-        Hero.craftBonusDodge = 15;
       }
-      Hero.addExp(50);
+      Hero.addExp(60);
       AudioEngine.craft();
       haptic('success');
       updateHeroUI();
       saveGameData();
     };
+
+    // ==========================================
+    // ПЕРЕКЛЮЧАТЕЛЬ: КОПАТЬ / СТРОИТЬ БЛОКИ В 2D
+    // ==========================================
+    const buildToggleBtn = document.getElementById('btn-build-toggle');
+    buildToggleBtn.addEventListener('click', toggleInteractionMode);
+    buildToggleBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      toggleInteractionMode();
+    }, { passive: false });
+
+    function toggleInteractionMode() {
+      if (currentInteractionMode === 'mine') {
+        currentInteractionMode = 'build';
+        document.getElementById('build-mode-icon').innerText = "🧱";
+        document.getElementById('build-mode-text').innerText = "СТРОИТЬ";
+        setTip("🧱 РЕЖИМ СТРОЙКИ: ТАПАЙ РЯДОМ, ЧТОБЫ СТАВИТЬ БЛОКИ!");
+      } else {
+        currentInteractionMode = 'mine';
+        document.getElementById('build-mode-icon').innerText = "⛏️";
+        document.getElementById('build-mode-text').innerText = "КОПАТЬ";
+        setTip("⛏️ РЕЖИМ ДОБЫЧИ: ЗАЖИМАЙ БЛОКИ, ЧТОБЫ ЛОМАТЬ!");
+      }
+      AudioEngine.beep(550, 0.08);
+      haptic('light');
+    }
 
     // --- THREE.JS СЦЕНА ---
     const container = document.getElementById('canvas-container');
@@ -1260,7 +1463,7 @@
     scene.add(playerGroup);
 
     const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 });
-    const matHair = new THREE.MeshStandardMaterial({ color: 0x1f140e, roughness: 0.8 });
+    const matHair = new THREE.MeshStandardMaterial({ color: customStyle.hairColor, roughness: 0.8 });
     const matJacket = new THREE.MeshStandardMaterial({ color: 0x141b29 });
     const matPants = new THREE.MeshStandardMaterial({ color: 0x0b0f17 });
     const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0xb0c0d0, metalness: 0.95 });
@@ -1276,11 +1479,19 @@
     eyeR.position.set(0.11, 1.5, 0.22);
     playerGroup.add(eyeR);
 
+    // ШРАМ
     const scarMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.22, 0.02), new THREE.MeshBasicMaterial({ color: 0xc0392b }));
     scarMesh.position.set(0.11, 1.5, 0.222);
     scarMesh.rotation.z = -0.25;
     playerGroup.add(scarMesh);
 
+    // КИБЕР-МОНОКУЛЯР
+    const monocularMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 12).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+    monocularMesh.position.set(0.11, 1.5, 0.24);
+    monocularMesh.visible = false;
+    playerGroup.add(monocularMesh);
+
+    // ВОЛОСЫ
     const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.44), matHair);
     hairTop.position.set(0, 1.72, 0);
     playerGroup.add(hairTop);
@@ -1334,7 +1545,7 @@
     const cyberThigh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), matCyberChrome);
     cyberThigh.position.y = -0.15;
     legLeftCyber.add(cyberThigh);
-    const cyberKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+    const cyberKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), new THREE.MeshBasicMaterial({ color: customStyle.legGlowColor }));
     cyberKnee.position.set(0, -0.32, 0);
     legLeftCyber.add(cyberKnee);
     const cyberShin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.14), matCyberChrome);
@@ -1347,7 +1558,7 @@
     playerGroup.add(legLeftCyber);
 
     // ==========================================
-    // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ И РУДА
+    // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ, РУДА
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -1431,7 +1642,7 @@
     }
 
     // ==========================================
-    // МОБЫ
+    // МОБЫ + ПЕЩЕРНЫЙ МИНИ-БОСС «КИБЕР-ЧЕРВЬ»
     // ==========================================
     const worldEnemies = [];
     const passiveMobs = [];
@@ -1457,6 +1668,29 @@
       };
       worldGroup.add(eg);
       worldEnemies.push(eg);
+    }
+
+    // ПЕЩЕРНЫЙ МИНИ-БОСС В ГЛУБИНАХ
+    function spawnCaveMiniBoss(x, y) {
+      const boss = new THREE.Group();
+      const headMesh = new THREE.Mesh(new THREE.SphereGeometry(1.0, 12, 12), new THREE.MeshStandardMaterial({ color: 0x8e44ad, metalness: 0.8 }));
+      boss.add(headMesh);
+      const glowEyes = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.4), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+      glowEyes.position.set(0, 0.2, 0.85);
+      boss.add(glowEyes);
+
+      boss.position.set(x, y, 0);
+      boss.userData = {
+        type: 'miniboss',
+        name: 'КИБЕР-ЧЕРВЬ MK-1',
+        hp: 450,
+        maxHp: 450,
+        speed: 0.055,
+        attackCooldown: 0
+      };
+      worldGroup.add(boss);
+      worldEnemies.push(boss);
+      showToast("⚠️ ОБНАРУЖЕН СТРАЖ НЕДР: КИБЕР-ЧЕРВЬ!", "#8e44ad");
     }
 
     function spawnPassiveBunny(x) {
@@ -1532,7 +1766,7 @@
     heisenbergGroup.add(chemDesk);
 
     // ==========================================
-    // 3D АРЕНА БОССА: ФАЗА 1 И ФАЗА 2 (ЭНРЕЙДЖ)
+    // 3D АРЕНА ТЫКВЕННОГО БОССА
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
@@ -1564,7 +1798,6 @@
     bCore.position.set(0, 3.5, 1.25);
     bossRig.add(bCore);
 
-    // КРЫЛЬЯ ФАЗЫ 2 (ОТКРЫВАЮТСЯ ПРИ HP < 50%)
     const bossWings = new THREE.Group();
     const wingL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
     wingL.position.set(-2.8, 4.2, -0.6);
@@ -1582,6 +1815,7 @@
     let isBossPhase2 = false;
 
     const projectiles = [];
+    const projectiles2D = []; // Снаряды бластера в 2D
     let bossAttackTimer = 0;
 
     let pX = 0, pY = 4, pZ = 0;
@@ -1595,10 +1829,10 @@
     }
 
     function clearAllProjectiles() {
-      for (let i = projectiles.length - 1; i >= 0; i--) {
-        bossGroup.remove(projectiles[i].mesh);
-      }
+      for (let i = projectiles.length - 1; i >= 0; i--) bossGroup.remove(projectiles[i].mesh);
       projectiles.length = 0;
+      for (let i = projectiles2D.length - 1; i >= 0; i--) worldGroup.remove(projectiles2D[i].mesh);
+      projectiles2D.length = 0;
     }
 
     window.startGameMode = function(targetMode) {
@@ -1620,6 +1854,7 @@
         document.getElementById('btn-mode-boss').classList.remove('active');
         document.getElementById('boss-hud-group').style.display = 'none';
         document.getElementById('btn-attack-world').style.display = 'flex';
+        document.getElementById('btn-build-toggle').style.display = 'flex';
         document.getElementById('act-text').innerText = "ПРЫЖОК";
         document.getElementById('btn-action').classList.remove('combat');
 
@@ -1637,12 +1872,13 @@
         camera.position.set(pX, pY + 1.4, 10);
         camera.lookAt(pX, pY + 1.4, 0);
 
-        setTip("🎃 КОПАЙ ТЫКВЫ И ЗОЛОТО, ВАРЯ ЭЛИКСИРЫ У ХАЙЗЕНБЕРГА!");
+        setTip("🎃 КОПАЙ/СТРОЙ БЛОКИ, ИЩИ ЗОЛОТО В НЕДРАХ И БЕЙ МОБОВ!");
       } else {
         document.getElementById('btn-mode-boss').classList.add('active');
         document.getElementById('btn-mode-world').classList.remove('active');
         document.getElementById('boss-hud-group').style.display = 'block';
         document.getElementById('btn-attack-world').style.display = 'none';
+        document.getElementById('btn-build-toggle').style.display = 'none';
         document.getElementById('act-text').innerText = "ОГОНЬ";
         document.getElementById('btn-action').classList.add('combat');
 
@@ -1657,38 +1893,76 @@
     document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
     document.getElementById('btn-mode-boss').addEventListener('click', () => switchMode('boss'));
 
-    // АТАКА В МИРЕ
+    // АТАКА / СТРЕЛЬБА В 2D
     function doWorldAttack() {
       if (mode !== 'world') return;
+
+      // Если скрафчен бластер — стреляем плазмой
+      if (hasBlaster) {
+        AudioEngine.laser();
+        haptic('light');
+
+        const pDir = playerGroup.rotation.y >= 0 ? 1 : -1;
+        const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0x00e5ff }));
+        pMesh.position.set(pX + pDir * 0.5, pY + 1.0, 0);
+        worldGroup.add(pMesh);
+        projectiles2D.push({ mesh: pMesh, vx: pDir * 0.35, life: 60 });
+        return;
+      }
+
+      // Ближний бой (меч или кувалда)
       AudioEngine.slash();
       haptic('light');
 
       armR.rotation.x = -Math.PI / 2;
       setTimeout(() => { armR.rotation.x = 0; }, 180);
 
+      const hitDist = hasSledgehammer ? 3.4 : 2.6; // У кувалды увеличенный сплэш радиус
+
       for (let i = worldEnemies.length - 1; i >= 0; i--) {
         const e = worldEnemies[i];
-        if (playerGroup.position.distanceTo(e.position) < 2.6) {
-          const isCrit = Math.random() * 100 < Hero.getCritChance();
-          const dmg = Math.floor((Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg())) * (isCrit ? 2.0 : 1.0));
-          
+        if (playerGroup.position.distanceTo(e.position) < hitDist) {
+          const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.18;
+          const isCrit = (Math.random() * 100 < Hero.getCritChance()) || isGlitch;
+          const baseD = Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg());
+          const mult = isGlitch ? 3.0 : (isCrit ? 2.0 : 1.0);
+          const dmg = Math.floor(baseD * mult);
+
           e.userData.hp -= dmg;
-          e.position.x += (e.position.x > playerGroup.position.x ? 0.8 : -0.8);
+          e.position.x += (e.position.x > playerGroup.position.x ? 0.9 : -0.9);
           AudioEngine.hit();
           haptic('medium');
           spawnDamageNumber(e.position.x, e.position.y + 0.8, 0, dmg, isCrit);
+
+          // ВАМПИРИЗМ ОТ ЗАЧАРОВАНИЯ
+          if (weaponEnchantment === 'vampiric') {
+            const heal = Math.max(2, Math.floor(dmg * 0.04));
+            currentHp = Math.min(Hero.getMaxHp(), currentHp + heal);
+            updatePlayerHpBar();
+            spawnDamageNumber(playerGroup.position.x, playerGroup.position.y + 1.4, 0, heal, false, true);
+          }
 
           if (e.userData.hp <= 0) {
             worldGroup.remove(e);
             worldEnemies.splice(i, 1);
             const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-            coins += 45 * dropMultiplier;
-            Hero.addExp(45);
-            Hero.wins++;
-            if (Math.random() < 0.35) spookyCaseCount++;
+            
+            if (e.userData.type === 'miniboss') {
+              coins += 350 * dropMultiplier;
+              gold += 5 * dropMultiplier;
+              spookyCaseCount += 2;
+              Hero.addExp(180);
+              showToast("🏆 СТРАЖ НЕДР ПОВЕРЖЕН! +350 🪙, +5 ЗОЛОТА, +2 КЕЙСА!", "#8e44ad");
+              updateQuestsProgress('q_worm', 1);
+            } else {
+              coins += 45 * dropMultiplier;
+              Hero.addExp(45);
+              Hero.wins++;
+              if (Math.random() < 0.35) spookyCaseCount++;
+              updateQuestsProgress('q_drone', 1);
+              setTip(`💥 ТЫКВЕННЫЙ ДРОН СБИТ! +${45 * dropMultiplier} 🪙!`);
+            }
             updateHeroUI();
-            updateQuestsProgress('q_drone', 1);
-            setTip(`💥 ТЫКВЕННЫЙ ДРОН СБИТ! +${45 * dropMultiplier} 🪙!`);
             saveGameData();
           }
         }
@@ -1709,7 +1983,9 @@
     }
     document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
 
-    // КОПАНИЕ
+    // ==========================================
+    // КОПАНИЕ И СТРОИТЕЛЬСТВО БЛОКОВ
+    // ==========================================
     let miningTarget = null;
     let miningProgress = 0;
     const raycaster = new THREE.Raycaster();
@@ -1721,18 +1997,57 @@
       mouse.y = -(clientY / window.innerHeight) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
-      // ПРЯМОЙ ТАП ПО ХАЙЗЕНБЕРГУ ОТКРЫВАЕТ ДИАЛОГ
+      // ПРЯМОЙ ТАП ПО ХАЙЗЕНБЕРГУ
       const hitHeisenberg = raycaster.intersectObjects(heisenbergGroup.children, true);
       if (hitHeisenberg.length > 0 && playerGroup.position.distanceTo(heisenbergGroup.position) < 5.0) {
         openHeisenbergDialogue();
         return;
       }
 
+      // РЕЖИМ СТРОЙКИ БЛОКА
+      if (currentInteractionMode === 'build') {
+        if (stones <= 0) {
+          showToast("Нет камня в инвентаре для постройки!", "#ff0055");
+          return;
+        }
+
+        // Проекция клика в мир Z=0
+        const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const intersectPoint = new THREE.Vector3();
+        raycaster.ray.intersectPlane(planeZ, intersectPoint);
+
+        const buildGX = Math.round(intersectPoint.x);
+        const buildGY = Math.round(intersectPoint.y);
+
+        // Проверяем дистанцию (до 4 блоков) и чтобы место было пусто
+        const dist = Math.hypot(buildGX - pX, buildGY - pY);
+        if (dist <= 4.2 && !blockMap.has(`${buildGX},${buildGY}`)) {
+          // Не строим прямо внутри тела игрока
+          if (Math.abs(buildGX - pX) < 0.6 && Math.abs(buildGY - pY) < 1.2) return;
+
+          stones--;
+          const newB = new THREE.Mesh(blockGeo, matStone);
+          newB.position.set(buildGX, buildGY, 0);
+          newB.userData = { gx: buildGX, gy: buildGY, type: 'stone', hp: 2 };
+          worldGroup.add(newB);
+          activeBlocks.push(newB);
+          blockMap.set(`${buildGX},${buildGY}`, newB);
+
+          AudioEngine.build();
+          haptic('light');
+          updateHeroUI();
+          saveGameData();
+        }
+        return;
+      }
+
+      // РЕЖИМ КОПАНИЯ
       const hits = raycaster.intersectObjects(activeBlocks);
       if (hits.length > 0) {
         const hit = hits[0].object;
         if (hit.userData.type === 'bedrock') return;
-        if (playerGroup.position.distanceTo(hit.position) < 4.5) {
+        const maxMineDist = currentToolTier >= 3 ? 6.5 : 4.5;
+        if (playerGroup.position.distanceTo(hit.position) < maxMineDist) {
           miningTarget = hit;
           miningProgress = 0;
           document.getElementById('mining-hud').style.display = 'block';
@@ -1753,14 +2068,18 @@
 
     function updateMining() {
       if (!miningTarget || mode !== 'world') return;
-      if (playerGroup.position.distanceTo(miningTarget.position) > 4.5) {
+      const maxMineDist = currentToolTier >= 3 ? 6.5 : 4.5;
+      if (playerGroup.position.distanceTo(miningTarget.position) > maxMineDist) {
         miningTarget = null;
         document.getElementById('mining-hud').style.display = 'none';
         return;
       }
 
       armR.rotation.x = Math.sin(Date.now() * 0.02) * 0.5;
-      miningProgress += 0.045;
+
+      // Скорость копания зависит от тира инструмента
+      const speedMult = currentToolTier === 3 ? 0.14 : (currentToolTier === 2 ? 0.09 : 0.045);
+      miningProgress += speedMult;
       document.getElementById('mining-bar').style.width = `${Math.min(100, (miningProgress / miningTarget.userData.hp) * 100)}%`;
 
       if (miningProgress >= miningTarget.userData.hp) {
@@ -1803,9 +2122,6 @@
       }
     }
 
-    // ==========================================
-    // СЕНСОРНОЕ ОТКРЫТИЕ ДИАЛОГА ХАЙЗЕНБЕРГА
-    // ==========================================
     function openHeisenbergDialogue() {
       document.getElementById('dialogue-modal').style.display = 'flex';
       AudioEngine.beep(400, 0.08);
@@ -1815,23 +2131,20 @@
     const interactBtn = document.getElementById('interact-prompt');
     interactBtn.addEventListener('click', openHeisenbergDialogue);
     interactBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       openHeisenbergDialogue();
     }, { passive: false });
 
     function setupTouchButton(id, onDown, onUp) {
       const el = document.getElementById(id);
       el.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         el.classList.add('active-touch');
         onDown();
       }, { passive: false });
 
       el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         el.classList.remove('active-touch');
         onUp();
       }, { passive: false });
@@ -1858,9 +2171,8 @@
       if (k === ' ') doMainAction();
       if (k === 'f') doWorldAttack();
       if (k === 'c') openCraftMenu();
-      if (k === 'e' && playerGroup.position.distanceTo(heisenbergGroup.position) < 4.5) {
-        openHeisenbergDialogue();
-      }
+      if (k === 'b') toggleInteractionMode();
+      if (k === 'e' && playerGroup.position.distanceTo(heisenbergGroup.position) < 4.5) openHeisenbergDialogue();
     });
     window.addEventListener('keyup', (e) => {
       const k = e.key.toLowerCase();
@@ -1870,17 +2182,15 @@
       if (k === 'd' || k === 'arrowright') inputState.right = false;
     });
 
-    // ДВОЙНОЙ ПРЫЖОК В 2D / ВЫСТРЕЛ В 3D
     function doMainAction() {
       if (mode === 'world') {
         if (isGrounded) {
           pVy = 0.28;
           isGrounded = false;
-          canDoubleJump = true; // Разрешаем второй прыжок в воздухе
+          canDoubleJump = true;
           AudioEngine.jump();
           haptic('light');
         } else if (canDoubleJump) {
-          // ДВОЙНОЙ РЕАКТИВНЫЙ БУСТ КИБЕР-НОГИ
           pVy = 0.28;
           canDoubleJump = false;
           AudioEngine.doubleJump();
@@ -1888,7 +2198,6 @@
           setTip("⚡ РЕАКТИВНЫЙ ДВОЙНОЙ ПРЫЖОК!");
         }
       } else {
-        // ВЫСТРЕЛ В 3D
         AudioEngine.laser();
         haptic('light');
 
@@ -1915,6 +2224,8 @@
           coins: coins,
           pumpkins: pumpkins,
           gold: gold,
+          toolTier: currentToolTier,
+          enchant: weaponEnchantment,
           stats: { str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi },
           equipped: Hero.equipped,
           wins: Hero.wins
@@ -1940,8 +2251,42 @@
       if (mode === 'world') {
         updateMining();
 
+        // 2D Снаряды бластера
+        for (let i = projectiles2D.length - 1; i >= 0; i--) {
+          const bp = projectiles2D[i];
+          bp.mesh.position.x += bp.vx;
+          bp.life--;
+
+          // Попадание по врагам
+          for (let j = worldEnemies.length - 1; j >= 0; j--) {
+            const we = worldEnemies[j];
+            if (bp.mesh.position.distanceTo(we.position) < 1.2) {
+              const dmg = Math.floor(Hero.getMinDmg() * 0.85);
+              we.userData.hp -= dmg;
+              AudioEngine.hit();
+              spawnDamageNumber(we.position.x, we.position.y + 0.6, 0, dmg);
+              bp.life = 0;
+
+              if (we.userData.hp <= 0) {
+                worldGroup.remove(we);
+                worldEnemies.splice(j, 1);
+                coins += 40;
+                Hero.addExp(40);
+                updateHeroUI();
+                saveGameData();
+              }
+              break;
+            }
+          }
+
+          if (bp.life <= 0) {
+            worldGroup.remove(bp.mesh);
+            projectiles2D.splice(i, 1);
+          }
+        }
+
         let moveSpeed = 0.12;
-        if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0) moveSpeed *= 1.45;
+        if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0 || weaponEnchantment === 'hypersonic') moveSpeed *= 1.45;
 
         let moveX = 0;
         let isMoving = false;
@@ -1977,7 +2322,6 @@
           }
         }
 
-        // Гравитация
         pVy -= 0.014;
         let nextY = pY + pVy;
 
@@ -1990,7 +2334,7 @@
             pY = targetFootGY + 0.5;
             pVy = 0;
             isGrounded = true;
-            canDoubleJump = false; // Сброс при приземлении
+            canDoubleJump = false;
           } else {
             pY = nextY;
             isGrounded = false;
@@ -2012,8 +2356,13 @@
         for (let x = playerGX - 18; x <= playerGX + 18; x++) generateColumn(x);
         if (Math.abs(playerGX) % 8 === 0) cleanFarChunks(playerGX);
 
+        // Спавн обычных мобов
         if (worldEnemies.length < 8 && Math.random() < 0.02) {
           spawnEnemy(pX + (Math.random() > 0.5 ? 15 : -15));
+        }
+        // Спавн пещерного мини-босса в глубине
+        if (pY < -10 && !worldEnemies.some(e => e.userData.type === 'miniboss') && Math.random() < 0.03) {
+          spawnCaveMiniBoss(pX + (Math.random() > 0.5 ? 12 : -12), pY);
         }
         if (passiveMobs.length < 4 && Math.random() < 0.01) {
           spawnPassiveBunny(pX + (Math.random() > 0.5 ? 12 : -12));
@@ -2030,18 +2379,20 @@
             if (e.position.x < pX) e.position.x += e.userData.speed;
             else e.position.x -= e.userData.speed;
 
-            const targetY = Math.max(minSafeY, playerGroup.position.y + 0.5);
+            const targetY = e.userData.type === 'miniboss' ? playerGroup.position.y : Math.max(minSafeY, playerGroup.position.y + 0.5);
             e.position.y += (targetY - e.position.y) * 0.05;
 
-            if (dist < 1.2) {
+            if (dist < 1.4) {
               if (!e.userData.attackCooldown || e.userData.attackCooldown <= 0) {
-                damagePlayer(25);
+                damagePlayer(e.userData.type === 'miniboss' ? 40 : 25);
                 e.userData.attackCooldown = 50;
               }
             }
           } else {
-            const patTargetY = minSafeY + Math.sin(t * 3 + e.position.x) * 0.3;
-            e.position.y += (patTargetY - e.position.y) * 0.05;
+            if (e.userData.type !== 'miniboss') {
+              const patTargetY = minSafeY + Math.sin(t * 3 + e.position.x) * 0.3;
+              e.position.y += (patTargetY - e.position.y) * 0.05;
+            }
           }
 
           if (e.userData.attackCooldown > 0) e.userData.attackCooldown--;
@@ -2073,7 +2424,6 @@
         camera.position.z = 10;
         camera.lookAt(camera.position.x, camera.position.y, 0);
 
-        // ПОКАЗ СЕНСОРНОЙ ПЛАШКИ ХАЙЗЕНБЕРГА
         const hDist = playerGroup.position.distanceTo(heisenbergGroup.position);
         document.getElementById('interact-prompt').style.display = hDist < 4.5 ? 'block' : 'none';
       }
@@ -2090,7 +2440,7 @@
           isRunning3D = true;
           const len = Math.hypot(mX, mZ);
           let spd = 0.15;
-          if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0) spd *= 1.45;
+          if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0 || weaponEnchantment === 'hypersonic') spd *= 1.45;
           pX += (mX / len) * spd;
           pZ += (mZ / len) * spd;
         }
@@ -2116,7 +2466,6 @@
 
         bossRig.lookAt(pX, bossRig.position.y, pZ);
 
-        // ПРОВЕРКА ФАЗЫ 2 (ЭНРЕЙДЖ ПРИ HP < 50%)
         if (bossHp <= bossMaxHp * 0.5 && !isBossPhase2) {
           isBossPhase2 = true;
           bossWings.visible = true;
@@ -2127,7 +2476,6 @@
           showToast("⚠️ ВНИМАНИЕ: БОСС ПЕРЕШЁЛ В РЕЖИМ ЯРОСТИ!", "#ff0055");
         }
 
-        // АТАКА БОССА (СКОРОСТЬ ВЫШЕ В ФАЗЕ 2)
         const attackInterval = isBossPhase2 ? 1.0 : 1.5;
         bossAttackTimer += dt;
         if (bossAttackTimer >= attackInterval) {
@@ -2163,9 +2511,20 @@
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
 
-              const isCrit = Math.random() * 100 < Hero.getCritChance();
-              const dmg = Math.floor(Hero.getMinDmg() * (isCrit ? 2.0 : 1.0));
+              const isGlitch = weaponEnchantment === 'glitch' && Math.random() < 0.18;
+              const isCrit = (Math.random() * 100 < Hero.getCritChance()) || isGlitch;
+              const baseD = Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg());
+              const mult = isGlitch ? 3.0 : (isCrit ? 2.0 : 1.0);
+              const dmg = Math.floor(baseD * mult);
+
               spawnDamageNumber(targetCorePos.x, targetCorePos.y + 0.8, targetCorePos.z, dmg, isCrit);
+
+              if (weaponEnchantment === 'vampiric') {
+                const heal = Math.max(2, Math.floor(dmg * 0.04));
+                currentHp = Math.min(Hero.getMaxHp(), currentHp + heal);
+                updatePlayerHpBar();
+                spawnDamageNumber(playerGroup.position.x, playerGroup.position.y + 1.4, playerGroup.position.z, heal, false, true);
+              }
 
               if (bossShield > 0) {
                 bossShield = Math.max(0, bossShield - dmg);
