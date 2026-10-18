@@ -1,87 +1,812 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>CyberCore HUD</title>
-    <!-- Официальный скрипт Telegram Mini App -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --neon: #00ffcc; --bg: #090a10; --accent: #ff0055; --text: #e0e6ed; }
-        body {
-            margin: 0; padding: 18px; background: var(--bg); color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-            display: flex; flex-direction: column; justify-content: space-between; height: 90vh;
-        }
-        .hud-box {
-            border: 2px solid var(--neon); border-radius: 14px; padding: 16px;
-            background: rgba(0, 255, 204, 0.05); box-shadow: 0 0 20px rgba(0, 255, 204, 0.25);
-            text-align: center;
-        }
-        .title { color: var(--neon); font-size: 22px; font-weight: 900; letter-spacing: 2px; }
-        .sub { font-size: 13px; opacity: 0.8; margin-top: 5px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
-        .card {
-            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; padding: 14px; text-align: center;
-        }
-        .card-val { font-size: 24px; font-weight: bold; color: var(--neon); }
-        .card-lbl { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; }
-        .btn-hack {
-            background: var(--accent); color: white; border: none; padding: 16px;
-            font-size: 17px; font-weight: bold; border-radius: 12px; cursor: pointer;
-            width: 100%; box-shadow: 0 0 25px rgba(255, 0, 85, 0.5); text-transform: uppercase;
-        }
-        .btn-ping {
-            background: transparent; border: 1px solid var(--neon); color: var(--neon);
-            padding: 12px; font-size: 14px; border-radius: 10px; cursor: pointer;
-            margin-top: 10px; width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CYBER-FANTASY: OPEN WORLD</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #02040a;
+      color: #00ffcc;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* TOP HUD */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+    }
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(4, 9, 20, 0.88);
+      border: 1px solid #00ffcc;
+      border-radius: 8px;
+      padding: 10px 16px;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.25);
+      pointer-events: auto;
+      max-width: 650px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .coin-val { color: #ffe600; text-shadow: 0 0 8px #ffe600; }
+    .quest-badge { color: #00ffcc; font-size: 11px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ACTION PROMPT (WHEN NEAR NPC) */
+    #interact-prompt {
+      align-self: center;
+      background: rgba(0, 255, 204, 0.2);
+      border: 1px solid #00ffcc;
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+      display: none;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+    /* TOUCH CONTROLS */
+    .touch-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      pointer-events: none;
+      margin-bottom: 6px;
+    }
+    .dpad-box {
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+      gap: 5px;
+    }
+    .dpad-btn {
+      background: rgba(0, 255, 204, 0.12);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      touch-action: manipulation;
+    }
+    .dpad-btn:active { background: #00ffcc; color: #000; }
+
+    .action-buttons {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .act-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(255, 230, 0, 0.12);
+      border: 1px solid #ffe600;
+      color: #ffe600;
+      font-weight: bold;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(255, 230, 0, 0.3);
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+    .act-btn:active { background: #ffe600; color: #000; transform: scale(0.92); }
+    .act-btn.shop-btn {
+      border-color: #00ffcc;
+      color: #00ffcc;
+      background: rgba(0, 255, 204, 0.12);
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+    .act-btn.shop-btn:active { background: #00ffcc; color: #000; }
+
+    /* MODAL WINDOWS (SHOP & DIALOGUE) */
+    .cyber-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 4, 10, 0.94);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: #060d1c;
+      border: 2px solid #00ffcc;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #ff0055;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .shop-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a152d;
+      border: 1px solid #1a3159;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+    .buy-btn {
+      background: #ffe600;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .buy-btn:active { transform: scale(0.95); }
+
+    /* ROULETTE WINDOW */
+    .roulette-window {
+      position: relative;
+      width: 100%;
+      height: 84px;
+      background: #030711;
+      border: 1px solid #192a46;
+      border-radius: 6px;
+      margin: 14px 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .roulette-indicator {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      background: #ffe600;
+      box-shadow: 0 0 12px #ffe600;
+      z-index: 10;
+    }
+    .roulette-strip {
+      display: flex;
+      position: absolute;
+      left: 0;
+      top: 4px;
+      height: 76px;
+      transform: translateX(0px);
+      transition: transform 4.2s cubic-bezier(0.12, 0.85, 0.18, 1);
+    }
+    .roulette-card {
+      width: 74px;
+      height: 76px;
+      margin: 0 4px;
+      background: #0d1a30;
+      border: 1px solid #233e66;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #fff;
+      text-align: center;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .card-icon { font-size: 22px; margin-bottom: 2px; }
+    .card-legendary { border-color: #ffe600; color: #ffe600; box-shadow: inset 0 0 10px rgba(255, 230, 0, 0.4); }
+    .card-epic { border-color: #cc00ff; color: #cc00ff; box-shadow: inset 0 0 10px rgba(204, 0, 255, 0.4); }
+    .card-rare { border-color: #00a2ff; color: #00a2ff; }
+  </style>
 </head>
 <body>
-    <div>
-        <div class="hud-box">
-            <div class="title">⚡ CYBER-CORE HUD ⚡</div>
-            <div class="sub">NETRUNNER: <b id="u-name" style="color:var(--neon)">ANONYMOUS</b></div>
-        </div>
-        <div class="grid">
-            <div class="card">
-                <div class="card-val" id="core-status">ONLINE</div>
-                <div class="card-lbl">Статус Ядра</div>
-            </div>
-            <div class="card">
-                <div class="card-val" id="trace-cnt">0%</div>
-                <div class="card-lbl">Trace Риск</div>
-            </div>
-        </div>
+  <div id="canvas-container"></div>
+
+  <div id="hud">
+    <div class="hud-top">
+      <div class="stat-badge">
+        <span>🪙 МОНЕТЫ:</span>
+        <span class="coin-val" id="coin-counter">0</span>
+      </div>
+      <div class="stat-badge quest-badge" id="quest-tracker">
+        🎯 КВЕСТ: Поговорить с Алхимиком
+      </div>
+      <button class="buy-btn" id="btn-save-telemetry" style="background:#00ffcc; font-size:10px;">💾 БОТ</button>
     </div>
-    <div>
-        <button class="btn-hack" onclick="doBreach()">💥 ВЗЛОМАТЬ СИСТЕМУ</button>
-        <button class="btn-ping" onclick="doPing()">📡 СКАН СЕТИ (+Trace)</button>
+
+    <div id="interact-prompt">⚡ НАЖМИ ДЛЯ РАЗГОВОРА С ФИКСЕРОМ</div>
+
+    <div class="touch-controls">
+      <!-- D-PAD FOR MOVING -->
+      <div class="dpad-box">
+        <div></div>
+        <button class="dpad-btn" id="dpad-up">▲</button>
+        <div></div>
+        <button class="dpad-btn" id="dpad-left">◀</button>
+        <div></div>
+        <button class="dpad-btn" id="dpad-right">▶</button>
+        <div></div>
+        <button class="dpad-btn" id="dpad-down">▼</button>
+        <div></div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="action-buttons">
+        <button class="act-btn shop-btn" id="btn-open-shop">
+          <span>🛒</span>
+          <span>ЛАВКА</span>
+        </button>
+        <button class="act-btn" id="btn-jump">
+          <span>▲</span>
+          <span>ПРЫЖОК</span>
+        </button>
+      </div>
     </div>
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем окно во весь экран
+  </div>
 
-        // Автоматически подставляем имя пользователя из Telegram
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById("u-name").innerText = tg.initDataUnsafe.user.first_name.toUpperCase();
-        }
+  <!-- SHOP & CASE OPENING MODAL -->
+  <div class="cyber-modal" id="shop-modal">
+    <div class="modal-card">
+      <button class="close-btn" id="close-shop">✕</button>
+      <h3 style="color:#ffe600; font-size:16px; margin-bottom:4px;">ЧЕРНЫЙ РЫНОК СИНДИКАТА</h3>
+      <p style="font-size:11px; color:#88a2c2; margin-bottom:12px;">Покупай сундуки за добытые монеты:</p>
 
-        let trace = 0;
-        function doPing() {
-            tg.HapticFeedback.impactOccurred("medium"); // Вибрация планшета
-            trace = Math.min(100, trace + 20);
-            document.getElementById("trace-cnt").innerText = trace + "%";
-            if (trace >= 80) document.getElementById("trace-cnt").style.color = "#ff0055";
-        }
+      <div class="shop-item">
+        <div>
+          <b style="color:#00a2ff;">📦 Неоновый Сундук</b>
+          <div style="font-size:10px; color:#8da4c4;">Редкий кибер-лут</div>
+        </div>
+        <button class="buy-btn" onclick="buyCase('neon', 50)">50 🪙</button>
+      </div>
 
-        function doBreach() {
-            tg.HapticFeedback.notificationOccurred("success"); // Двойная виброотдача
-            // Отправляем данные боту и закрываем окно
-            tg.sendData(JSON.stringify({ action: "BREACH_SUCCESS", trace: trace }));
+      <div class="shop-item">
+        <div>
+          <b style="color:#cc00ff;">💎 Кейс Синдиката</b>
+          <div style="font-size:10px; color:#8da4c4;">Эпические модификаторы</div>
+        </div>
+        <button class="buy-btn" onclick="buyCase('syndicate', 120)">120 🪙</button>
+      </div>
+
+      <div class="shop-item">
+        <div>
+          <b style="color:#ffe600;">👑 Реликвия Древних</b>
+          <div style="font-size:10px; color:#8da4c4;">Легендарный Сандевистан / Ядро</div>
+        </div>
+        <button class="buy-btn" onclick="buyCase('relic', 300)">300 🪙</button>
+      </div>
+
+      <!-- ROULETTE WINDOW IN SHOP -->
+      <div class="roulette-window" id="roulette-container" style="display:none;">
+        <div class="roulette-indicator"></div>
+        <div class="roulette-strip" id="roulette-strip"></div>
+      </div>
+
+      <div id="drop-result" style="font-size:12px; font-weight:bold; color:#00ffcc; text-align:center; min-height:24px; margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- NPC DIALOGUE MODAL -->
+  <div class="cyber-modal" id="dialogue-modal">
+    <div class="modal-card">
+      <button class="close-btn" id="close-dialogue">✕</button>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:24px;">🧙‍♂️</span>
+        <div>
+          <h3 style="color:#00ffcc; font-size:15px;">КИБЕР-АЛХИМИК ВАКАСИ</h3>
+          <span style="font-size:10px; color:#ffe600;">Хранитель Неонового Обелиска</span>
+        </div>
+      </div>
+      <p id="npc-text" style="font-size:12px; color:#cbd9ec; line-height:1.5; margin:10px 0;">
+        "Приветствую, путник. Город задыхается без квантовых монет. Собери для меня 15 кристаллов маны, и я вознагражу тебя редким ключом от реликвий!"
+      </p>
+      <button class="buy-btn" id="btn-accept-quest" style="width:100%; height:40px; margin-top:6px;">
+        ⚡ ПРИНЯТЬ КОНТРАКТ (+150 🪙)
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. TELEGRAM WEBAPP & HAPTIC ---
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    function haptic(type) {
+      try {
+        if (!tg?.HapticFeedback) return;
+        if (type === 'light') tg.HapticFeedback.impactOccurred('light');
+        else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+        else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
+        else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+      } catch (e) {}
+    }
+
+    // --- 2. SYNTHESIZED SOUND EFFECTS ---
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
         }
-    </script>
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      },
+      tone(freq, type, dur, slide = null, vol = 0.15) {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if (slide) osc.frequency.exponentialRampToValueAtTime(slide, this.ctx.currentTime + dur);
+        g.gain.setValueAtTime(vol, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + dur);
+      },
+      coin() { this.tone(987, 'sine', 0.12, 1318, 0.2); },
+      jump() { this.tone(250, 'sine', 0.15, 550, 0.15); },
+      click() { this.tone(1200, 'sine', 0.04, null, 0.2); },
+      win() {
+        [523, 659, 784, 1046].forEach((f, i) => {
+          setTimeout(() => this.tone(f, 'triangle', 0.3, null, 0.2), i * 110);
+        });
+      }
+    };
+
+    // --- 3. THREE.JS OPEN WORLD SCENE SETUP ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x02040a, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x02040a);
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0x00ffcc, 1.2);
+    dirLight.position.set(20, 40, 20);
+    scene.add(dirLight);
+
+    // TERRAIN FLOOR (CYBER GRID)
+    const floorGeo = new THREE.PlaneGeometry(160, 160, 30, 30);
+    floorGeo.rotateX(-Math.PI / 2);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x050c18, roughness: 0.8 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(160, 40, 0x00ffcc, 0x112844);
+    grid.position.y = 0.02;
+    scene.add(grid);
+
+    // CYBER-FANTASY PROPS: NEON MONOLITHS & CRYSTALS
+    for (let i = 0; i < 35; i++) {
+      const h = 8 + Math.random() * 22;
+      const bGeo = new THREE.BoxGeometry(4, h, 4);
+      const bMat = new THREE.MeshStandardMaterial({ color: 0x08162b, metalness: 0.8, roughness: 0.2 });
+      const tower = new THREE.Mesh(bGeo, bMat);
+      
+      const x = (Math.random() - 0.5) * 140;
+      const z = (Math.random() - 0.5) * 140;
+      if (Math.abs(x) < 12 && Math.abs(z) < 12) continue; // Keep spawn area clear
+      tower.position.set(x, h / 2, z);
+      scene.add(tower);
+
+      // Glowing edges
+      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(bGeo), new THREE.LineBasicMaterial({ color: 0x00ffcc }));
+      tower.add(edge);
+    }
+
+    // Glowing Mana Crystals (Cyber-Fantasy Elements)
+    for (let i = 0; i < 20; i++) {
+      const cGeo = new THREE.OctahedronGeometry(1.2 + Math.random() * 0.8);
+      const cMat = new THREE.MeshBasicMaterial({ color: 0xcc00ff, wireframe: true });
+      const crystal = new THREE.Mesh(cGeo, cMat);
+      crystal.position.set((Math.random() - 0.5) * 120, 1.5, (Math.random() - 0.5) * 120);
+      scene.add(crystal);
+    }
+
+    // --- 4. PLAYER CHARACTER RIG ---
+    const player = new THREE.Group();
+    // Cyber Body
+    const pBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 0.6), new THREE.MeshStandardMaterial({ color: 0x00ffcc }));
+    pBody.position.y = 0.9;
+    player.add(pBody);
+    // Head / Visor
+    const pHead = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+    pHead.position.set(0, 1.8, 0);
+    player.add(pHead);
+    scene.add(player);
+
+    let playerVelocity = { x: 0, y: 0, z: 0 };
+    let isGrounded = true;
+
+    // --- 5. NPC QUEST GIVER (CYBER-ALCHEMIST) ---
+    const npcGroup = new THREE.Group();
+    const npcBody = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2, 8), new THREE.MeshStandardMaterial({ color: 0xffe600 }));
+    npcBody.position.y = 1;
+    npcGroup.add(npcBody);
+
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(1, 0.08, 8, 24), new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true }));
+    halo.rotation.x = Math.PI / 2;
+    halo.position.y = 2.4;
+    npcGroup.add(halo);
+    npcGroup.haloRef = halo;
+
+    npcGroup.position.set(6, 0, -8);
+    scene.add(npcGroup);
+
+    // --- 6. COLLECTIBLE COINS (CRYPTO-ORBS) ---
+    const coins = [];
+    const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 12);
+    coinGeo.rotateX(Math.PI / 2);
+    const coinMat = new THREE.MeshBasicMaterial({ color: 0xffe600, wireframe: true });
+
+    for (let i = 0; i < 25; i++) {
+      const c = new THREE.Mesh(coinGeo, coinMat);
+      c.position.set((Math.random() - 0.5) * 110, 0.8, (Math.random() - 0.5) * 110);
+      scene.add(c);
+      coins.push(c);
+    }
+
+    // --- 7. GAME STATE & PROGRESSION ---
+    let playerCoins = 60;
+    let questStep = 0; // 0: talk to npc, 1: collect 15 coins, 2: completed
+    let questCoinsGathered = 0;
+    let inventory = [];
+
+    function updateCoinHUD() {
+      document.getElementById('coin-counter').innerText = playerCoins;
+    }
+    updateCoinHUD();
+
+    // --- 8. MOVEMENT & INPUT HANDLING ---
+    const keys = { w: false, a: false, s: false, d: false, space: false };
+
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = true;
+      if (k === 'a' || k === 'arrowleft') keys.a = true;
+      if (k === 's' || k === 'arrowdown') keys.s = true;
+      if (k === 'd' || k === 'arrowright') keys.d = true;
+      if (k === ' ' || e.code === 'Space') jump();
+      if (k === 'e') triggerInteraction();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keys.w = false;
+      if (k === 'a' || k === 'arrowleft') keys.a = false;
+      if (k === 's' || k === 'arrowdown') keys.s = false;
+      if (k === 'd' || k === 'arrowright') keys.d = false;
+    });
+
+    // Touch D-Pad bindings
+    function bindTouch(btnId, keyName) {
+      const el = document.getElementById(btnId);
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+      el.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+    }
+    bindTouch('dpad-up', 'w');
+    bindTouch('dpad-down', 's');
+    bindTouch('dpad-left', 'a');
+    bindTouch('dpad-right', 'd');
+
+    function jump() {
+      if (isGrounded) {
+        playerVelocity.y = 0.28;
+        isGrounded = false;
+        AudioEngine.jump();
+        haptic('light');
+      }
+    }
+    document.getElementById('btn-jump').addEventListener('click', jump);
+
+    // --- 9. NPC INTERACTION & QUESTS ---
+    function triggerInteraction() {
+      const dist = player.position.distanceTo(npcGroup.position);
+      if (dist < 4.5) {
+        AudioEngine.click();
+        haptic('medium');
+        const modal = document.getElementById('dialogue-modal');
+        const txt = document.getElementById('npc-text');
+        const btn = document.getElementById('btn-accept-quest');
+
+        if (questStep === 0) {
+          txt.innerText = "«Приветствую в Нео-Сфере! Городу требуется энергия. Собери 10 рассеянных квантовых монет, и я выдам тебе 150 бонусных монет для Черного Рынка!»";
+          btn.innerText = "⚡ ПРИНЯТЬ КОНТРАКТ";
+          btn.onclick = () => {
+            questStep = 1;
+            questCoinsGathered = 0;
+            document.getElementById('quest-tracker').innerText = `🎯 КВЕСТ: Собрать монеты [0/10]`;
+            modal.style.display = 'none';
+            haptic('success');
+          };
+        } else if (questStep === 1) {
+          if (questCoinsGathered >= 10) {
+            txt.innerText = "«Великолепно! Ты зарядил кристаллы. Забирай обещанную награду и загляни в Лавку сундуков!»";
+            btn.innerText = "🎁 ЗАБРАТЬ +150 🪙";
+            btn.onclick = () => {
+              playerCoins += 150;
+              questStep = 2;
+              updateCoinHUD();
+              document.getElementById('quest-tracker').innerText = `✅ КОНТРАКТ ВЫПОЛНЕН!`;
+              modal.style.display = 'none';
+              AudioEngine.win();
+              haptic('success');
+            };
+          } else {
+            txt.innerText = `«Ты собрал только ${questCoinsGathered}/10 монет. Продолжай исследовать неоновые улицы!»`;
+            btn.innerText = "ПОНЯЛ";
+            btn.onclick = () => { modal.style.display = 'none'; };
+          }
+        } else {
+          txt.innerText = "«Ты доказал свой статус истинного Кибер-Странника. Открывай кейсы и готовься к боссам!»";
+          btn.innerText = "ЗАКРЫТЬ";
+          btn.onclick = () => { modal.style.display = 'none'; };
+        }
+        modal.style.display = 'flex';
+      }
+    }
+
+    document.getElementById('interact-prompt').addEventListener('click', triggerInteraction);
+    document.getElementById('close-dialogue').addEventListener('click', () => {
+      document.getElementById('dialogue-modal').style.display = 'none';
+    });
+
+    // --- 10. SHOP & CS:GO STYLE CASE OPENING ROULETTE ---
+    const shopModal = document.getElementById('shop-modal');
+    document.getElementById('btn-open-shop').addEventListener('click', () => {
+      shopModal.style.display = 'flex';
+      AudioEngine.click();
+    });
+    document.getElementById('close-shop').addEventListener('click', () => {
+      shopModal.style.display = 'none';
+    });
+
+    const CASE_LOOT_TABLE = {
+      neon: [
+        { name: "Энерго-Клинок", icon: "🗡", rarity: "card-rare" },
+        { name: "Батарея Керензикова", icon: "🔋", rarity: "card-rare" },
+        { name: "Чип памяти Arasaka", icon: "💾", rarity: "card-epic" }
+      ],
+      syndicate: [
+        { name: "Моноструна Синдиката", icon: "🩸", rarity: "card-epic" },
+        { name: "Кибердека Militech", icon: "💻", rarity: "card-epic" },
+        { name: "Подкожная броня MK.4", icon: "🛡", rarity: "card-rare" },
+        { name: "Клинки Богомола", icon: "⚔️", rarity: "card-legendary" }
+      ],
+      relic: [
+        { name: "Сандевистан «Falcon»", icon: "⚡", rarity: "card-legendary" },
+        { name: "Ядро Нео-Феникса", icon: "🔥", rarity: "card-legendary" },
+        { name: "Крылья Истребителя F-57", icon: "🚀", rarity: "card-legendary" }
+      ]
+    };
+
+    let isSpinning = false;
+    function buyCase(caseType, price) {
+      if (isSpinning) return;
+      if (playerCoins < price) {
+        alert("Недостаточно монет! Исследуй мир и собирай крипто-сферы.");
+        return;
+      }
+
+      playerCoins -= price;
+      updateCoinHUD();
+      isSpinning = true;
+      haptic('medium');
+
+      const container = document.getElementById('roulette-container');
+      const strip = document.getElementById('roulette-strip');
+      const resultTxt = document.getElementById('drop-result');
+      container.style.display = 'flex';
+      resultTxt.innerText = "Прокрутка защищенного протокола...";
+
+      const pool = CASE_LOOT_TABLE[caseType];
+      strip.innerHTML = '';
+      const totalCards = 34;
+      const targetWinIdx = 26;
+      let wonItem = null;
+
+      for (let i = 0; i < totalCards; i++) {
+        const item = pool[Math.floor(Math.random() * pool.length)];
+        if (i === targetWinIdx) wonItem = item;
+        const card = document.createElement('div');
+        card.className = `roulette-card ${item.rarity}`;
+        card.innerHTML = `<div class="card-icon">${item.icon}</div><div>${item.name}</div>`;
+        strip.appendChild(card);
+      }
+
+      const cardWidth = 82;
+      const offset = (targetWinIdx * cardWidth) - 130 + (Math.random() * 14 - 7);
+
+      let ticks = 0;
+      const tickTimer = setInterval(() => {
+        AudioEngine.click();
+        haptic('light');
+        ticks++;
+        if (ticks > 24) clearInterval(tickTimer);
+      }, 140);
+
+      setTimeout(() => { strip.style.transform = `translateX(-${offset}px)`; }, 80);
+
+      setTimeout(() => {
+        isSpinning = false;
+        AudioEngine.win();
+        haptic('success');
+        resultTxt.innerHTML = `ВЫБИТО: <span style="color:#ffe600;">${wonItem.name}</span>!`;
+        inventory.push(wonItem.name);
+      }, 4300);
+    }
+
+    // Save Data to Telegram Bot
+    document.getElementById('btn-save-telemetry').addEventListener('click', () => {
+      if (tg) {
+        tg.sendData(JSON.stringify({
+          action: "open_world_sync",
+          coins: playerCoins,
+          inventory: inventory,
+          quest_status: questStep
+        }));
+      } else {
+        alert(`Синхронизация с ботом:\nМонеты: ${playerCoins}\nИнвентарь: ${inventory.join(', ') || 'Пусто'}`);
+      }
+    });
+
+    // --- 11. MAIN ANIMATION & WORLD LOOP ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const time = clock.getElapsedTime();
+
+      // PLAYER MOVEMENT LOGIC
+      const moveSpeed = 0.22;
+      let dx = 0;
+      let dz = 0;
+      if (keys.w) dz -= moveSpeed;
+      if (keys.s) dz += moveSpeed;
+      if (keys.a) dx -= moveSpeed;
+      if (keys.d) dx += moveSpeed;
+
+      // Apply Gravity & Velocity
+      player.position.x += dx;
+      player.position.z += dz;
+
+      player.position.y += playerVelocity.y;
+      if (player.position.y > 0) {
+        playerVelocity.y -= 0.016; // Gravity
+      } else {
+        player.position.y = 0;
+        playerVelocity.y = 0;
+        isGrounded = true;
+      }
+
+      // Smooth 3rd-person Camera Follow
+      const targetCamX = player.position.x;
+      const targetCamY = player.position.y + 6;
+      const targetCamZ = player.position.z + 12;
+
+      camera.position.x += (targetCamX - camera.position.x) * 0.1;
+      camera.position.y += (targetCamY - camera.position.y) * 0.1;
+      camera.position.z += (targetCamZ - camera.position.z) * 0.1;
+      camera.lookAt(player.position.x, player.position.y + 1.2, player.position.z);
+
+      // Rotate NPC Halo
+      if (npcGroup.haloRef) {
+        npcGroup.haloRef.rotation.z = time * 2;
+      }
+
+      // Proximity check for NPC Interaction
+      const distToNpc = player.position.distanceTo(npcGroup.position);
+      const promptEl = document.getElementById('interact-prompt');
+      if (distToNpc < 4.5) {
+        promptEl.style.display = 'block';
+      } else {
+        promptEl.style.display = 'none';
+      }
+
+      // Animate & Collect Coins
+      coins.forEach(c => {
+        c.rotation.z = time * 3;
+        c.position.y = 0.8 + Math.sin(time * 4 + c.position.x) * 0.2;
+
+        // Player collected coin
+        if (player.position.distanceTo(c.position) < 1.6) {
+          AudioEngine.coin();
+          haptic('light');
+          playerCoins += 10;
+          if (questStep === 1) {
+            questCoinsGathered++;
+            document.getElementById('quest-tracker').innerText = `🎯 КВЕСТ: Собрать монеты [${questCoinsGathered}/10]`;
+          }
+          updateCoinHUD();
+
+          // Respawn elsewhere
+          c.position.set((Math.random() - 0.5) * 110, 0.8, (Math.random() - 0.5) * 110);
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
