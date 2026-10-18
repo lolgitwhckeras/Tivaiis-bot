@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN v1.7 DATA CENTERS & CREATOR CONSOLE</title>
+  <title>CYBERCORE: TITAN v1.8 PHOENIX ASCENSION & MULTIPLAYER PRE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -83,6 +83,48 @@
       pointer-events: none; max-width: 90vw; white-space: nowrap;
     }
 
+    /* СИНЕМАТИЧЕСКИЙ БАННЕР КАТСЦЕНЫ */
+    #cinematic-banner {
+      position: absolute;
+      top: 25%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(6, 2, 16, 0.94);
+      border: 2px solid #ff0055;
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: #ff0055;
+      font-size: 16px;
+      font-weight: 900;
+      text-align: center;
+      z-index: 3500;
+      display: none;
+      box-shadow: 0 0 40px #ff0055;
+      pointer-events: none;
+      letter-spacing: 2px;
+      animation: pulseCinematic 1s infinite alternate;
+    }
+    @keyframes pulseCinematic {
+      from { transform: translate(-50%, -50%) scale(0.96); box-shadow: 0 0 20px #ff0055; }
+      to { transform: translate(-50%, -50%) scale(1.04); box-shadow: 0 0 45px #ff7700; }
+    }
+
+    /* МУЛЬТИПЛЕЕР СЕТЕВОЙ HUD */
+    #net-hud {
+      position: absolute;
+      top: 80px; right: 10px;
+      background: rgba(4, 9, 24, 0.9);
+      border: 1px solid #00ffcc;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #00ffcc;
+      z-index: 15;
+      display: none;
+      pointer-events: none;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+
     #mining-hud {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -141,7 +183,6 @@
     }
     .version-tag:active { transform: scale(0.9); }
 
-    /* НАВИГАЦИОННЫЙ НЕОНОВЫЙ МАЯК НА ХАЙЗЕНБЕРГА */
     #heisenberg-compass {
       background: rgba(4, 8, 20, 0.85); border: 1px solid #00ffcc;
       color: #00ffcc; font-size: 10px; font-weight: bold;
@@ -149,7 +190,6 @@
       box-shadow: 0 0 8px rgba(0, 255, 204, 0.3); white-space: nowrap;
     }
 
-    /* КОМПАКТНЫЙ НИЖНИЙ HP БАР (ВЕРХ ЭКРАНА СВОБОДЕН) */
     #bottom-hp-panel {
       pointer-events: auto; background: rgba(8, 12, 28, 0.92);
       border: 1px solid #00ffcc; border-radius: 6px;
@@ -230,7 +270,6 @@
       padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px;
     }
 
-    /* АДМИН ПАНЕЛЬ СОЗДАТЕЛЯ */
     #admin-modal .modal-box {
       border-color: #00ffcc; box-shadow: 0 0 35px rgba(0, 255, 204, 0.5);
     }
@@ -264,23 +303,25 @@
   <div id="dmg-layer"></div>
 
   <div id="toast-banner"></div>
+  <div id="cinematic-banner"></div>
+  <div id="net-hud">🌐 P2P NODE: ONLINE | PING: 24ms | 60Hz</div>
   <div id="mining-hud"><div id="mining-bar"></div></div>
   <div id="buff-tray"></div>
 
   <!-- START MENU -->
   <div id="start-menu">
     <div style="font-size:26px; font-weight:900; color:#ff7700; text-shadow:0 0 20px #ff7700; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN <span class="version-tag" onclick="handleVersionClick()">v1.7</span>
+      CYBERCORE: TITAN <span class="version-tag" onclick="handleVersionClick()">v1.8</span>
     </div>
     <div style="font-size:11px; color:#ffd700; margin-bottom:18px; letter-spacing:1px;">
-      ⚡ DATA CENTERS & CREATOR CONSOLE
+      🦅 PHOENIX ASCENSION & BOSS EXPANSION
     </div>
 
     <button class="menu-btn" onclick="startGameMode('world')">
       <span>🌍</span> <span>ОТКРЫТЫЙ МИР</span>
     </button>
     <button class="menu-btn" style="border-color:#ff0055; color:#ff0055;" onclick="openBossSelectMenu()">
-      <span>⚔️</span> <span>АРЕНА 3D-БОССОВ</span>
+      <span>⚔️</span> <span>АРЕНА 3D-БОССОВ (ВЫБОР)</span>
     </button>
     <button class="menu-btn" style="border-color:#e056fd; color:#e056fd;" onclick="openCasesMenu()">
       <span>📦</span> <span>КИБЕР-КЕЙСЫ</span>
@@ -296,13 +337,13 @@
     </button>
   </div>
 
-  <!-- СЕКРЕТНАЯ АДМИН-ПАНЕЛЬ СОЗДАТЕЛЯ (12 ТАПОВ) -->
+  <!-- АДМИН-ПАНЕЛЬ СОЗДАТЕЛЯ (12 ТАПОВ) -->
   <div class="modal" id="admin-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('admin-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
         <span style="font-size:24px;">⚡</span>
-        <h3 style="color:#00ffcc; font-size:15px;">CREATOR ADMIN OVERDRIVE</h3>
+        <h3 style="color:#00ffcc; font-size:15px;">CREATOR ADMIN CONSOLE v1.8</h3>
       </div>
       <p style="font-size:10px; color:#8fa5c4; margin-bottom:10px;">Секретная консоль разработчика активна.</p>
 
@@ -312,6 +353,16 @@
         <button class="btn-admin" id="btn-admin-speed" onclick="adminToggleSpeed()">⚡ СПИДХАК: x1</button>
         <button class="btn-admin" id="btn-admin-fly" onclick="adminToggleFly()">🕊️ ПОЛЁТ (NO-GRAV): ВЫКЛ</button>
         <button class="btn-admin" onclick="adminKillAll()">💥 УБИТЬ ВСЕХ МОБОВ</button>
+      </div>
+
+      <div style="font-size:11px; font-weight:bold; color:#ffd700; margin:8px 0 4px;">🧬 БОДИБИЛДИНГ & СТАТЫ:</div>
+      <div class="admin-grid">
+        <button class="btn-admin" onclick="adminModStat('pts', 50)">+50 Очков Развития</button>
+        <button class="btn-admin" onclick="adminModStat('hp', 1000)">+1000 Max HP</button>
+        <button class="btn-admin" onclick="adminModStat('dmg', 250)">+250 Урона (ATK)</button>
+        <button class="btn-admin" onclick="adminModStat('crit', 100)">100% Крит Шанс</button>
+        <button class="btn-admin" onclick="adminModStat('onepunch', 9999)">👊 ONE-PUNCH (9999)</button>
+        <button class="btn-admin" style="border-color:#ff7700; color:#ff7700;" onclick="adminResetCheatStats()">Сбросить Чит-Статы</button>
       </div>
 
       <div style="font-size:11px; font-weight:bold; color:#ffd700; margin:8px 0 4px;">ЧИТ-РЕСУРСЫ:</div>
@@ -334,7 +385,7 @@
     </div>
   </div>
 
-  <!-- СЕЛЕКТОР БОССОВ -->
+  <!-- РАСШИРЕННЫЙ СЕЛЕКТОР БОССОВ -->
   <div class="modal" id="boss-select-modal">
     <div class="modal-box" style="text-align:center;">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('boss-select-modal')">✕</button>
@@ -360,9 +411,17 @@
       <div class="card-item" onclick="startChosenBoss('phoenix')" style="cursor:pointer;">
         <div>
           <div style="font-size:13px; font-weight:900; color:#ff7700;">🦅 НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»</div>
-          <div style="font-size:10px; color:#8fa5c4;">Погоня на бреющем полёте, Bullet-Hell спирали и перья</div>
+          <div style="font-size:10px; color:#8fa5c4;">Bullet-Hell спирали и воздушная фаза погони в небе</div>
         </div>
         <button class="btn-action-small" style="background:#ff7700; color:#000;">В БОЙ</button>
+      </div>
+
+      <div class="card-item" onclick="startChosenBoss('reaper')" style="cursor:pointer;">
+        <div>
+          <div style="font-size:13px; font-weight:900; color:#a855f7;">💀 НЕЙРО-ЖНЕЦ: ОРБИТАЛЬНЫЙ КОЛОСС</div>
+          <div style="font-size:10px; color:#8fa5c4;">Гравитационные вихри, круговые косы и лазерные призмы</div>
+        </div>
+        <button class="btn-action-small" style="background:#a855f7; color:#fff;">В БОЙ</button>
       </div>
     </div>
   </div>
@@ -377,7 +436,7 @@
       <button class="nav-btn quest" onclick="openQuestsMenu()">📜</button>
       <button class="nav-btn cases" onclick="openCasesMenu()">📦</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
-      <span class="version-tag" onclick="handleVersionClick()">v1.7</span>
+      <span class="version-tag" onclick="handleVersionClick()">v1.8</span>
       <div id="heisenberg-compass">⚗️ 0м</div>
       <div style="font-size:10px; font-weight:bold;">
         🪙 <span id="val-coins" style="color:#ffd700;">100</span> | 
@@ -387,13 +446,11 @@
       <button class="nav-btn" id="btn-sync" style="background:#ff7700; color:#000;">💾</button>
     </div>
 
-    <!-- ВЕРХ ЭКРАНА ПОЛНОСТЬЮ СВОБОДЕН ОТ ШТОРКИ ЗДОРОВЬЯ -->
     <div></div>
 
     <div id="interact-prompt">⚗️ ЛАБОРАТОРИЯ ХАЙЗЕНБЕРГА [ТАП]</div>
     <div id="tip-banner">⛏️ ТАПАЙ РЯДОМ ЧТОБЫ СТРОИТЬ/КОПАТЬ, ДВОЙНОЙ ПРЫЖОК = БУСТ!</div>
 
-    <!-- КОМПАКТНЫЙ НИЖНИЙ ИНДИКАТОР ЗДОРОВЬЯ НАД D-PAD -->
     <div id="bottom-hp-panel">
       <div style="display:flex; justify-content:space-between; font-size:9px; font-weight:bold;">
         <span style="color:#00ff66;">ПРОЧНОСТЬ ЭКЗОСКЕЛЕТА (HP)</span>
@@ -551,7 +608,7 @@
     </div>
   </div>
 
-  <!-- КИБЕР-ГАРДЕРОБ -->
+  <!-- КИБЕР-ГАРДЕРОБ С ПАСХАЛКОЙ МУЛЬТИПЛЕЕРА НА 7 ТАПОВ -->
   <div class="modal" id="custom-modal">
     <div class="modal-box">
       <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('custom-modal')">✕</button>
@@ -559,11 +616,13 @@
 
       <div style="margin-bottom:10px;">
         <div style="font-size:11px; font-weight:bold; color:#ffd700; margin-bottom:4px;">ЦВЕТ ВОЛОС:</div>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
           <button class="btn-action-small" style="background:#1f140e; color:#fff;" onclick="setCustomStyle('hair', 0x1f140e)">Брюнет</button>
           <button class="btn-action-small" style="background:#00e5ff; color:#000;" onclick="setCustomStyle('hair', 0x00e5ff)">Неон</button>
           <button class="btn-action-small" style="background:#f1c40f; color:#000;" onclick="setCustomStyle('hair', 0xf1c40f)">Блонд</button>
           <button class="btn-action-small" style="background:#e74c3c; color:#fff;" onclick="setCustomStyle('hair', 0xe74c3c)">Огонь</button>
+          <!-- КНОПКА ПУРПУРНЫХ ВОЛОС ДЛЯ МУЛЬТИПЛЕЕРА -->
+          <button class="btn-action-small" id="btn-purple-hair" style="background:#a855f7; color:#fff;" onclick="handlePurpleHairClick()">Пурпур</button>
         </div>
       </div>
 
@@ -695,12 +754,16 @@
       laser() { this.beep(850, 0.12, 'sawtooth', 180, 0.2); },
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
       pumpkinSmash() { this.beep(350, 0.2, 'square', 80, 0.25); },
-      phoenixScreech() { this.beep(750, 0.5, 'sawtooth', 1500, 0.3); },
+      phoenixScreech() { this.beep(750, 0.6, 'sawtooth', 1800, 0.35); },
+      skyRoar() { this.beep(180, 0.8, 'sawtooth', 40, 0.45); },
       enchant() { [500, 750, 1000, 1350].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'sine', null, 0.25), i * 80)); },
       enrage() { this.beep(160, 0.6, 'sawtooth', 60, 0.4); },
       craft() { [300, 450, 600, 900].forEach((f, i) => setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70)); },
       lvlUp() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80)); }
     };
+
+    // РАЗБЛОКИРОВКА АУДИО НА МОБИЛКАХ
+    window.addEventListener('pointerdown', () => AudioEngine.init(), { once: true });
 
     function spawnDamageNumber(x3d, y3d, z3d, val, isCrit = false, isHeal = false) {
       const v = new THREE.Vector3(x3d, y3d, z3d);
@@ -736,10 +799,14 @@
       }
     }
 
-    // ФУНКЦИИ АДМИН-ПАНЕЛИ
     let adminGodMode = false;
     let adminSpeedTier = 1;
     let adminFlyMode = false;
+
+    // ЧИТ-БОДИБИЛДИНГ
+    let cheatDmgBonus = 0;
+    let cheatHpBonus = 0;
+    let cheatCritOverride = false;
 
     window.adminToggleGod = function() {
       adminGodMode = !adminGodMode;
@@ -767,6 +834,29 @@
       worldEnemies.length = 0;
       showToast("💥 ВСЕ МОБЫ УНИЧТОЖЕНЫ!", "#00ffcc");
       haptic('heavy');
+    };
+
+    window.adminModStat = function(type, val) {
+      if (type === 'pts') Hero.statPoints += val;
+      if (type === 'hp') { cheatHpBonus += val; currentHp = Hero.getMaxHp(); }
+      if (type === 'dmg') cheatDmgBonus += val;
+      if (type === 'crit') cheatCritOverride = true;
+      if (type === 'onepunch') cheatDmgBonus = 9999;
+      AudioEngine.lvlUp();
+      haptic('success');
+      updateHeroUI();
+      saveGameData();
+      showToast(`🧬 СТАТ МОДИФИЦИРОВАН: ${type.toUpperCase()}`, "#00ffcc");
+    };
+
+    window.adminResetCheatStats = function() {
+      cheatDmgBonus = 0;
+      cheatHpBonus = 0;
+      cheatCritOverride = false;
+      currentHp = Hero.getMaxHp();
+      updateHeroUI();
+      saveGameData();
+      showToast("🔄 Чит-статы сброшены к стандарту!", "#ff7700");
     };
 
     window.adminAddRes = function(type, amount) {
@@ -805,6 +895,30 @@
     };
 
     // ==========================================
+    // ПАСХАЛКА МУЛЬТИПЛЕЕРА (7 ТАПОВ НА ПУРПУРНЫЕ ВОЛОСЫ)
+    // ==========================================
+    let purpleHairClickCount = 0;
+    let purpleHairTimeout = null;
+    let isMultiplayerGhostActive = false;
+
+    window.handlePurpleHairClick = function() {
+      setCustomStyle('hair', 0xa855f7);
+      purpleHairClickCount++;
+      if (purpleHairTimeout) clearTimeout(purpleHairTimeout);
+      purpleHairTimeout = setTimeout(() => { purpleHairClickCount = 0; }, 1500);
+
+      if (purpleHairClickCount === 7) {
+        purpleHairClickCount = 0;
+        isMultiplayerGhostActive = !isMultiplayerGhostActive;
+        ghostPlayerGroup.visible = isMultiplayerGhostActive;
+        document.getElementById('net-hud').style.display = isMultiplayerGhostActive ? 'block' : 'none';
+        AudioEngine.enchant();
+        haptic('heavy');
+        showToast(isMultiplayerGhostActive ? "🌐 NET-CORE: ПАРТНЁР ПОДКЛЮЧЁН (P2P ECHO)!" : "🌐 NET-CORE: МУЛЬТИПЛЕЕР ОТКЛЮЧЁН", "#a855f7");
+      }
+    };
+
+    // ==========================================
     // ИГРОВОЙ СТЕЙТ
     // ==========================================
     let coins = 100;
@@ -813,7 +927,7 @@
     let chips = 1;
     let pumpkins = 0;
     let gold = 0;
-    let techChips = 0; // Чипы из датацентра
+    let techChips = 0;
     let caseCount = 1;
     let spookyCaseCount = 1;
 
@@ -825,6 +939,11 @@
     let weaponEnchantment = null;
 
     let currentSelectedBoss = 'centurion';
+
+    // ФАЗЫ И КАТСЦЕНА ФЕНИКСА
+    let isPhoenixCinematic = false;
+    let isPhoenixAerialCombat = false; // Воздушная фаза погони!
+    let aerialFlightAlt = 5.0; // Высота полёта игрока в воздухе
 
     const customStyle = {
       hairColor: 0x1f140e,
@@ -845,6 +964,7 @@
       { id: 'q_gold', title: '👑 Золотая Лихорадка', desc: 'Добыть 3 золотые жилы в глубинах', cur: 0, max: 3, rewardCoins: 200, rewardCase: 1, done: false },
       { id: 'q_drone', title: '💥 Охотник на Дронов', desc: 'Уничтожить 4 тыквенных дрона', cur: 0, max: 4, rewardCoins: 180, rewardCase: 1, done: false },
       { id: 'q_server', title: '🖥️ Взлом Датацентра', desc: 'Взломать серверный терминал в недрах', cur: 0, max: 1, rewardCoins: 300, rewardCase: 2, done: false },
+      { id: 'q_phoenix_sky', title: '🦅 Небесный Охотник', desc: 'Сбить Феникса в воздушном догфайте', cur: 0, max: 1, rewardCoins: 750, rewardCase: 2, done: false },
       { id: 'q_boss', title: '🏆 Падение Титана', desc: 'Победить любого босса в 3D', cur: 0, max: 1, rewardCoins: 600, rewardCase: 2, done: false }
     ];
 
@@ -891,16 +1011,17 @@
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
         const hammerDmg = hasSledgehammer ? 30 : 0;
-        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
+        return 50 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg + cheatDmgBonus; 
       },
       getMaxDmg() { 
         const pDmg = (activeBuffs.strength > 0 ? 50 : 0) + (activeBuffs.pumpkin_madness > 0 ? 35 : 0);
         const helmDmg = this.equipped.helmet === 'pumpkin_hat' ? 25 : 0;
         const hammerDmg = hasSledgehammer ? 30 : 0;
-        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg; 
+        return 70 + this.str * 8 + this.craftBonusDmg + pDmg + helmDmg + hammerDmg + cheatDmgBonus; 
       },
-      getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp; },
+      getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp + cheatHpBonus; },
       getCritChance() { 
+        if (cheatCritOverride) return 100;
         const helmCrit = this.equipped.helmet === 'pumpkin_hat' ? 15 : 0;
         return 5 + this.acc * 2 + this.craftBonusCrit + helmCrit; 
       },
@@ -924,12 +1045,12 @@
         },
         quests: Quests.map(q => ({ id: q.id, cur: q.cur, done: q.done }))
       };
-      localStorage.setItem('CYBERCORE_TITAN_SAVE_v17', JSON.stringify(data));
+      localStorage.setItem('CYBERCORE_TITAN_SAVE_v18', JSON.stringify(data));
     }
 
     function loadGameData() {
       try {
-        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v17') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v16');
+        const raw = localStorage.getItem('CYBERCORE_TITAN_SAVE_v18') || localStorage.getItem('CYBERCORE_TITAN_SAVE_v17');
         if (!raw) return;
         const d = JSON.parse(raw);
         coins = d.coins ?? coins;
@@ -1015,7 +1136,7 @@
       };
       document.getElementById('current-enchant-txt').innerText = weaponEnchantment ? enchNames[weaponEnchantment] : "Без зачарования";
 
-      if (hasBlaster) {
+      if (hasBlaster || isPhoenixAerialCombat) {
         document.getElementById('attack-icon').innerText = "🔫";
         document.getElementById('attack-text').innerText = "БЛАСТЕР";
       }
@@ -1036,7 +1157,7 @@
     }
 
     function damagePlayer(rawDmg) {
-      if (adminGodMode) return;
+      if (adminGodMode || isPhoenixCinematic) return;
       if (iFrames > 0) return;
       if (Math.random() * 100 < Hero.getDodgeChance()) {
         setTip("💨 DODGE! УЛОНЕНИЕ ОТ АТАКИ!");
@@ -1081,6 +1202,9 @@
       currentHp = Hero.getMaxHp();
       updatePlayerHpBar();
       pX = 0; pZ = 0; pVy = 0;
+      isPhoenixCinematic = false;
+      isPhoenixAerialCombat = false;
+      playerWingsMesh.visible = false;
       const surfY = getSurfaceY(0);
       pY = surfY + 0.5;
       playerGroup.position.set(0, pY, 0);
@@ -1336,6 +1460,10 @@
       document.getElementById('start-menu').style.display = 'flex';
       document.getElementById('boss-hud-group').style.display = 'none';
       document.getElementById('interact-prompt').style.display = 'none';
+      document.getElementById('cinematic-banner').style.display = 'none';
+      isPhoenixCinematic = false;
+      isPhoenixAerialCombat = false;
+      playerWingsMesh.visible = false;
       resetInputs();
       AudioEngine.beep(300, 0.1);
       haptic('medium');
@@ -1350,7 +1478,8 @@
     window.startChosenBoss = function(bossType) {
       closeModal('boss-select-modal');
       if (bossType === 'random') {
-        currentSelectedBoss = Math.random() < 0.5 ? 'centurion' : 'phoenix';
+        const p = ['centurion', 'phoenix', 'reaper'];
+        currentSelectedBoss = p[Math.floor(Math.random() * p.length)];
       } else {
         currentSelectedBoss = bossType;
       }
@@ -1359,17 +1488,29 @@
     };
 
     function setupBossArenaAppearance(type) {
+      bossRig.visible = false;
+      phoenixRig.visible = false;
+      reaperRig.visible = false;
+      playerWingsMesh.visible = false;
+      isPhoenixAerialCombat = false;
+      isPhoenixCinematic = false;
+
       if (type === 'phoenix') {
-        bossRig.visible = false;
         phoenixRig.visible = true;
         document.getElementById('boss-name').innerText = "НЕОНОВЫЙ ФЕНИКС «АПОКАЛИПСИС»";
         document.getElementById('boss-name').style.color = "#ff7700";
-        document.getElementById('boss-stage').innerText = "ПОГОНЯ / BULLET-HELL";
+        document.getElementById('boss-stage').innerText = "ФАЗА 1: BULLET-HELL";
         document.getElementById('boss-stage').style.color = "#ffd700";
         AudioEngine.phoenixScreech();
+      } else if (type === 'reaper') {
+        reaperRig.visible = true;
+        document.getElementById('boss-name').innerText = "НЕЙРО-ЖНЕЦ: ОРБИТАЛЬНЫЙ КОЛОСС";
+        document.getElementById('boss-name').style.color = "#a855f7";
+        document.getElementById('boss-stage').innerText = "ФАЗА 1: ГРАВИТАЦИОННЫЙ ВИХРЬ";
+        document.getElementById('boss-stage').style.color = "#00ffcc";
+        AudioEngine.skyRoar();
       } else {
         bossRig.visible = true;
-        phoenixRig.visible = false;
         document.getElementById('boss-name').innerText = "КИБЕР-ЦЕНТУРИОН MK-X";
         document.getElementById('boss-name').style.color = "#ff0055";
         document.getElementById('boss-stage').innerText = "ФАЗА 1: ЩИТ АКТИВЕН";
@@ -1511,6 +1652,19 @@
     hairBangs.position.set(0, 1.64, 0.2);
     playerGroup.add(hairBangs);
 
+    // НЕОНОВЫЕ КИБЕР-КРЫЛЬЯ ИГРОКА (ДЛЯ ВОЗДУШНОГО БОЯ)
+    const playerWingsMesh = new THREE.Group();
+    const pwL = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 0.8), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
+    pwL.position.set(-1.4, 1.2, -0.2);
+    pwL.rotation.z = 0.25;
+    playerWingsMesh.add(pwL);
+    const pwR = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 0.8), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
+    pwR.position.set(1.4, 1.2, -0.2);
+    pwR.rotation.z = -0.25;
+    playerWingsMesh.add(pwR);
+    playerWingsMesh.visible = false;
+    playerGroup.add(playerWingsMesh);
+
     const pumpkinHatMesh = new THREE.Group();
     const pHatBase = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.4 }));
     pumpkinHatMesh.add(pHatBase);
@@ -1570,6 +1724,19 @@
     playerGroup.add(legLeftCyber);
 
     // ==========================================
+    // ГОЛОГРАФИЧЕСКИЙ СЕТЕВОЙ НАПАРНИК (МУЛЬТИПЛЕЕР ПАСХАЛКА)
+    // ==========================================
+    const ghostPlayerGroup = new THREE.Group();
+    ghostPlayerGroup.visible = false;
+    scene.add(ghostPlayerGroup);
+
+    const ghostMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.65 });
+    const gBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.72, 0.34), ghostMat);
+    gBody.position.y = 0.95; ghostPlayerGroup.add(gBody);
+    const gHead = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.46, 0.42), ghostMat);
+    gHead.position.y = 1.48; ghostPlayerGroup.add(gHead);
+
+    // ==========================================
     // 2D ЧАНКИ: ЗОЛОТО, ТЫКВЫ И ПОДЗЕМНЫЙ ДАТАЦЕНТР
     // ==========================================
     const worldGroup = new THREE.Group();
@@ -1585,7 +1752,6 @@
     const matBedrock = new THREE.MeshStandardMaterial({ color: 0x05070a });
     const matPumpkin = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.3, emissive: 0x441100 });
 
-    // МАТЕРИАЛЫ КИБЕР-ДАТАЦЕНТРА
     const matMetalWall = new THREE.MeshStandardMaterial({ color: 0x1c2833, metalness: 0.85, roughness: 0.3 });
     const matServerRack = new THREE.MeshStandardMaterial({ color: 0x0a101d, emissive: 0x00ffcc, emissiveIntensity: 0.45 });
     const matTerminal = new THREE.MeshBasicMaterial({ color: 0xff0055 });
@@ -1608,18 +1774,17 @@
         let mat = matStone;
         let type = 'stone';
 
-        // ГЕНЕРАЦИЯ ДАТАЦЕНТРА В ЗОНЕ X: 18..30, Y: -14..-9
         const isDataCenterZone = (gx >= 18 && gx <= 30 && gy >= -14 && gy <= -9);
 
         if (isDataCenterZone) {
           if (gy === -14 || gy === -9 || gx === 18 || gx === 30) {
             mat = matMetalWall; type = 'metal_wall';
           } else if (Math.random() < 0.22) {
-            mat = matServerRack; type = 'server_rack'; // СЕРВЕРНАЯ СТОЙКА
+            mat = matServerRack; type = 'server_rack';
           } else if (gx === 24 && gy === -13) {
-            mat = matTerminal; type = 'terminal'; // ГЛАВНЫЙ СЕРВЕР
+            mat = matTerminal; type = 'terminal';
           } else {
-            continue; // Воздушный коридор данжа
+            continue;
           }
         } else {
           if (gy === -18) { mat = matBedrock; type = 'bedrock'; }
@@ -1797,7 +1962,7 @@
     heisenbergGroup.add(chemDesk);
 
     // ==========================================
-    // 3D АРЕНА БОССОВ
+    // 3D АРЕНА БОССОВ: ЦЕНТУРИОН, ФЕНИКС, ЖНЕЦ
     // ==========================================
     const bossGroup = new THREE.Group();
     bossGroup.visible = false;
@@ -1821,50 +1986,41 @@
     // 1. ЦЕНТУРИОН
     const bossRig = new THREE.Group();
     bossGroup.add(bossRig);
-
     const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.8, 3.6, 2.4), new THREE.MeshStandardMaterial({ color: 0x150d26, metalness: 0.9 }));
-    bTorso.position.y = 3.2;
-    bossRig.add(bTorso);
-
+    bTorso.position.y = 3.2; bossRig.add(bTorso);
     const bCore = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.4, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff5500 }));
-    bCore.position.set(0, 3.5, 1.25);
-    bossRig.add(bCore);
+    bCore.position.set(0, 3.5, 1.25); bossRig.add(bCore);
 
     const bossWings = new THREE.Group();
     const wingL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    wingL.position.set(-2.8, 4.2, -0.6);
-    wingL.rotation.z = 0.35;
-    bossWings.add(wingL);
+    wingL.position.set(-2.8, 4.2, -0.6); wingL.rotation.z = 0.35; bossWings.add(wingL);
     const wingR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.4, 0.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-    wingR.position.set(2.8, 4.2, -0.6);
-    wingR.rotation.z = -0.35;
-    bossWings.add(wingR);
-    bossWings.visible = false;
-    bossRig.add(bossWings);
+    wingR.position.set(2.8, 4.2, -0.6); wingR.rotation.z = -0.35; bossWings.add(wingR);
+    bossWings.visible = false; bossRig.add(bossWings);
 
-    // 2. ФЕНИКС
+    // 2. НЕОНОВЫЙ ФЕНИКС
     const phoenixRig = new THREE.Group();
-    phoenixRig.visible = false;
-    bossGroup.add(phoenixRig);
-
+    phoenixRig.visible = false; bossGroup.add(phoenixRig);
     const pBody = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3.8, 8).rotateX(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xff3300, metalness: 0.8 }));
-    pBody.position.y = 3.8;
-    phoenixRig.add(pBody);
-
+    pBody.position.y = 3.8; phoenixRig.add(pBody);
     const pCore = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffea00 }));
-    pCore.position.set(0, 3.8, 0);
-    phoenixRig.add(pCore);
-
+    pCore.position.set(0, 3.8, 0); phoenixRig.add(pCore);
     const pWingL = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.15, 2.2), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
-    pWingL.position.set(-3.2, 4.2, 0);
-    phoenixRig.add(pWingL);
+    pWingL.position.set(-3.2, 4.2, 0); phoenixRig.add(pWingL);
     const pWingR = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.15, 2.2), new THREE.MeshBasicMaterial({ color: 0xff7700, wireframe: true }));
-    pWingR.position.set(3.2, 4.2, 0);
-    phoenixRig.add(pWingR);
+    pWingR.position.set(3.2, 4.2, 0); phoenixRig.add(pWingR);
 
-    const pTail = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 3.5), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
-    pTail.position.set(0, 3.6, -2.8);
-    phoenixRig.add(pTail);
+    // 3. НЕЙРО-ЖНЕЦ: ОРБИТАЛЬНЫЙ КОЛОСС (НОВЫЙ БОСС!)
+    const reaperRig = new THREE.Group();
+    reaperRig.visible = false; bossGroup.add(reaperRig);
+    const rBody = new THREE.Mesh(new THREE.OctahedronGeometry(2.2, 1), new THREE.MeshStandardMaterial({ color: 0x2e0854, metalness: 0.9 }));
+    rBody.position.y = 4.0; reaperRig.add(rBody);
+    const rCore = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
+    rCore.position.set(0, 4.0, 0); reaperRig.add(rCore);
+    const rPrismL = new THREE.Mesh(new THREE.TetrahedronGeometry(0.9), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true }));
+    rPrismL.position.set(-3.5, 4.0, 0); reaperRig.add(rPrismL);
+    const rPrismR = new THREE.Mesh(new THREE.TetrahedronGeometry(0.9), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true }));
+    rPrismR.position.set(3.5, 4.0, 0); reaperRig.add(rPrismR);
 
     let bossHp = 1800, bossMaxHp = 1800;
     let bossShield = 600, bossMaxShield = 600;
@@ -1947,6 +2103,8 @@
 
         if (currentSelectedBoss === 'phoenix') {
           setTip("🦅 ПОГОНЯ ЗА ФЕНИКСОМ: ЛАВИРУЙ СКВОЗЬ СПИРАЛИ ПУЛЬ!");
+        } else if (currentSelectedBoss === 'reaper') {
+          setTip("💀 ОРБИТАЛЬНЫЙ ЖНЕЦ: УВОРАЧИВАЙСЯ ОТ ГРАВИТАЦИОННОГО ВИХРЯ!");
         } else {
           setTip("⚠️ ДУЭЛЬ С ТИТАНОМ: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ!");
         }
@@ -2147,14 +2305,12 @@
           updateQuestsProgress('q_gold', 1);
           setTip(`👑 ДОБЫТО ЗОЛОТО! +${65 * dropMultiplier} 🪙!`);
         } else if (miningTarget.userData.type === 'server_rack') {
-          // ДРОП ИЗ СЕРВЕРНОЙ СТОЙКИ ДАТАЦЕНТРА
           techChips += 1 * dropMultiplier;
           chips += 2 * dropMultiplier;
           coins += 80 * dropMultiplier;
           AudioEngine.gem();
           setTip(`🖥️ СЕРВЕР ВЗЛОМАН: +${1 * dropMultiplier} ТЕХНО-ЧИП, +80 🪙!`);
         } else if (miningTarget.userData.type === 'terminal') {
-          // ВЗЛОМ ГЛАВНОГО ТЕРМИНАЛА ДАТАЦЕНТРА
           coins += 300 * dropMultiplier;
           techChips += 3;
           spookyCaseCount += 1;
@@ -2266,22 +2422,26 @@
           setTip("⚡ РЕАКТИВНЫЙ ДВОЙНОЙ ПРЫЖОК!");
         }
       } else {
+        // ОГОНЬ В 3D АРЕНЕ ИЛИ ВОЗДУШНОМ БОЮ
         AudioEngine.laser();
         haptic('light');
 
         const shootOrigin = playerGroup.position.clone();
         shootOrigin.y += 1.0;
 
-        const targetPos = currentSelectedBoss === 'phoenix' ? phoenixRig.position.clone() : bossRig.position.clone();
-        targetPos.y += 3.2;
+        let targetPos;
+        if (currentSelectedBoss === 'phoenix') targetPos = phoenixRig.position.clone();
+        else if (currentSelectedBoss === 'reaper') targetPos = reaperRig.position.clone();
+        else targetPos = bossRig.position.clone();
 
+        targetPos.y += 2.0;
         const shootDir = new THREE.Vector3().subVectors(targetPos, shootOrigin).normalize();
 
-        const p = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff7700 }));
+        const p = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
         p.position.copy(shootOrigin);
         bossGroup.add(p);
 
-        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(0.85), isPlayer: true });
+        projectiles.push({ mesh: p, vel: shootDir.multiplyScalar(0.95), isPlayer: true });
       }
     }
 
@@ -2322,10 +2482,17 @@
       if (mode === 'world') {
         updateMining();
 
-        // ОБНОВЛЕНИЕ НЕОНОВОГО МАЯКА НА ХАЙЗЕНБЕРГА
         const distToH = Math.round(playerGroup.position.distanceTo(heisenbergGroup.position));
         const dirH = heisenbergGroup.position.x > playerGroup.position.x ? '▶' : '◀';
         document.getElementById('heisenberg-compass').innerText = `⚗️ ${distToH}м [${dirH}]`;
+
+        // СИНХРОНИЗАЦИЯ СЕТЕВОГО ГОЛОГРАФИЧЕСКОГО НАПАРНИКА
+        if (isMultiplayerGhostActive) {
+          ghostPlayerGroup.position.x = pX - 1.2;
+          ghostPlayerGroup.position.y = pY + Math.sin(t * 8) * 0.08;
+          ghostPlayerGroup.position.z = 0;
+          ghostPlayerGroup.rotation.y = playerGroup.rotation.y;
+        }
 
         // 2D БЛАСТЕР
         for (let i = projectiles2D.length - 1; i >= 0; i--) {
@@ -2397,7 +2564,6 @@
           }
         }
 
-        // ГРАВИТАЦИЯ (ОТКЛЮЧАЕТСЯ В АДМИН-РЕЖИМЕ ПОЛЁТА)
         if (!adminFlyMode) {
           pVy -= 0.014;
           let nextY = pY + pVy;
@@ -2428,7 +2594,7 @@
           }
         } else {
           pY += pVy;
-          pVy *= 0.85; // Торможение в невесомости
+          pVy *= 0.85;
         }
 
         if (pY < -24) damagePlayer(500);
@@ -2507,7 +2673,7 @@
         document.getElementById('interact-prompt').style.display = hDist < 4.5 ? 'block' : 'none';
       }
       else if (mode === 'boss') {
-        let mX = 0, mZ = 0;
+        let mX = 0, mZ = 0, mY = 0;
         let isRunning3D = false;
 
         if (inputState.up) mZ -= 1;
@@ -2515,78 +2681,151 @@
         if (inputState.left) mX -= 1;
         if (inputState.right) mX += 1;
 
+        // В ВОЗДУШНОМ БОЮ D-PAD УПРАВЛЯЕТ ВЫСОТОЙ И ПОЛЁТОМ
+        if (isPhoenixAerialCombat) {
+          if (inputState.up) mY += 0.18;
+          if (inputState.down) mY -= 0.18;
+          aerialFlightAlt = Math.max(1.5, Math.min(18.0, aerialFlightAlt + mY));
+          pY = aerialFlightAlt;
+        }
+
         if (mX !== 0 || mZ !== 0) {
           isRunning3D = true;
           const len = Math.hypot(mX, mZ);
-          let spd = 0.15 * adminSpeedTier;
+          let spd = (isPhoenixAerialCombat ? 0.24 : 0.15) * adminSpeedTier;
           if (activeBuffs.speed > 0 || activeBuffs.pumpkin_madness > 0 || weaponEnchantment === 'hypersonic') spd *= 1.45;
           pX += (mX / len) * spd;
           pZ += (mZ / len) * spd;
         }
 
+        const maxRad = isPhoenixAerialCombat ? 40 : (ARENA_RADIUS - 1.2);
         const distToCenter = Math.hypot(pX, pZ);
-        if (distToCenter > ARENA_RADIUS - 1.2) {
+        if (distToCenter > maxRad) {
           const angle = Math.atan2(pZ, pX);
-          pX = Math.cos(angle) * (ARENA_RADIUS - 1.2);
-          pZ = Math.sin(angle) * (ARENA_RADIUS - 1.2);
+          pX = Math.cos(angle) * maxRad;
+          pZ = Math.sin(angle) * maxRad;
         }
 
-        playerGroup.position.set(pX, 0, pZ);
+        playerGroup.position.set(pX, isPhoenixAerialCombat ? pY : 0, pZ);
 
         if (isRunning3D) {
           const moveAngle = Math.atan2(mX, mZ);
           playerGroup.rotation.y = moveAngle;
-          legRight.rotation.x = Math.sin(t * 12) * 0.6;
-          legLeftCyber.rotation.x = -Math.sin(t * 12) * 0.6;
-        } else {
-          legRight.rotation.x = 0;
-          legLeftCyber.rotation.x = 0;
+          if (!isPhoenixAerialCombat) {
+            legRight.rotation.x = Math.sin(t * 12) * 0.6;
+            legLeftCyber.rotation.x = -Math.sin(t * 12) * 0.6;
+          }
+        }
+
+        // АНИМАЦИЯ КРЫЛЬЕВ ИГРОКА В ПОЛЁТЕ
+        if (isPhoenixAerialCombat) {
+          pwL.rotation.z = Math.sin(t * 14) * 0.45;
+          pwR.rotation.z = -Math.sin(t * 14) * 0.45;
         }
 
         let activeBossCorePos;
 
+        // 1. ЛОГИКА ФЕНИКСА + КАТСЦЕНА
         if (currentSelectedBoss === 'phoenix') {
           pWingL.rotation.z = Math.sin(t * 8) * 0.45;
           pWingR.rotation.z = -Math.sin(t * 8) * 0.45;
 
-          const flightRadius = 14;
-          phoenixRig.position.x = Math.cos(t * 1.5) * flightRadius;
-          phoenixRig.position.z = Math.sin(t * 1.5) * flightRadius;
-          phoenixRig.position.y = 2.0 + Math.sin(t * 3) * 1.5;
+          // ТРИГГЕР КАТСЦЕНЫ ВЗЛЁТА (ПРИ HP < 18%)
+          if (bossHp <= bossMaxHp * 0.18 && !isPhoenixAerialCombat && !isPhoenixCinematic) {
+            isPhoenixCinematic = true;
+            AudioEngine.phoenixScreech();
+            haptic('heavy');
+            const cBanner = document.getElementById('cinematic-banner');
+            cBanner.innerText = "⚠️ ФЕНИКС РВЁТСЯ В НЕБО!\nКИБЕР-КРЫЛЬЯ СБРОШЕНЫ — ВЗЛЕТАЙ!";
+            cBanner.style.display = 'block';
 
-          phoenixRig.lookAt(playerGroup.position.x, 2.5, playerGroup.position.z);
-          activeBossCorePos = phoenixRig.position.clone();
+            setTimeout(() => {
+              isPhoenixCinematic = false;
+              isPhoenixAerialCombat = true;
+              playerWingsMesh.visible = true;
+              cBanner.style.display = 'none';
+              document.getElementById('boss-stage').innerText = "🔥 ВОЗДУШНЫЙ ДОГФАЙТ В НЕБЕ!";
+              document.getElementById('boss-stage').style.color = "#ff0055";
+              AudioEngine.skyRoar();
+              showToast("🦅 ВОЗДУШНЫЙ БОЙ: ИСПОЛЬЗУЙ ВЫСОТУ И ПЛАЗМОМЁТ!", "#ff7700");
+            }, 2600);
+          }
 
-          bossAttackTimer += dt;
-          if (bossAttackTimer >= 0.22) {
-            bossAttackTimer = 0;
-            bulletHellAngle += 0.35;
+          if (isPhoenixCinematic) {
+            // Катсцена: Феникс стремительно летит вверх, камера следует
+            phoenixRig.position.y += 0.25;
+            phoenixRig.position.x += Math.sin(t * 4) * 0.3;
+            camera.lookAt(phoenixRig.position);
+            activeBossCorePos = phoenixRig.position.clone();
+          } else if (isPhoenixAerialCombat) {
+            // ВОЗДУШНЫЙ ДОГФАЙТ
+            const flightRadius = 26;
+            phoenixRig.position.x = Math.cos(t * 1.8) * flightRadius;
+            phoenixRig.position.z = Math.sin(t * 1.8) * flightRadius;
+            phoenixRig.position.y = 8.0 + Math.sin(t * 3.5) * 6.0;
 
-            const bSpd = 0.32;
-            const bvx = Math.cos(bulletHellAngle) * bSpd;
-            const bvz = Math.sin(bulletHellAngle) * bSpd;
+            phoenixRig.lookAt(playerGroup.position.x, playerGroup.position.y, playerGroup.position.z);
+            activeBossCorePos = phoenixRig.position.clone();
 
-            const bProj = new THREE.Mesh(
-              new THREE.SphereGeometry(0.45, 8, 8),
-              new THREE.MeshBasicMaterial({ color: 0xffaa00 })
-            );
-            bProj.position.copy(phoenixRig.position);
-            bossGroup.add(bProj);
-            projectiles.push({ mesh: bProj, vel: new THREE.Vector3(bvx, 0, bvz), isPlayer: false });
-
-            if (Math.random() < 0.25) {
+            bossAttackTimer += dt;
+            if (bossAttackTimer >= 0.18) {
+              bossAttackTimer = 0;
+              bulletHellAngle += 0.4;
               const aimDir = new THREE.Vector3().subVectors(playerGroup.position, phoenixRig.position).normalize();
-              const fProj = new THREE.Mesh(
-                new THREE.BoxGeometry(0.3, 0.3, 1.4),
-                new THREE.MeshBasicMaterial({ color: 0xff0055 })
-              );
-              fProj.position.copy(phoenixRig.position);
-              fProj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), aimDir);
-              bossGroup.add(fProj);
-              projectiles.push({ mesh: fProj, vel: aimDir.multiplyScalar(0.55), isPlayer: false });
+              const bProj = new THREE.Mesh(new THREE.SphereGeometry(0.55, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+              bProj.position.copy(phoenixRig.position);
+              bossGroup.add(bProj);
+              projectiles.push({ mesh: bProj, vel: aimDir.multiplyScalar(0.65), isPlayer: false });
+            }
+          } else {
+            // Стандартный полет в арене
+            const flightRadius = 14;
+            phoenixRig.position.x = Math.cos(t * 1.5) * flightRadius;
+            phoenixRig.position.z = Math.sin(t * 1.5) * flightRadius;
+            phoenixRig.position.y = 2.0 + Math.sin(t * 3) * 1.5;
+            phoenixRig.lookAt(playerGroup.position.x, 2.5, playerGroup.position.z);
+            activeBossCorePos = phoenixRig.position.clone();
+
+            bossAttackTimer += dt;
+            if (bossAttackTimer >= 0.22) {
+              bossAttackTimer = 0;
+              bulletHellAngle += 0.35;
+              const bvx = Math.cos(bulletHellAngle) * 0.32;
+              const bvz = Math.sin(bulletHellAngle) * 0.32;
+              const bProj = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
+              bProj.position.copy(phoenixRig.position);
+              bossGroup.add(bProj);
+              projectiles.push({ mesh: bProj, vel: new THREE.Vector3(bvx, 0, bvz), isPlayer: false });
             }
           }
-        } else {
+        } 
+        // 2. ЛОГИКА НЕЙРО-ЖНЕЦА
+        else if (currentSelectedBoss === 'reaper') {
+          rPrismL.rotation.x += 0.05; rPrismL.rotation.y += 0.05;
+          rPrismR.rotation.x -= 0.05; rPrismR.rotation.y -= 0.05;
+          reaperRig.rotation.y += 0.02;
+
+          // Гравитационное притяжение игрока к центру
+          const pPull = new THREE.Vector3(0, 0, 0).sub(playerGroup.position).normalize().multiplyScalar(0.04);
+          pX += pPull.x; pZ += pPull.z;
+
+          activeBossCorePos = new THREE.Vector3(reaperRig.position.x, 4.0, reaperRig.position.z);
+
+          bossAttackTimer += dt;
+          if (bossAttackTimer >= 1.2) {
+            bossAttackTimer = 0;
+            // 4 косы по сторонам света
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 2) {
+              const scytheDir = new THREE.Vector3(Math.cos(a + t), 0, Math.sin(a + t)).normalize();
+              const sMesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.2, 0.6), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
+              sMesh.position.set(0, 3.5, 0);
+              bossGroup.add(sMesh);
+              projectiles.push({ mesh: sMesh, vel: scytheDir.multiplyScalar(0.45), isPlayer: false });
+            }
+          }
+        } 
+        // 3. ЛОГИКА ЦЕНТУРИОНА
+        else {
           bossRig.lookAt(pX, bossRig.position.y, pZ);
           activeBossCorePos = new THREE.Vector3(bossRig.position.x, 3.2, bossRig.position.z);
 
@@ -2604,7 +2843,6 @@
           bossAttackTimer += dt;
           if (bossAttackTimer >= attackInterval) {
             bossAttackTimer = 0;
-
             const bossShootOrigin = new THREE.Vector3(bossRig.position.x, 3.5, bossRig.position.z);
             const playerAimTarget = new THREE.Vector3(playerGroup.position.x, 1.0, playerGroup.position.z);
             const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
@@ -2615,21 +2853,28 @@
             );
             bProj.position.copy(bossShootOrigin);
             bossGroup.add(bProj);
-
             projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(isBossPhase2 ? 0.58 : 0.48), isPlayer: false });
           }
         }
 
-        const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
-        camera.position.lerp(camTarget, 0.08);
-        camera.lookAt(pX * 0.4, 2.5, pZ * 0.4);
+        // ПОЗИЦИЯ КАМЕРЫ (С УЧЁТОМ ВОЗДУШНОГО БОЯ)
+        if (isPhoenixAerialCombat) {
+          const camTarget = new THREE.Vector3(pX * 0.6, pY + 7.0, pZ + 18.0);
+          camera.position.lerp(camTarget, 0.08);
+          camera.lookAt(pX * 0.4, pY, pZ * 0.4);
+        } else {
+          const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
+          camera.position.lerp(camTarget, 0.08);
+          camera.lookAt(pX * 0.4, 2.5, pZ * 0.4);
+        }
 
+        // КОЛЛИЗИИ СНАРЯДОВ В 3D
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
           p.mesh.position.add(p.vel);
 
           if (p.isPlayer) {
-            if (p.mesh.position.distanceTo(activeBossCorePos) < 2.6) {
+            if (p.mesh.position.distanceTo(activeBossCorePos) < 2.8) {
               AudioEngine.hit();
               haptic('light');
               bossGroup.remove(p.mesh);
@@ -2661,15 +2906,20 @@
 
               if (bossHp <= 0) {
                 const dropMultiplier = activeBuffs.greed > 0 ? 2 : 1;
-                coins += 650 * dropMultiplier;
-                Hero.addExp(280);
+                coins += 700 * dropMultiplier;
+                Hero.addExp(320);
                 Hero.wins++;
                 spookyCaseCount++;
-                showToast(`🏆 ${currentSelectedBoss === 'phoenix' ? 'НЕОНОВЫЙ ФЕНИКС' : 'ТИТАН'} ПОВЕРЖЕН! +${650 * dropMultiplier} 🪙!`, '#ff7700');
+                showToast(`🏆 ТИТАН ПОВЕРЖЕН! +${700 * dropMultiplier} 🪙!`, '#ff7700');
+                if (isPhoenixAerialCombat) updateQuestsProgress('q_phoenix_sky', 1);
                 updateQuestsProgress('q_boss', 1);
+
                 bossHp = bossMaxHp; bossShield = bossMaxShield;
                 isBossPhase2 = false;
                 bossWings.visible = false;
+                playerWingsMesh.visible = false;
+                isPhoenixAerialCombat = false;
+                isPhoenixCinematic = false;
                 document.getElementById('boss-hp').style.width = '100%';
                 document.getElementById('boss-shield').style.width = '100%';
                 saveGameData();
@@ -2678,13 +2928,13 @@
               continue;
             }
           } else {
-            if (p.mesh.position.distanceTo(playerGroup.position) < 1.4) {
+            if (p.mesh.position.distanceTo(playerGroup.position) < 1.6) {
               damagePlayer(isBossPhase2 ? 45 : 32);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
               continue;
             }
-            if (p.mesh.position.distanceTo(new THREE.Vector3(0, 0, 0)) > 42) {
+            if (p.mesh.position.distanceTo(new THREE.Vector3(0, 0, 0)) > 55) {
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
             }
