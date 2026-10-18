@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CYBERCORE: UNIFIED TITAN MONOLITH</title>
+  <title>CYBER-TERRARIA: HEISENBERG & TITAN BOSS</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -19,7 +19,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #020308;
+      background-color: #030611;
       color: #00ffcc;
     }
     #canvas-container {
@@ -30,8 +30,6 @@
       left: 0;
       z-index: 1;
     }
-
-    /* TOP GLOBAL HUD */
     #hud {
       position: absolute;
       top: 0;
@@ -45,19 +43,20 @@
       justify-content: space-between;
       padding: 10px;
     }
-    .hud-top-bar {
+    .hud-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(4, 9, 20, 0.92);
+      background: rgba(4, 9, 22, 0.94);
       border: 1px solid #00ffcc;
       border-radius: 8px;
-      padding: 8px 14px;
-      box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+      padding: 8px 12px;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.25);
       pointer-events: auto;
       max-width: 650px;
       margin: 0 auto;
       width: 100%;
+      gap: 6px;
     }
     .nav-btn {
       background: rgba(0, 255, 204, 0.15);
@@ -69,78 +68,52 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .nav-btn.active {
-      background: #00ffcc;
-      color: #000;
-      box-shadow: 0 0 10px #00ffcc;
-    }
-    .nav-btn.boss-btn {
-      border-color: #ff0055;
-      color: #ff0055;
-      background: rgba(255, 0, 85, 0.15);
-    }
-    .nav-btn.boss-btn.active {
-      background: #ff0055;
-      color: #fff;
-      box-shadow: 0 0 12px #ff0055;
-    }
-
-    /* BOSS HEALTH BARS (IN BOSS MODE) */
-    #boss-bars-box {
+    .nav-btn.active { background: #00ffcc; color: #000; box-shadow: 0 0 10px #00ffcc; }
+    .nav-btn.boss { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.15); }
+    .nav-btn.boss.active { background: #ff0055; color: #fff; box-shadow: 0 0 12px #ff0055; }
+    
+    #boss-bars {
       display: none;
       width: 100%;
       max-width: 650px;
       margin: 6px auto 0;
-      background: rgba(3, 8, 18, 0.85);
+      background: rgba(4, 8, 18, 0.92);
       border: 1px solid #ff0055;
       padding: 6px 10px;
       border-radius: 6px;
       pointer-events: auto;
     }
-    .bar-wrap {
-      width: 100%;
-      height: 10px;
-      background: #10141d;
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 2px 0;
-    }
-    .hp-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ff6600); transition: width 0.1s linear; }
-    .shield-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #0088ff, #00ffff); transition: width 0.1s linear; }
+    .bar-bg { width: 100%; height: 10px; background: #121927; border-radius: 3px; overflow: hidden; margin-top: 3px; }
+    .bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ffaa00); transition: width 0.1s; }
 
-    /* ACTION PROMPT (FOR NPC) */
+    #tip-banner {
+      align-self: center;
+      font-size: 11px;
+      font-weight: bold;
+      background: rgba(0, 255, 204, 0.15);
+      border: 1px solid #00ffcc;
+      padding: 5px 12px;
+      border-radius: 4px;
+      color: #fff;
+      text-align: center;
+    }
+
     #interact-prompt {
       align-self: center;
-      background: rgba(0, 255, 204, 0.25);
-      border: 1px solid #00ffcc;
-      color: #fff;
-      padding: 8px 16px;
+      background: rgba(255, 230, 0, 0.25);
+      border: 1px solid #ffe600;
+      color: #ffe600;
+      padding: 7px 14px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       display: none;
       pointer-events: auto;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+      box-shadow: 0 0 12px rgba(255, 230, 0, 0.35);
     }
 
-    /* CENTER COMBAT NOTIFIER */
-    #alert-banner {
-      align-self: center;
-      font-size: 14px;
-      font-weight: bold;
-      color: #ff0055;
-      background: rgba(255, 0, 85, 0.18);
-      border: 1px solid #ff0055;
-      padding: 6px 14px;
-      border-radius: 4px;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      text-align: center;
-    }
-
-    /* DYNAMIC BOTTOM CONTROLS */
-    .controls-panel {
+    .bottom-panel {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -148,276 +121,161 @@
       max-width: 650px;
       margin: 0 auto;
       pointer-events: none;
-      margin-bottom: 4px;
     }
-    .dpad-container {
+    .touch-dpad {
       pointer-events: auto;
-      display: grid;
-      grid-template-columns: repeat(3, 46px);
-      grid-template-rows: repeat(3, 46px);
-      gap: 4px;
+      display: flex;
+      gap: 8px;
     }
-    .ctrl-btn {
-      background: rgba(0, 255, 204, 0.12);
+    .touch-btn {
+      width: 54px;
+      height: 54px;
+      background: rgba(0, 255, 204, 0.15);
       border: 1px solid #00ffcc;
+      border-radius: 8px;
       color: #00ffcc;
-      border-radius: 6px;
+      font-size: 20px;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      font-weight: bold;
-      touch-action: manipulation;
     }
-    .ctrl-btn:active { background: #00ffcc; color: #000; }
+    .touch-btn:active { background: #00ffcc; color: #000; }
 
-    .action-container {
+    .touch-actions {
       pointer-events: auto;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    .act-circle {
-      width: 62px;
-      height: 62px;
+    .act-btn {
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
-      background: rgba(255, 230, 0, 0.12);
+      background: rgba(255, 230, 0, 0.15);
       border: 1px solid #ffe600;
       color: #ffe600;
-      font-weight: bold;
       font-size: 9px;
+      font-weight: bold;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 10px rgba(255, 230, 0, 0.3);
       cursor: pointer;
     }
-    .act-circle:active { background: #ffe600; color: #000; transform: scale(0.92); }
-    .act-circle.combat {
+    .act-btn:active { background: #ffe600; color: #000; transform: scale(0.94); }
+    .act-btn.armor-toggle {
+      border-color: #00aaff;
+      color: #00aaff;
+      background: rgba(0, 170, 255, 0.15);
+    }
+    .act-btn.armor-toggle.equipped {
+      background: #00aaff;
+      color: #000;
+      box-shadow: 0 0 12px #00aaff;
+    }
+    .act-btn.combat {
       border-color: #ff0055;
       color: #ff0055;
-      background: rgba(255, 0, 85, 0.15);
-      box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+      background: rgba(255, 0, 85, 0.2);
     }
-    .act-circle.combat:active { background: #ff0055; color: #fff; }
+    .act-btn.combat:active { background: #ff0055; color: #fff; }
 
-    /* MODAL WINDOWS & ROULETTE */
-    .cyber-modal {
+    /* MODAL */
+    .modal {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(2, 4, 10, 0.95);
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(2, 5, 12, 0.94);
       z-index: 100;
       display: none;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 16px;
     }
-    .modal-card {
-      width: 100%;
-      max-width: 380px;
-      background: #080f1d;
-      border: 2px solid #00ffcc;
+    .modal-box {
+      width: 100%; max-width: 380px;
+      background: #081120;
+      border: 2px solid #ffe600;
       border-radius: 12px;
       padding: 18px;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.35);
       position: relative;
+      box-shadow: 0 0 25px rgba(255, 230, 0, 0.3);
     }
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      background: none;
-      border: none;
-      color: #ff0055;
-      font-size: 22px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .shop-slot {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #0b1528;
-      border: 1px solid #1c3358;
-      padding: 8px 10px;
-      border-radius: 6px;
-      margin: 8px 0;
-    }
-    .btn-buy {
+    .btn-dialogue {
       background: #ffe600;
       border: none;
       color: #000;
       font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .roulette-window {
-      position: relative;
+      padding: 10px;
+      border-radius: 6px;
       width: 100%;
-      height: 84px;
-      background: #030711;
-      border: 1px solid #192a46;
-      border-radius: 6px;
-      margin: 14px 0;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
+      cursor: pointer;
+      margin-top: 10px;
     }
-    .roulette-indicator {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 100%;
-      background: #ffe600;
-      box-shadow: 0 0 12px #ffe600;
-      z-index: 10;
-    }
-    .roulette-strip {
-      display: flex;
-      position: absolute;
-      left: 0;
-      top: 4px;
-      height: 76px;
-      transform: translateX(0px);
-      transition: transform 4.2s cubic-bezier(0.12, 0.85, 0.18, 1);
-    }
-    .roulette-card {
-      width: 74px;
-      height: 76px;
-      margin: 0 4px;
-      background: #0d1a30;
-      border: 1px solid #233e66;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: #fff;
-      text-align: center;
-      padding: 4px;
-      flex-shrink: 0;
-    }
-    .card-icon { font-size: 22px; margin-bottom: 2px; }
-    .card-legendary { border-color: #ffe600; color: #ffe600; box-shadow: inset 0 0 10px rgba(255, 230, 0, 0.4); }
-    .card-epic { border-color: #cc00ff; color: #cc00ff; box-shadow: inset 0 0 10px rgba(204, 0, 255, 0.4); }
-    .card-rare { border-color: #00a2ff; color: #00a2ff; }
   </style>
 </head>
 <body>
   <div id="canvas-container"></div>
 
   <div id="hud">
-    <!-- TOP NAVIGATION & STATUS -->
-    <div class="hud-top-bar">
-      <button class="nav-btn active" id="tab-world">🌍 МИР</button>
-      <button class="nav-btn boss-btn" id="tab-boss">⚔️ В БОЙ</button>
-      <div style="font-size:12px; font-weight:bold;">
-        🪙 <span id="coin-counter" style="color:#ffe600;">80</span>
+    <div class="hud-bar">
+      <button class="nav-btn active" id="btn-mode-world">⛏️ ТЕРРАРИЯ 2D</button>
+      <button class="nav-btn boss" id="btn-mode-boss">⚔️ 3D БОСС</button>
+      <div style="font-size:11px; font-weight:bold;">
+        🪙 <span id="val-coins" style="color:#ffe600;">50</span> | 
+        💎 <span id="val-ores" style="color:#00ffcc;">0</span>
       </div>
-      <button class="nav-btn" id="btn-save-telemetry" style="background:#00ffcc; color:#000;">💾 БОТ</button>
+      <button class="nav-btn" id="btn-sync" style="background:#00ffcc; color:#000;">💾 БОТ</button>
     </div>
 
-    <!-- BOSS HUD (VISIBLE IN COMBAT) -->
-    <div id="boss-bars-box">
-      <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px;">
-        <span id="boss-name" style="font-weight:bold; color:#ff0055;">КИБОРГ-ЦЕНТУРИОН X-1</span>
-        <span id="boss-stage-badge" style="color:#00ffcc;">ЭТАП 1/4</span>
+    <div id="boss-bars">
+      <div style="display:flex; justify-content:space-between; font-size:11px;">
+        <span id="boss-name" style="font-weight:bold; color:#ff0055;">КИБЕР-ЦЕНТУРИОН MK-X</span>
+        <span id="boss-stage" style="color:#00ffcc;">ТИТАН</span>
       </div>
-      <div class="bar-wrap"><div class="hp-fill" id="boss-hp"></div></div>
-      <div class="bar-wrap" style="height:5px;"><div class="shield-fill" id="boss-shield"></div></div>
+      <div class="bar-bg"><div class="bar-fill" id="boss-hp"></div></div>
     </div>
 
-    <div id="interact-prompt">⚡ ПОГОВОРИТЬ С КИБЕР-АЛХИМИКОМ [E]</div>
-    <div id="alert-banner">ВНИМАНИЕ: СЕЙСМИЧЕСКИЙ ЗАЛП!</div>
+    <div id="interact-prompt">⚗️ ПОГОВОРИТЬ С ХАЙЗЕНБЕРГОМ [E]</div>
+    <div id="tip-banner">⛏️ ТАПАЙ ПО БЛОКАМ ВОКРУГ СЕБЯ, ЧТОБЫ КОПАТЬ РУДУ!</div>
 
-    <!-- DYNAMIC CONTROLS -->
-    <div class="controls-panel">
-      <!-- Movement D-PAD -->
-      <div class="dpad-container">
-        <div></div>
-        <button class="ctrl-btn" id="btn-up">▲</button>
-        <div></div>
-        <button class="ctrl-btn" id="btn-left">◀</button>
-        <div></div>
-        <button class="ctrl-btn" id="btn-right">▶</button>
-        <div></div>
-        <button class="ctrl-btn" id="btn-down">▼</button>
-        <div></div>
+    <div class="bottom-panel">
+      <div class="touch-dpad">
+        <button class="touch-btn" id="ctrl-left">◀</button>
+        <button class="touch-btn" id="ctrl-right">▶</button>
       </div>
-
-      <!-- Action Buttons -->
-      <div class="action-container">
-        <button class="act-circle" id="btn-shop-open">
-          <span>🛒</span>
-          <span>ЛАВКА</span>
+      <div class="touch-actions">
+        <button class="act-btn armor-toggle" id="btn-armor">
+          <span>🛡️</span>
+          <span id="lbl-armor">БРОНЯ: НЕТ</span>
         </button>
-        <button class="act-circle" id="btn-action-main">
-          <span id="lbl-action-icon">▲</span>
-          <span id="lbl-action-name">ПРЫЖОК</span>
+        <button class="act-btn" id="btn-action">
+          <span id="act-icon">▲</span>
+          <span id="act-text">ПРЫЖОК</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SHOP / CASE OPENING MODAL -->
-  <div class="cyber-modal" id="shop-modal">
-    <div class="modal-card">
-      <button class="close-btn" id="btn-close-shop">✕</button>
-      <h3 style="color:#ffe600; font-size:16px; margin-bottom:4px;">ЧЕРНЫЙ РЫНОК СИНДИКАТА</h3>
-      <p style="font-size:11px; color:#88a2c2; margin-bottom:10px;">Покупай сундуки за добытые монеты:</p>
-
-      <div class="shop-slot">
-        <div><b style="color:#00a2ff;">📦 Неоновый Сундук</b><div style="font-size:10px; color:#8da4c4;">Редкие клинки</div></div>
-        <button class="btn-buy" onclick="buyCase('neon', 40)">40 🪙</button>
-      </div>
-
-      <div class="shop-slot">
-        <div><b style="color:#cc00ff;">💎 Кейс Синдиката</b><div style="font-size:10px; color:#8da4c4;">Эпическая броня</div></div>
-        <button class="btn-buy" onclick="buyCase('syndicate', 90)">90 🪙</button>
-      </div>
-
-      <div class="shop-slot">
-        <div><b style="color:#ffe600;">👑 Реликвия Древних</b><div style="font-size:10px; color:#8da4c4;">Легендарный Сандевистан</div></div>
-        <button class="btn-buy" onclick="buyCase('relic', 220)">220 🪙</button>
-      </div>
-
-      <div class="roulette-window" id="roulette-container" style="display:none;">
-        <div class="roulette-indicator"></div>
-        <div class="roulette-strip" id="roulette-strip"></div>
-      </div>
-      <div id="drop-result" style="font-size:12px; font-weight:bold; color:#00ffcc; text-align:center; min-height:22px; margin-top:6px;"></div>
-    </div>
-  </div>
-
-  <!-- NPC DIALOGUE MODAL -->
-  <div class="cyber-modal" id="dialogue-modal">
-    <div class="modal-card">
-      <button class="close-btn" id="btn-close-dialogue">✕</button>
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span style="font-size:24px;">🧙‍♂️</span>
+  <!-- ДИАЛОГ С ХАЙЗЕНБЕРГОМ -->
+  <div class="modal" id="dialogue-modal">
+    <div class="modal-box">
+      <button style="position:absolute; top:8px; right:12px; background:none; border:none; color:#ff0055; font-size:20px; cursor:pointer;" onclick="closeDialogue()">✕</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="font-size:32px;">⚗️</span>
         <div>
-          <h3 style="color:#00ffcc; font-size:14px;">КИБЕР-АЛХИМИК ВАКАСИ</h3>
-          <span style="font-size:10px; color:#ffe600;">Хранитель Неонового Обелиска</span>
+          <h3 style="color:#ffe600; font-size:15px;">УОЛТЕР «ХАЙЗЕНБЕРГ» ВАКАСИ</h3>
+          <span style="font-size:10px; color:#00ffcc;">Главный Кибер-Алхимик Сектора 7</span>
         </div>
       </div>
-      <p id="npc-text" style="font-size:12px; color:#cbd9ec; line-height:1.5; margin:10px 0;">
-        "Городу угрожают Мегакорп-Боссы и Феникс! Собери 8 рассеянных монет в открытом мире, чтобы активировать защитное ядро."
+      <p style="font-size:12px; line-height:1.5; color:#cbd9ec;" id="heisenberg-text">
+        "Say my name... Ты видишь эту синюю руду в шахтах? Это чистейший 99.1% неоновый катализатор. Принеси мне руду, и мы сварим идеальный кибер-конденсат для пробития титана!"
       </p>
-      <button class="btn-buy" id="btn-dialogue-act" style="width:100%; height:40px;">⚡ ПРИНЯТЬ КОНТРАКТ</button>
+      <button class="btn-dialogue" onclick="sellOreToHeisenberg()">⚡ СДАТЬ СИНЮЮ РУДУ (ХАЙЗЕН-ТРЕЙД)</button>
     </div>
   </div>
 
   <script>
-    // --- 1. TELEGRAM WEBAPP ---
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
 
@@ -425,641 +283,654 @@
       try {
         if (!tg?.HapticFeedback) return;
         if (type === 'light') tg.HapticFeedback.impactOccurred('light');
-        else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
         else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
         else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
       } catch (e) {}
     }
 
-    // --- 2. AUDIO SYNTHESIZER ---
-    const AudioEngine = {
+    const Sound = {
       ctx: null,
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (this.ctx.state === 'suspended') this.ctx.resume();
       },
-      tone(freq, type, dur, slide = null, vol = 0.15) {
+      beep(freq, dur, type='sine') {
         this.init();
-        const osc = this.ctx.createOscillator();
-        const g = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        if (slide) osc.frequency.exponentialRampToValueAtTime(slide, this.ctx.currentTime + dur);
-        g.gain.setValueAtTime(vol, this.ctx.currentTime);
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        g.gain.setValueAtTime(0.15, this.ctx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
-        osc.connect(g);
-        g.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + dur);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(); o.stop(this.ctx.currentTime + dur);
       },
-      coin() { this.tone(987, 'sine', 0.1, 1318, 0.18); },
-      jump() { this.tone(250, 'sine', 0.14, 550, 0.15); },
-      laser() { this.tone(900, 'sawtooth', 0.12, 180, 0.15); },
-      rocket() { this.tone(180, 'square', 0.3, 60, 0.25); },
-      hit() { this.tone(120, 'triangle', 0.2, 40, 0.3); },
-      click() { this.tone(1200, 'sine', 0.04, null, 0.2); },
-      win() {
-        [440, 554, 659, 880].forEach((f, i) => {
-          setTimeout(() => this.tone(f, 'sine', 0.3, null, 0.25), i * 110);
-        });
-      }
+      jump() { this.beep(280, 0.12, 'sine'); },
+      mine() { this.beep(120, 0.08, 'triangle'); },
+      gem() { this.beep(980, 0.15, 'sine'); },
+      laser() { this.beep(750, 0.1, 'sawtooth'); },
+      hit() { this.beep(90, 0.2, 'square'); },
+      equip() { this.beep(520, 0.18, 'triangle'); },
+      cook() { this.beep(650, 0.3, 'sine'); }
     };
 
-    // --- 3. THREE.JS UNIFIED SCENE SETUP ---
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x020308, 0.02);
+    let mode = 'world';
+    let coins = 50;
+    let ores = 0;
+    let inventory = [];
+    let isArmorEquipped = false;
 
-    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // Three.js Scene
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030611, 0.025);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x020308);
-    container.appendChild(renderer.domElement);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0x00ffcc, 1.2);
-    dirLight.position.set(15, 30, 20);
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambLight);
+    const dirLight = new THREE.DirectionalLight(0x00ffcc, 0.8);
+    dirLight.position.set(10, 20, 15);
     scene.add(dirLight);
 
-    // --- GAME MODES: 'world' OR 'combat' ---
-    let currentMode = 'world'; 
-    let playerCoins = 80;
-    let inventory = [];
+    // ==========================================
+    // 1. ИГРОК: ЧЕЛОВЕК С КИБЕР-НОГОЙ И СЪЕМНОЙ БРОНЕЙ
+    // ==========================================
+    const playerGroup = new THREE.Group();
+    scene.add(playerGroup);
 
-    // --- WORLD ENVIRONMENT GROUP ---
+    const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.6 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x3d2314 });
+    const matShirt = new THREE.MeshStandardMaterial({ color: 0x1f2b38, roughness: 0.8 });
+    const matPants = new THREE.MeshStandardMaterial({ color: 0x141824 });
+    const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0x8899aa, metalness: 0.95, roughness: 0.2 });
+    const matNeonJoint = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+
+    // Голова
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.44, 0.4), matSkin);
+    head.position.y = 1.48;
+    playerGroup.add(head);
+
+    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.16, 0.42), matHair);
+    hair.position.set(0, 1.64, 0);
+    playerGroup.add(hair);
+
+    // Торс
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.7, 0.32), matShirt);
+    torso.position.y = 0.95;
+    playerGroup.add(torso);
+
+    // Руки
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matShirt);
+    armL.position.set(-0.38, 0.95, 0);
+    playerGroup.add(armL);
+    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matShirt);
+    armR.position.set(0.38, 0.95, 0);
+    playerGroup.add(armR);
+
+    // Правая нога (человеческая)
+    const legRight = new THREE.Group();
+    const legRPant = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.6, 0.22), matPants);
+    legRPant.position.y = -0.3;
+    legRight.add(legRPant);
+    const bootR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.3), new THREE.MeshStandardMaterial({ color: 0x090c12 }));
+    bootR.position.set(0, -0.56, 0.04);
+    legRight.add(bootR);
+    legRight.position.set(0.16, 0.6, 0);
+    playerGroup.add(legRight);
+
+    // Левая нога (КИБЕР-ПРОТЕЗ)
+    const legLeftCyber = new THREE.Group();
+    const cyberThigh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), matCyberChrome);
+    cyberThigh.position.y = -0.15;
+    legLeftCyber.add(cyberThigh);
+    const piston = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.28, 8), matCyberChrome);
+    piston.position.set(0.06, -0.15, -0.04);
+    legLeftCyber.add(piston);
+    const cyberKnee = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), matNeonJoint);
+    cyberKnee.position.set(0, -0.32, 0);
+    legLeftCyber.add(cyberKnee);
+    const cyberShin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.14), matCyberChrome);
+    cyberShin.position.set(0, -0.48, 0);
+    legLeftCyber.add(cyberShin);
+    const cyberFoot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.32), matCyberChrome);
+    cyberFoot.position.set(0, -0.62, 0.05);
+    legLeftCyber.add(cyberFoot);
+    const cyberSole = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.3), matNeonJoint);
+    cyberSole.position.set(0, -0.66, 0.05);
+    legLeftCyber.add(cyberSole);
+    legLeftCyber.position.set(-0.16, 0.6, 0);
+    playerGroup.add(legLeftCyber);
+
+    // Модули титановой брони
+    const armorGroup = new THREE.Group();
+    armorGroup.visible = false;
+    playerGroup.add(armorGroup);
+    const matArmorPlate = new THREE.MeshStandardMaterial({ color: 0x091424, metalness: 0.9, roughness: 0.2 });
+    const matVisor = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+
+    const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.66, 0.42), matArmorPlate);
+    chestPlate.position.y = 0.96;
+    armorGroup.add(chestPlate);
+    const arcReactor = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 12).rotateX(Math.PI / 2), matVisor);
+    arcReactor.position.set(0, 1.05, 0.22);
+    armorGroup.add(arcReactor);
+    const shoulderL = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.28), matArmorPlate);
+    shoulderL.position.set(-0.42, 1.25, 0);
+    armorGroup.add(shoulderL);
+    const shoulderR = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.28), matArmorPlate);
+    shoulderR.position.set(0.42, 1.25, 0);
+    armorGroup.add(shoulderR);
+    const helmetVisor = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.15, 0.25), matVisor);
+    helmetVisor.position.set(0, 1.5, 0.15);
+    armorGroup.add(helmetVisor);
+
+    function toggleArmor() {
+      isArmorEquipped = !isArmorEquipped;
+      armorGroup.visible = isArmorEquipped;
+      Sound.equip();
+      haptic('medium');
+      const btn = document.getElementById('btn-armor');
+      const lbl = document.getElementById('lbl-armor');
+      if (isArmorEquipped) {
+        btn.classList.add('equipped');
+        lbl.innerText = "БРОНЯ: ТИТАН";
+        document.getElementById('tip-banner').innerText = "🛡️ ТИТАНОВАЯ КИБЕР-БРОНЯ ЭКИПИРОВАНА (-50% УРОНА)!";
+      } else {
+        btn.classList.remove('equipped');
+        lbl.innerText = "БРОНЯ: НЕТ";
+        document.getElementById('tip-banner').innerText = "БРОНЯ СНЯТА.";
+      }
+    }
+    document.getElementById('btn-armor').addEventListener('click', toggleArmor);
+
+    // ==========================================
+    // 2. NPC АЛХИМИК «ХАЙЗЕНБЕРГ» В 2D МИРЕ
+    // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(160, 160).rotateX(-Math.PI / 2),
-      new THREE.MeshStandardMaterial({ color: 0x060e1c, roughness: 0.8 })
-    );
-    worldGroup.add(floor);
+    const heisenbergGroup = new THREE.Group();
+    worldGroup.add(heisenbergGroup);
+    heisenbergGroup.position.set(5, 3.2, 0);
 
-    const worldGrid = new THREE.GridHelper(160, 40, 0x00ffcc, 0x122947);
-    worldGrid.position.y = 0.02;
-    worldGroup.add(worldGrid);
+    // Желтый химкостюм Hazmat
+    const matHazmat = new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.5 });
+    const matHat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const matGlasses = new THREE.MeshBasicMaterial({ color: 0x050505 });
+    const matFlaskFluid = new THREE.MeshBasicMaterial({ color: 0x00e1ff }); // "Blue Sky"
 
-    // Neon Monoliths & Mana Crystals
-    for (let i = 0; i < 30; i++) {
-      const h = 8 + Math.random() * 20;
-      const bGeo = new THREE.BoxGeometry(4, h, 4);
-      const bMat = new THREE.MeshStandardMaterial({ color: 0x0a162a, metalness: 0.8 });
-      const tower = new THREE.Mesh(bGeo, bMat);
-      const x = (Math.random() - 0.5) * 130;
-      const z = (Math.random() - 0.5) * 130;
-      if (Math.abs(x) < 12 && Math.abs(z) < 12) continue;
-      tower.position.set(x, h / 2, z);
-      worldGroup.add(tower);
-      tower.add(new THREE.LineSegments(new THREE.EdgesGeometry(bGeo), new THREE.LineBasicMaterial({ color: 0x00ffcc })));
+    // Тело в химзащите
+    const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.75, 0.35), matHazmat);
+    hBody.position.y = 0.95;
+    heisenbergGroup.add(hBody);
+
+    const hLegL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.22), matHazmat);
+    hLegL.position.set(-0.16, 0.3, 0);
+    heisenbergGroup.add(hLegL);
+    const hLegR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.22), matHazmat);
+    hLegR.position.set(0.16, 0.3, 0);
+    heisenbergGroup.add(hLegR);
+
+    // Голова и знаменитая шляпа Pork Pie
+    const hHead = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.4, 0.36), matSkin);
+    hHead.position.y = 1.48;
+    heisenbergGroup.add(hHead);
+
+    // Бородка (эспаньолка)
+    const hBeard = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a321d }));
+    hBeard.position.set(0, 1.35, 0.18);
+    heisenbergGroup.add(hBeard);
+
+    // Черные солнцезащитные очки
+    const hGlasses = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.08), matGlasses);
+    hGlasses.position.set(0, 1.52, 0.18);
+    heisenbergGroup.add(hGlasses);
+
+    // Шляпа Хайзенберга (поля + тулья)
+    const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.04, 16), matHat);
+    hatBrim.position.set(0, 1.68, 0);
+    heisenbergGroup.add(hatBrim);
+    const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.22, 16), matHat);
+    hatTop.position.set(0, 1.8, 0);
+    heisenbergGroup.add(hatTop);
+
+    // Химическая колба в руке
+    const flaskGroup = new THREE.Group();
+    const flaskGlass = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.32, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }));
+    flaskGlass.position.y = 0.16;
+    flaskGroup.add(flaskGlass);
+    const flaskLiquid = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.22, 12), matFlaskFluid);
+    flaskLiquid.position.y = 0.12;
+    flaskGroup.add(flaskLiquid);
+    flaskGroup.position.set(0.42, 0.95, 0.2);
+    heisenbergGroup.add(flaskGroup);
+
+    // Парящие вокруг колбы/кристаллы
+    const orbitCrystals = [];
+    for (let i = 0; i < 3; i++) {
+      const oc = new THREE.Mesh(new THREE.OctahedronGeometry(0.12), matFlaskFluid);
+      heisenbergGroup.add(oc);
+      orbitCrystals.push(oc);
     }
 
-    // NPC Alchemist in World
-    const npcGroup = new THREE.Group();
-    const npcBody = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2, 8), new THREE.MeshStandardMaterial({ color: 0xffe600 }));
-    npcBody.position.y = 1;
-    npcGroup.add(npcBody);
-    const halo = new THREE.Mesh(new THREE.TorusGeometry(1, 0.08, 8, 24).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true }));
-    halo.position.y = 2.4;
-    npcGroup.add(halo);
-    npcGroup.position.set(6, 0, -8);
-    worldGroup.add(npcGroup);
-
-    // Collectible Coins
-    const coins = [];
-    const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 12).rotateX(Math.PI / 2);
-    const coinMat = new THREE.MeshBasicMaterial({ color: 0xffe600, wireframe: true });
-    for (let i = 0; i < 20; i++) {
-      const c = new THREE.Mesh(coinGeo, coinMat);
-      c.position.set((Math.random() - 0.5) * 100, 0.8, (Math.random() - 0.5) * 100);
-      worldGroup.add(c);
-      coins.push(c);
-    }
-
-    // --- COMBAT & SKY ENVIRONMENT GROUP ---
-    const combatGroup = new THREE.Group();
-    combatGroup.visible = false;
-    scene.add(combatGroup);
-
-    const combatGrid = new THREE.GridHelper(90, 45, 0xff0055, 0x330011);
-    combatGrid.position.y = -0.5;
-    combatGroup.add(combatGrid);
-
-    // Skyline Buildings for Flight Pursuit
-    const skylineGroup = new THREE.Group();
-    skylineGroup.visible = false;
-    combatGroup.add(skylineGroup);
-    const buildings = [];
-    for (let i = 0; i < 40; i++) {
-      const h = 12 + Math.random() * 25;
-      const b = new THREE.Mesh(new THREE.BoxGeometry(4, h, 4), new THREE.MeshBasicMaterial({ color: 0x07152b, wireframe: true }));
-      b.position.set((Math.random() - 0.5) * 80, -25, -Math.random() * 120);
-      skylineGroup.add(b);
-      buildings.push(b);
-    }
-
-    // --- PLAYER AVATAR ---
-    const playerGroup = new THREE.Group();
-    // Drone/Ship Body
-    const pMesh = new THREE.Mesh(
-      new THREE.ConeGeometry(0.7, 2.6, 4).rotateX(Math.PI / 2),
-      new THREE.MeshStandardMaterial({ color: 0x0f2538, metalness: 0.9 })
-    );
-    playerGroup.add(pMesh);
-    const wingsMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(3.2, 0.08, 1),
-      new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true })
-    );
-    wingsMesh.position.set(0, 0, 0.3);
-    playerGroup.add(wingsMesh);
-    scene.add(playerGroup);
-
-    let playerPos = { x: 0, y: 0.6, z: 4.5 };
-    let playerVelY = 0;
-    let isGrounded = true;
-
-    // --- BOSS RIGS ---
+    // ==========================================
+    // 3. БОСС: КИБЕР-ТИТАН ЦЕНТУРИОН MK-X (3D)
+    // ==========================================
     const bossGroup = new THREE.Group();
-    bossGroup.position.set(0, 0, -7);
-    combatGroup.add(bossGroup);
+    bossGroup.visible = false;
+    scene.add(bossGroup);
 
-    let currentBossMesh = null;
-    let combatStage = 1; // 1: Centurion, 2: Leviathan, 3: Phoenix Ground, 4: Phoenix Sky Pursuit
-    let bossHpVal = 800, bossMaxHp = 800, bossShieldVal = 300;
-    let isSkyMode = false;
+    const bossFloor = new THREE.GridHelper(50, 25, 0xff0055, 0x1c000a);
+    bossFloor.position.y = -0.5;
+    bossGroup.add(bossFloor);
 
-    function buildBoss(type) {
-      if (currentBossMesh) bossGroup.remove(currentBossMesh);
-      const g = new THREE.Group();
+    const bossRig = new THREE.Group();
+    bossRig.position.set(0, 0, -12);
+    bossGroup.add(bossRig);
 
-      if (type === 'centurion') {
-        const body = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 2), new THREE.MeshStandardMaterial({ color: 0x1f232b }));
-        body.position.y = 2.6;
-        g.add(body);
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.4, 0.5), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
-        visor.position.set(0, 3.4, 1.1);
-        g.add(visor);
-        const hammer = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 1.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-        hammer.position.set(2.4, 2.2, 0.5);
-        g.add(hammer);
-        g.hammerRef = hammer;
-      } else if (type === 'leviathan') {
-        const core = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x101b2a }));
-        core.position.y = 3.2;
-        g.add(core);
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.15, 8, 24).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x00aaff, wireframe: true }));
-        ring.position.y = 3.2;
-        g.add(ring);
-        g.ringRef = ring;
-      } else {
-        // Phoenix Core & Wings
-        const core = new THREE.Mesh(new THREE.OctahedronGeometry(1.8), new THREE.MeshBasicMaterial({ color: 0xff5500, wireframe: true }));
-        core.position.y = 3.6;
-        g.add(core);
-        const wingL = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.1, 2.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-        wingL.position.set(-3.5, 3.6, 0);
-        g.add(wingL);
-        const wingR = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.1, 2.2), new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true }));
-        wingR.position.set(3.5, 3.6, 0);
-        g.add(wingR);
-        g.wingL = wingL;
-        g.wingR = wingR;
+    const matBossArmor = new THREE.MeshStandardMaterial({ color: 0x111622, metalness: 0.9, roughness: 0.2 });
+    const matBossRedGlow = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+    const matGoldTrim = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.8 });
+
+    // Тяжелый титановый торс
+    const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.6, 3.4, 2.4), matBossArmor);
+    bTorso.position.y = 3.2;
+    bossRig.add(bTorso);
+
+    // Реактор на груди
+    const bCoreGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.3, 16).rotateX(Math.PI / 2), matBossRedGlow);
+    bCoreGlow.position.set(0, 3.5, 1.25);
+    bossRig.add(bCoreGlow);
+
+    // Голова / Шлем с рогами и моно-визором
+    const bHead = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.4, 1.4), matBossArmor);
+    bHead.position.set(0, 5.2, 0.2);
+    bossRig.add(bHead);
+
+    const bVisor = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.28, 0.4), matBossRedGlow);
+    bVisor.position.set(0, 5.2, 0.85);
+    bossRig.add(bVisor);
+
+    // Рога/Шипы шлема
+    [-0.9, 0.9].forEach(hx => {
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.2, 6).rotateZ(hx > 0 ? -0.4 : 0.4), matGoldTrim);
+      horn.position.set(hx, 6.0, 0);
+      bossRig.add(horn);
+    });
+
+    // Наплечники
+    [-2.3, 2.3].forEach(sx => {
+      const sp = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.0, 1.6), matBossArmor);
+      sp.position.set(sx, 4.4, 0);
+      bossRig.add(sp);
+    });
+
+    // Оружие 1 (Правая рука): Огромный вибро-молот
+    const hammerArm = new THREE.Group();
+    hammerArm.position.set(2.4, 3.5, 0.5);
+    const hShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 4.2, 8), matBossArmor);
+    hammerArm.add(hShaft);
+    const hHeadBox = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 2.2), matBossArmor);
+    hHeadBox.position.set(0, 1.8, 0);
+    hammerArm.add(hHeadBox);
+    const hBlade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.8, 2.4), matBossRedGlow);
+    hBlade.position.set(0, 1.8, 0);
+    hammerArm.add(hBlade);
+    bossRig.add(hammerArm);
+
+    // Оружие 2 (Левая рука): Шестиствольный плазмомёт
+    const cannonArm = new THREE.Group();
+    cannonArm.position.set(-2.4, 3.0, 0.8);
+    const cBase = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 1.6, 12).rotateX(Math.PI / 2), matBossArmor);
+    cannonArm.add(cBase);
+    const cBarrels = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.8, 6).rotateX(Math.PI / 2), matBossRedGlow);
+    cBarrels.position.z = 1.0;
+    cannonArm.add(cBarrels);
+    bossRig.add(cannonArm);
+
+    let bossHp = 1200, bossMaxHp = 1200;
+    const projectiles = [];
+
+    // ==========================================
+    // 4. ТЕРРАРИЯ: СЕТКА БЛОКОВ
+    // ==========================================
+    const BLOCK_SIZE = 1.0;
+    const GRID_W = 40;
+    const GRID_H = 20;
+    const blocks = [];
+    const blockGeo = new THREE.BoxGeometry(BLOCK_SIZE * 0.96, BLOCK_SIZE * 0.96, 0.5);
+    const matDirt = new THREE.MeshStandardMaterial({ color: 0x221a14 });
+    const matGrass = new THREE.MeshStandardMaterial({ color: 0x00cc66 });
+    const matStone = new THREE.MeshStandardMaterial({ color: 0x1b2333 });
+    const matOre = new THREE.MeshBasicMaterial({ color: 0x00e1ff, wireframe: true }); // Синяя руда "Blue Sky"
+
+    for (let gx = -GRID_W / 2; gx < GRID_W / 2; gx++) {
+      for (let gy = -GRID_H; gy < 3; gy++) {
+        let mat = matStone;
+        let type = 'stone';
+        if (gy === 2) { mat = matGrass; type = 'grass'; }
+        else if (gy >= 0) { mat = matDirt; type = 'dirt'; }
+        else if (Math.random() < 0.12) { mat = matOre; type = 'ore'; }
+
+        const b = new THREE.Mesh(blockGeo, mat);
+        b.position.set(gx * BLOCK_SIZE, gy * BLOCK_SIZE, 0);
+        b.userData = { gx, gy, type };
+        worldGroup.add(b);
+        blocks.push(b);
       }
-      currentBossMesh = g;
-      bossGroup.add(g);
     }
 
-    buildBoss('centurion');
-
-    // --- PROJECTILES ---
-    const projectiles = [];
-    const projGroup = new THREE.Group();
-    combatGroup.add(projGroup);
-
-    // --- CONTROLS & NAVIGATION SWITCHER ---
-    const LANES = [-3.8, 0, 3.8];
+    let pX = 0, pY = 4, pVx = 0, pVy = 0;
+    let isGrounded = false;
+    const LANES_3D = [-4, 0, 4];
     let laneIdx = 1;
-    let targetCombatX = 0;
 
-    function switchMode(mode) {
-      currentMode = mode;
-      AudioEngine.click();
+    // Копание блоков тапом
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function onPointerDown(e) {
+      if (mode !== 'world') return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const hits = raycaster.intersectObjects(blocks);
+      if (hits.length > 0) {
+        const hit = hits[0].object;
+        const dist = playerGroup.position.distanceTo(hit.position);
+        if (dist < 4.2) {
+          Sound.mine();
+          haptic('light');
+          if (hit.userData.type === 'ore') {
+            ores++;
+            coins += 20;
+            Sound.gem();
+            document.getElementById('val-ores').innerText = ores;
+            document.getElementById('val-coins').innerText = coins;
+          }
+          worldGroup.remove(hit);
+          const idx = blocks.indexOf(hit);
+          if (idx !== -1) blocks.splice(idx, 1);
+        }
+      }
+    }
+    window.addEventListener('pointerdown', onPointerDown);
+
+    // Диалог с Хайзенбергом
+    function checkNPCInteraction() {
+      if (mode !== 'world') return;
+      const dist = playerGroup.position.distanceTo(heisenbergGroup.position);
+      const prompt = document.getElementById('interact-prompt');
+      if (dist < 4.0) {
+        prompt.style.display = 'block';
+      } else {
+        prompt.style.display = 'none';
+      }
+    }
+
+    function openDialogue() {
+      document.getElementById('dialogue-modal').style.display = 'flex';
+      Sound.beep(440, 0.1);
       haptic('medium');
+    }
+    function closeDialogue() {
+      document.getElementById('dialogue-modal').style.display = 'none';
+    }
+    document.getElementById('interact-prompt').addEventListener('click', openDialogue);
+
+    window.sellOreToHeisenberg = function() {
+      if (ores <= 0) {
+        alert("Хайзенберг: 'У тебя нет синей руды. Иди в шахты и накопай 99.1% чистоты!'");
+        return;
+      }
+      const reward = ores * 45;
+      coins += reward;
+      Sound.cook();
+      haptic('success');
+      alert(`Хайзенберг: 'Отличная партия!' Получено: +${reward} монет за ${ores} шт. руды.`);
+      ores = 0;
+      document.getElementById('val-ores').innerText = ores;
+      document.getElementById('val-coins').innerText = coins;
+      closeDialogue();
+    };
+
+    // Переключение режимов
+    function setMode(newMode) {
+      mode = newMode;
+      Sound.beep(600, 0.1);
+      haptic('heavy');
 
       if (mode === 'world') {
-        document.getElementById('tab-world').classList.add('active');
-        document.getElementById('tab-boss').classList.remove('active');
-        document.getElementById('boss-bars-box').style.display = 'none';
-        document.getElementById('lbl-action-name').innerText = "ПРЫЖОК";
-        document.getElementById('lbl-action-icon').innerText = "▲";
-        document.getElementById('btn-action-main').classList.remove('combat');
+        document.getElementById('btn-mode-world').classList.add('active');
+        document.getElementById('btn-mode-boss').classList.remove('active');
+        document.getElementById('boss-bars').style.display = 'none';
+        document.getElementById('tip-banner').innerText = "⛏️ ТАПАЙ ПО БЛОКАМ ВОКРУГ СЕБЯ, ЧТОБЫ КОПАТЬ РУДУ!";
+        document.getElementById('act-text').innerText = "ПРЫЖОК";
+        document.getElementById('btn-action').classList.remove('combat');
 
         worldGroup.visible = true;
-        combatGroup.visible = false;
-        playerPos = { x: 0, y: 0.6, z: 0 };
+        bossGroup.visible = false;
+        playerGroup.position.set(pX, pY, 0);
       } else {
-        document.getElementById('tab-boss').classList.add('active');
-        document.getElementById('tab-world').classList.remove('active');
-        document.getElementById('boss-bars-box').style.display = 'block';
-        document.getElementById('lbl-action-name').innerText = "ОГОНЬ";
-        document.getElementById('lbl-action-icon').innerText = "⚡";
-        document.getElementById('btn-action-main').classList.add('combat');
+        document.getElementById('btn-mode-boss').classList.add('active');
+        document.getElementById('btn-mode-world').classList.remove('active');
+        document.getElementById('boss-bars').style.display = 'block';
+        document.getElementById('tip-banner').innerText = "⚔️ УВОРАЧИВАЙСЯ ОТ ЗАЛПОВ ТИТАНА И ВЕДИ ОГОНЬ!";
+        document.getElementById('act-text').innerText = "ОГОНЬ";
+        document.getElementById('btn-action').classList.add('combat');
 
         worldGroup.visible = false;
-        combatGroup.visible = true;
-        playerPos = { x: 0, y: 0.6, z: 4.5 };
+        bossGroup.visible = true;
         laneIdx = 1;
-        targetCombatX = 0;
+        playerGroup.position.set(LANES_3D[laneIdx], 0.2, 3);
       }
     }
+    document.getElementById('btn-mode-world').addEventListener('click', () => setMode('world'));
+    document.getElementById('btn-mode-boss').addEventListener('click', () => setMode('boss'));
 
-    document.getElementById('tab-world').addEventListener('click', () => switchMode('world'));
-    document.getElementById('tab-boss').addEventListener('click', () => switchMode('combat'));
-
-    // Keyboard bindings
-    const keys = { w: false, a: false, s: false, d: false };
+    // Управление
+    let keyLeft = false, keyRight = false;
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = true;
-      if (k === 'a' || k === 'arrowleft') { keys.a = true; if (currentMode === 'combat') combatDodge(-1); }
-      if (k === 's' || k === 'arrowdown') keys.s = true;
-      if (k === 'd' || k === 'arrowright') { keys.d = true; if (currentMode === 'combat') combatDodge(1); }
-      if (k === ' ' || e.code === 'Space') handleMainAction();
-      if (k === 'e') triggerNPC();
+      if (k === 'a' || k === 'arrowleft') { keyLeft = true; if (mode === 'boss') dodge3D(-1); }
+      if (k === 'd' || k === 'arrowright') { keyRight = true; if (mode === 'boss') dodge3D(1); }
+      if (k === ' ' || k === 'w') doAction();
+      if (k === 'b') toggleArmor();
+      if (k === 'e') {
+        if (playerGroup.position.distanceTo(heisenbergGroup.position) < 4.0) openDialogue();
+      }
     });
     window.addEventListener('keyup', (e) => {
       const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') keys.w = false;
-      if (k === 'a' || k === 'arrowleft') keys.a = false;
-      if (k === 's' || k === 'arrowdown') keys.s = false;
-      if (k === 'd' || k === 'arrowright') keys.d = false;
+      if (k === 'a' || k === 'arrowleft') keyLeft = false;
+      if (k === 'd' || k === 'arrowright') keyRight = false;
     });
 
-    // Touch D-Pad
-    function bindDpad(btnId, dir) {
-      const el = document.getElementById(btnId);
-      el.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (currentMode === 'world') {
-          keys[dir] = true;
-        } else {
-          if (dir === 'a') combatDodge(-1);
-          if (dir === 'd') combatDodge(1);
-        }
-      });
-      el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keys[dir] = false;
-      });
+    function bindTouch(id, onDown, onUp) {
+      const el = document.getElementById(id);
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); onDown(); });
+      el.addEventListener('touchend', (e) => { e.preventDefault(); onUp(); });
     }
-    bindDpad('btn-up', 'w');
-    bindDpad('btn-down', 's');
-    bindDpad('btn-left', 'a');
-    bindDpad('btn-right', 'd');
+    bindTouch('ctrl-left', () => { keyLeft = true; if (mode === 'boss') dodge3D(-1); }, () => { keyLeft = false; });
+    bindTouch('ctrl-right', () => { keyRight = true; if (mode === 'boss') dodge3D(1); }, () => { keyRight = false; });
 
-    function combatDodge(dir) {
+    function dodge3D(dir) {
       if (dir === -1 && laneIdx > 0) laneIdx--;
       if (dir === 1 && laneIdx < 2) laneIdx++;
-      targetCombatX = LANES[laneIdx];
-      AudioEngine.tone(300, 'sine', 0.1, 600, 0.2);
-      haptic('medium');
+      Sound.beep(320, 0.08);
+      haptic('light');
     }
 
-    function handleMainAction() {
-      if (currentMode === 'world') {
+    function doAction() {
+      if (mode === 'world') {
         if (isGrounded) {
-          playerVelY = 0.28;
+          pVy = 0.28;
           isGrounded = false;
-          AudioEngine.jump();
+          Sound.jump();
           haptic('light');
         }
       } else {
-        // Combat Fire
+        Sound.laser();
         haptic('light');
-        if (!isSkyMode) {
-          AudioEngine.laser();
-          const p = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.1, 0.1, 1.4, 4).rotateX(Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 0x00ffcc })
-          );
-          p.position.set(playerGroup.position.x, playerGroup.position.y, playerGroup.position.z - 1);
-          projGroup.add(p);
-          projectiles.push({ mesh: p, speed: -0.85, isPlayer: true });
-        } else {
-          AudioEngine.rocket();
-          [-0.8, 0.8].forEach(offX => {
-            const m = new THREE.Mesh(
-              new THREE.ConeGeometry(0.2, 1.2, 5).rotateX(Math.PI / 2),
-              new THREE.MeshBasicMaterial({ color: 0xffe600 })
-            );
-            m.position.set(playerGroup.position.x + offX, playerGroup.position.y, playerGroup.position.z - 0.5);
-            projGroup.add(m);
-            projectiles.push({ mesh: m, speed: -1.2, isPlayer: true, isRocket: true });
-          });
-        }
-      }
-    }
-    document.getElementById('btn-action-main').addEventListener('click', handleMainAction);
-
-    // --- COMBAT ATTACK CYCLE ---
-    function spawnBossAttack() {
-      if (currentMode !== 'combat') return;
-      const lane = Math.floor(Math.random() * 3);
-      const banner = document.getElementById('alert-banner');
-      banner.innerText = `⚠️ ЗАЛП В СЕКТОР: ${["ВЛЕВО", "ЦЕНТР", "ВПРАВО"][lane]}`;
-      banner.style.opacity = '1';
-      setTimeout(() => banner.style.opacity = '0', 900);
-
-      setTimeout(() => {
-        if (currentMode !== 'combat') return;
         const p = new THREE.Mesh(
-          new THREE.SphereGeometry(0.7, 8, 8),
-          new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true })
+          new THREE.CylinderGeometry(0.14, 0.14, 1.4, 6).rotateX(Math.PI / 2),
+          new THREE.MeshBasicMaterial({ color: 0x00e1ff })
         );
-        p.position.set(LANES[lane], 1.2, bossGroup.position.z + 1);
-        projGroup.add(p);
-        projectiles.push({ mesh: p, speed: isSkyMode ? 0.6 : 0.4, lane: lane, isPlayer: false });
-      }, 600);
-    }
-    setInterval(spawnBossAttack, 2300);
-
-    // Stage progression
-    function updateBossHUD() {
-      document.getElementById('boss-hp').style.width = `${Math.max(0, (bossHpVal / bossMaxHp) * 100)}%`;
-      document.getElementById('boss-shield').style.width = `${Math.max(0, (bossShieldVal / 300) * 100)}%`;
-    }
-
-    function onBossDefeated() {
-      AudioEngine.win();
-      haptic('success');
-      if (combatStage === 1) {
-        combatStage = 2;
-        document.getElementById('boss-name').innerText = "ВОЗДУШНЫЙ ЛЕВИАФАН";
-        document.getElementById('boss-stage-badge').innerText = "ЭТАП 2/4";
-        buildBoss('leviathan');
-        bossMaxHp = 1100; bossHpVal = 1100; bossShieldVal = 300;
-      } else if (combatStage === 2) {
-        combatStage = 3;
-        document.getElementById('boss-name').innerText = "КИБЕР-ФЕНИКС [ФАЗА 1]";
-        document.getElementById('boss-stage-badge').innerText = "ЭТАП 3/4";
-        buildBoss('phoenix');
-        bossMaxHp = 1400; bossHpVal = 1400; bossShieldVal = 400;
-      } else if (combatStage === 3) {
-        // Trigger Sky Pursuit F-57
-        combatStage = 4;
-        isSkyMode = true;
-        combatGrid.visible = false;
-        skylineGroup.visible = true;
-        document.getElementById('boss-name').innerText = "НЕО-ФЕНИКС [ПОГОНЯ НА F-57]";
-        document.getElementById('boss-stage-badge').innerText = "ФИНАЛ: ВОЗДУХ";
-        buildBoss('phoenix');
-        bossMaxHp = 1800; bossHpVal = 1800; bossShieldVal = 0;
-      } else {
-        // Final Victory: Open Loot Roulette
-        openCaseRoulette('relic');
-      }
-      updateBossHUD();
-    }
-
-    // --- SHOP & CASE ROULETTE ---
-    const shopModal = document.getElementById('shop-modal');
-    document.getElementById('btn-shop-open').addEventListener('click', () => { shopModal.style.display = 'flex'; AudioEngine.click(); });
-    document.getElementById('btn-close-shop').addEventListener('click', () => { shopModal.style.display = 'none'; });
-
-    const LOOT_DATA = {
-      neon: [
-        { name: "Энерго-Клинок", icon: "🗡", rarity: "card-rare" },
-        { name: "Чип Arasaka", icon: "💾", rarity: "card-epic" }
-      ],
-      syndicate: [
-        { name: "Моноструна Синдиката", icon: "🩸", rarity: "card-epic" },
-        { name: "Подкожная броня MK.4", icon: "🛡", rarity: "card-rare" }
-      ],
-      relic: [
-        { name: "Сандевистан «Falcon»", icon: "⚡", rarity: "card-legendary" },
-        { name: "Ядро Нео-Феникса", icon: "🔥", rarity: "card-legendary" },
-        { name: "Форсаж F-57 Apex", icon: "🚀", rarity: "card-legendary" }
-      ]
-    };
-
-    let isSpinning = false;
-    function buyCase(type, price) {
-      if (isSpinning) return;
-      if (playerCoins < price) { alert("Недостаточно монет! Собирай сферы в мире."); return; }
-      playerCoins -= price;
-      document.getElementById('coin-counter').innerText = playerCoins;
-      openCaseRoulette(type);
-    }
-
-    function openCaseRoulette(type) {
-      shopModal.style.display = 'flex';
-      isSpinning = true;
-      haptic('medium');
-
-      const strip = document.getElementById('roulette-strip');
-      const box = document.getElementById('roulette-container');
-      const res = document.getElementById('drop-result');
-      box.style.display = 'flex';
-      res.innerText = "Взлом кибер-контейнера...";
-
-      const pool = LOOT_DATA[type] || LOOT_DATA['relic'];
-      strip.innerHTML = '';
-      const total = 32;
-      const targetIdx = 25;
-      let won = null;
-
-      for (let i = 0; i < total; i++) {
-        const it = pool[Math.floor(Math.random() * pool.length)];
-        if (i === targetIdx) won = it;
-        const c = document.createElement('div');
-        c.className = `roulette-card ${it.rarity}`;
-        c.innerHTML = `<div class="card-icon">${it.icon}</div><div>${it.name}</div>`;
-        strip.appendChild(c);
-      }
-
-      const offset = (targetIdx * 82) - 130 + (Math.random() * 14 - 7);
-      let ticks = 0;
-      const t = setInterval(() => {
-        AudioEngine.click();
-        haptic('light');
-        ticks++;
-        if (ticks > 24) clearInterval(t);
-      }, 140);
-
-      setTimeout(() => { strip.style.transform = `translateX(-${offset}px)`; }, 60);
-
-      setTimeout(() => {
-        isSpinning = false;
-        AudioEngine.win();
-        haptic('success');
-        res.innerHTML = `ВЫБИТО: <span style="color:#ffe600;">${won.name}</span>!`;
-        inventory.push(won.name);
-      }, 4300);
-    }
-
-    // --- NPC INTERACTION ---
-    function triggerNPC() {
-      if (currentMode !== 'world') return;
-      if (playerGroup.position.distanceTo(npcGroup.position) < 4.5) {
-        AudioEngine.click();
-        haptic('medium');
-        document.getElementById('dialogue-modal').style.display = 'flex';
+        p.position.set(playerGroup.position.x, playerGroup.position.y + 0.9, playerGroup.position.z - 0.8);
+        bossGroup.add(p);
+        projectiles.push({ mesh: p, vz: -0.9, isPlayer: true });
       }
     }
-    document.getElementById('interact-prompt').addEventListener('click', triggerNPC);
-    document.getElementById('btn-close-dialogue').addEventListener('click', () => {
-      document.getElementById('dialogue-modal').style.display = 'none';
-    });
-    document.getElementById('btn-dialogue-act').addEventListener('click', () => {
-      playerCoins += 80;
-      document.getElementById('coin-counter').innerText = playerCoins;
-      document.getElementById('dialogue-modal').style.display = 'none';
-      AudioEngine.coin();
-      haptic('success');
-      alert("Контракт принят! Зачислено +80 монет.");
-    });
+    document.getElementById('btn-action').addEventListener('click', doAction);
 
-    // --- TELEGRAM TELEMETRY SYNC ---
-    document.getElementById('btn-save-telemetry').addEventListener('click', () => {
+    // Атаки босса
+    setInterval(() => {
+      if (mode !== 'boss') return;
+      const targetLane = Math.floor(Math.random() * 3);
+      const bProj = new THREE.Mesh(
+        new THREE.SphereGeometry(0.8, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true })
+      );
+      bProj.position.set(LANES_3D[targetLane], 1.2, bossRig.position.z + 1.5);
+      bossGroup.add(bProj);
+      projectiles.push({ mesh: bProj, vz: 0.5, lane: targetLane, isPlayer: false });
+    }, 2000);
+
+    // Синхронизация с ботом
+    document.getElementById('btn-sync').addEventListener('click', () => {
       if (tg) {
         tg.sendData(JSON.stringify({
           action: "open_world_sync",
-          coins: playerCoins,
-          inventory: inventory,
+          coins: coins,
+          inventory: [
+            `Синяя руда (Blue Sky): ${ores} шт.`,
+            isArmorEquipped ? "Титановый экзоскелет" : "Без брони",
+            ...inventory
+          ],
           quest_status: 2
         }));
       } else {
-        alert(`Синхронизация:\nМонеты: ${playerCoins}\nИнвентарь: ${inventory.join(', ') || 'Пусто'}`);
+        alert(`Синхронизация:\nМонеты: ${coins}\nРуда: ${ores}`);
       }
     });
 
-    // --- 4. UNIFIED ANIMATION & PHYSICS LOOP ---
+    // Физика и рендеринг
     const clock = new THREE.Clock();
 
-    function animate() {
-      requestAnimationFrame(animate);
-      const delta = clock.getDelta();
-      const time = clock.getElapsedTime();
+    function loop() {
+      requestAnimationFrame(loop);
+      const t = clock.getElapsedTime();
 
-      if (currentMode === 'world') {
-        // World Movement
-        const speed = 0.22;
-        let dx = 0, dz = 0;
-        if (keys.w) dz -= speed;
-        if (keys.s) dz += speed;
-        if (keys.a) dx -= speed;
-        if (keys.d) dx += speed;
+      if (mode === 'world') {
+        let isMoving = false;
+        if (keyLeft) { pX -= 0.15; isMoving = true; playerGroup.rotation.y = -Math.PI / 2; }
+        if (keyRight) { pX += 0.15; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
+        if (!keyLeft && !keyRight) playerGroup.rotation.y = 0;
 
-        playerPos.x += dx;
-        playerPos.z += dz;
-        playerPos.y += playerVelY;
+        pVy -= 0.015;
+        pY += pVy;
 
-        if (playerPos.y > 0.6) {
-          playerVelY -= 0.016;
-        } else {
-          playerPos.y = 0.6;
-          playerVelY = 0;
+        const playerFootY = pY;
+        const blockUnder = blocks.find(b => 
+          Math.abs(b.position.x - pX) < 0.6 && 
+          playerFootY <= b.position.y + 0.5 && 
+          playerFootY >= b.position.y
+        );
+
+        if (blockUnder) {
+          pY = blockUnder.position.y + 0.5;
+          pVy = 0;
           isGrounded = true;
         }
-        playerGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
 
-        // Smooth Camera Follow in World
-        camera.position.x += (playerPos.x - camera.position.x) * 0.1;
-        camera.position.y += (playerPos.y + 6 - camera.position.y) * 0.1;
-        camera.position.z += (playerPos.z + 11 - camera.position.z) * 0.1;
-        camera.lookAt(playerPos.x, playerPos.y + 1, playerPos.z);
+        // Анимация ног персонажа
+        if (isMoving && isGrounded) {
+          legRight.rotation.x = Math.sin(t * 12) * 0.6;
+          legLeftCyber.rotation.x = -Math.sin(t * 12) * 0.6;
+          armL.rotation.x = Math.sin(t * 12) * 0.5;
+          armR.rotation.x = -Math.sin(t * 12) * 0.5;
+        } else {
+          legRight.rotation.x = 0;
+          legLeftCyber.rotation.x = 0;
+          armL.rotation.x = 0;
+          armR.rotation.x = 0;
+        }
 
-        // NPC Prompt check
-        const distNpc = playerGroup.position.distanceTo(npcGroup.position);
-        document.getElementById('interact-prompt').style.display = distNpc < 4.5 ? 'block' : 'none';
+        playerGroup.position.set(pX, pY, 0);
 
-        // Animate Coins
-        coins.forEach(c => {
-          c.rotation.z = time * 3;
-          if (playerGroup.position.distanceTo(c.position) < 1.6) {
-            AudioEngine.coin();
-            haptic('light');
-            playerCoins += 10;
-            document.getElementById('coin-counter').innerText = playerCoins;
-            c.position.set((Math.random() - 0.5) * 100, 0.8, (Math.random() - 0.5) * 100);
-          }
+        // Анимация Хайзенберга (покачивание колбы и парящих кристаллов)
+        flaskGroup.rotation.z = Math.sin(t * 3) * 0.15;
+        orbitCrystals.forEach((oc, i) => {
+          const ang = t * 2 + (i * (Math.PI * 2 / 3));
+          oc.position.set(Math.cos(ang) * 0.8, 1.2 + Math.sin(t * 3 + i) * 0.2, Math.sin(ang) * 0.8);
         });
+
+        checkNPCInteraction();
+
+        // 2D Камера
+        camera.position.x += (pX - camera.position.x) * 0.1;
+        camera.position.y += (pY + 1.2 - camera.position.y) * 0.1;
+        camera.position.z = 10;
+        camera.lookAt(camera.position.x, camera.position.y, 0);
       } 
       else {
-        // Combat Movement
-        playerPos.x += (targetCombatX - playerPos.x) * 0.22;
-        playerGroup.position.set(playerPos.x, playerPos.y, playerPos.z);
-        playerGroup.rotation.z = -(targetCombatX - playerPos.x) * (isSkyMode ? 0.35 : 0.15);
+        // 3D Босс
+        const targetX = LANES_3D[laneIdx];
+        playerGroup.position.x += (targetX - playerGroup.position.x) * 0.25;
+        playerGroup.position.y = 0.2;
+        playerGroup.position.z = 3;
+        playerGroup.rotation.y = Math.PI;
+        playerGroup.rotation.z = (targetX - playerGroup.position.x) * 0.15;
 
-        camera.position.set(0, 4.5, 9);
-        camera.lookAt(0, 2.5, 0);
+        camera.position.set(0, 4.4, 8.8);
+        camera.lookAt(0, 2.2, -6);
 
-        if (isSkyMode) {
-          buildings.forEach(b => {
-            b.position.z += 1.8;
-            if (b.position.z > 20) b.position.z = -120;
-          });
-          bossGroup.position.x = Math.sin(time * 2.5) * 4.5;
-          bossGroup.position.y = 3.5 + Math.cos(time * 3) * 1.5;
-        } else {
-          combatGrid.position.z = (time * 6) % 2;
-        }
+        bossRig.position.x = Math.sin(t * 2) * 3.5;
+        hammerArm.rotation.z = Math.sin(t * 3) * 0.35;
+        cannonArm.rotation.x = t * 6; // Вращение стволов пулемета
 
-        // Boss Idle Animations
-        if (currentBossMesh) {
-          if (currentBossMesh.hammerRef) currentBossMesh.hammerRef.rotation.z = Math.sin(time * 4) * 0.5;
-          if (currentBossMesh.ringRef) currentBossMesh.ringRef.rotation.z = time * 3;
-          if (currentBossMesh.wingL && currentBossMesh.wingR) {
-            const flap = Math.sin(time * (isSkyMode ? 14 : 6)) * 0.45;
-            currentBossMesh.wingL.rotation.z = flap;
-            currentBossMesh.wingR.rotation.z = -flap;
-          }
-        }
-
-        // Projectiles Loop
+        // Снаряды
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
-          p.mesh.position.z += p.speed;
+          p.mesh.position.z += p.vz;
 
-          // Player hits boss
           if (p.isPlayer) {
-            if (p.mesh.position.z <= (isSkyMode ? bossGroup.position.z : -7) + 1) {
-              AudioEngine.hit();
+            if (p.mesh.position.z <= bossRig.position.z + 1.8) {
+              Sound.hit();
               haptic('light');
-              projGroup.remove(p.mesh);
+              bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
-
-              const dmg = p.isRocket ? 240 : 120;
-              if (bossShieldVal > 0) bossShieldVal = Math.max(0, bossShieldVal - dmg);
-              else bossHpVal = Math.max(0, bossHpVal - dmg);
-              updateBossHUD();
-
-              if (bossHpVal <= 0) onBossDefeated();
-              continue;
-            }
-          } 
-          // Boss hits player
-          else {
-            if (p.mesh.position.z >= 3.8 && p.mesh.position.z <= 5.2) {
-              if (p.lane === laneIdx) {
-                AudioEngine.hit();
-                haptic('heavy');
-                document.getElementById('alert-banner').innerText = "💥 ПОПАДАНИЕ ПО КОРПУСУ!";
-                document.getElementById('alert-banner').style.opacity = '1';
-                setTimeout(() => document.getElementById('alert-banner').style.opacity = '0', 600);
+              bossHp = Math.max(0, bossHp - 130);
+              document.getElementById('boss-hp').style.width = `${(bossHp / bossMaxHp) * 100}%`;
+              if (bossHp <= 0) {
+                coins += 300;
+                inventory.push("Трофей: Ядро Центуриона MK-X");
+                document.getElementById('val-coins').innerText = coins;
+                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН! +300 монет!");
+                setMode('world');
               }
-              projGroup.remove(p.mesh);
+              continue;
+            }
+          } else {
+            if (p.mesh.position.z >= 2.5 && p.mesh.position.z <= 3.8) {
+              if (p.lane === laneIdx) {
+                Sound.hit();
+                haptic('heavy');
+                const dmgText = isArmorEquipped ? "💥 ПОГЛОЩЕНО ТИТАНОВОЙ БРОНЕЙ (-50%)!" : "💥 ПРЯМОЕ ПОПАДАНИЕ ПО КОРПУСУ!";
+                document.getElementById('tip-banner').innerText = dmgText;
+                setTimeout(() => { document.getElementById('tip-banner').innerText = "⚔️ УВОРАЧИВАЙСЯ ОТ ЗАЛПОВ ТИТАНА И ВЕДИ ОГОНЬ!"; }, 600);
+              }
+              bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
               continue;
             }
-            if (p.mesh.position.z > 8) {
-              projGroup.remove(p.mesh);
+            if (p.mesh.position.z > 6) {
+              bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
             }
           }
@@ -1068,8 +939,7 @@
 
       renderer.render(scene, camera);
     }
-
-    animate();
+    loop();
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
