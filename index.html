@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN FLAWLESS MONOLITH</title>
+  <title>CYBERCORE: TITAN v1.1</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -50,10 +50,9 @@
       opacity: 0.35;
     }
 
-    /* TOAST NOTIFICATION */
     #toast-banner {
       position: absolute;
-      top: 55px;
+      top: 85px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(8, 14, 30, 0.96);
@@ -72,7 +71,6 @@
       white-space: nowrap;
     }
 
-    /* MINING HUD */
     #mining-hud {
       position: absolute;
       top: 50%;
@@ -94,7 +92,6 @@
       background: linear-gradient(90deg, #ff9900, #00ffcc);
     }
 
-    /* HUD */
     #hud {
       position: absolute;
       top: 0;
@@ -109,11 +106,12 @@
       padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
     }
 
+    /* ОПУЩЕНО ВНИЗ ОТ ШТОРКИ ТЕЛЕГРАМА/СИСТЕМЫ */
     .hud-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(8, 14, 30, 0.92);
+      background: rgba(8, 14, 30, 0.94);
       border: 1px solid #00ffcc;
       border-radius: 8px;
       padding: 6px 10px;
@@ -121,7 +119,7 @@
       backdrop-filter: blur(8px);
       pointer-events: auto;
       max-width: 860px;
-      margin: 0 auto;
+      margin: 36px auto 0; /* ЗАЩИТНЫЙ ОТСТУП СВЕРХУ */
       width: 100%;
       gap: 4px;
     }
@@ -146,11 +144,19 @@
     .nav-btn.craft { border-color: #ff9900; color: #ff9900; background: rgba(255, 153, 0, 0.15); }
     .nav-btn.hero { border-color: #ffcc00; color: #ffcc00; background: rgba(255, 204, 0, 0.15); }
     .nav-btn.menu { border-color: #8899aa; color: #fff; background: rgba(255, 255, 255, 0.1); }
+    .version-tag {
+      background: #00ffcc;
+      color: #000;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
 
     #status-bars {
       width: 100%;
       max-width: 860px;
-      margin: 3px auto 0;
+      margin: 4px auto 0;
       background: rgba(6, 10, 24, 0.94);
       border: 1px solid #00ffcc;
       padding: 5px 8px;
@@ -249,7 +255,6 @@
     .act-btn.combat.active-touch { background: #ff0055; color: #fff; }
     .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
 
-    /* MODALS */
     .modal {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -362,7 +367,7 @@
   <!-- START MENU -->
   <div id="start-menu">
     <div style="font-size:26px; font-weight:900; color:#00ffcc; text-shadow:0 0 20px #00ffcc; margin-bottom:4px; text-align:center;">
-      CYBERCORE: TITAN
+      CYBERCORE: TITAN <span class="version-tag">v1.1</span>
     </div>
     <div style="font-size:11px; color:#ffcc00; margin-bottom:20px; letter-spacing:1px;">
       TERRARIA 2D & FULL 3D BOSS PROTOCOL
@@ -390,6 +395,7 @@
       <button class="nav-btn boss" id="btn-mode-boss">⚔️ БОСС</button>
       <button class="nav-btn craft" onclick="openCraftMenu()">⚒️</button>
       <button class="nav-btn hero" onclick="openHeroProfile()">👤</button>
+      <span class="version-tag">v1.1</span>
       <div style="font-size:10px; font-weight:bold;">
         🪙 <span id="val-coins" style="color:#ffcc00;">100</span> | 
         💎 <span id="val-ores" style="color:#00ffff;">0</span> | 
@@ -542,7 +548,6 @@
   </div>
 
   <script>
-    // БЛОКИРОВКА СИСТЕМНОГО МЕНЮ
     window.addEventListener('contextmenu', e => e.preventDefault(), { capture: true });
     window.addEventListener('selectstart', e => e.preventDefault(), { capture: true });
 
@@ -554,7 +559,6 @@
       try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch (e) {}
     }
 
-    // МЯГКИЙ ТОСТ
     let toastTimer = null;
     function showToast(text, color = '#00ffcc') {
       const el = document.getElementById('toast-banner');
@@ -715,7 +719,7 @@
       const finalDmg = Math.max(6, rawDmg * (1 - red));
       currentHp -= finalDmg;
       iFrames = 28;
-      timeSinceLastDmg = 0; // Сброс таймера регенерации
+      timeSinceLastDmg = 0;
       document.getElementById('player-hp-bar').classList.remove('regen-active');
 
       AudioEngine.hit();
@@ -729,14 +733,16 @@
       }
     }
 
-    // ЕСТЕСТВЕННАЯ РЕГЕНЕРАЦИЯ HP
     function handleNaturalRegen(dt) {
       const maxHp = Hero.getMaxHp();
-      if (currentHp >= maxHp) return;
+      if (currentHp >= maxHp) {
+        document.getElementById('player-hp-bar').classList.remove('regen-active');
+        return;
+      }
 
       timeSinceLastDmg += dt;
-      if (timeSinceLastDmg >= 3.5) { // Через 3.5 сек покоя
-        const regenSpeed = 4.0 + Hero.end * 1.5; // Базово 4 HP/сек + бонус от стойкости
+      if (timeSinceLastDmg >= 3.5) {
+        const regenSpeed = 4.0 + Hero.end * 1.5;
         currentHp = Math.min(maxHp, currentHp + regenSpeed * dt);
         updatePlayerHpBar();
         document.getElementById('player-hp-bar').classList.add('regen-active');
@@ -748,7 +754,7 @@
       updatePlayerHpBar();
       pX = 0; pZ = 0; pVy = 0;
       const surfY = getSurfaceY(0);
-      pY = surfY + 0.5; // Идеальная посадка стопами на верхний блок
+      pY = surfY + 0.5;
       playerGroup.position.set(0, pY, 0);
       switchMode('world');
     }
@@ -822,7 +828,7 @@
       updateHeroUI();
     };
 
-    // --- THREE.JS SCENE SETUP ---
+    // --- THREE.JS SCENE ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x130a2a, 0.018);
@@ -929,7 +935,7 @@
     const matBedrock = new THREE.MeshStandardMaterial({ color: 0x05070a });
 
     const blockMap = new Map();
-    const columnBlockRegistry = new Map(); // gx -> Array of meshes
+    const columnBlockRegistry = new Map();
     const activeBlocks = [];
 
     function getSurfaceY(gx) {
@@ -951,7 +957,6 @@
         else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
         else if (Math.random() < 0.13) { mat = matOre; type = 'ore'; }
 
-        // Пещеры
         if (gy > -18 && gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
@@ -965,7 +970,6 @@
       columnBlockRegistry.set(gx, colList);
     }
 
-    // ЧИСТКА ЧАНКОВ БЕЗ УТЕЧЕК
     function cleanFarChunks(playerGX) {
       for (const [gx, meshList] of columnBlockRegistry.entries()) {
         if (Math.abs(gx - playerGX) > 32) {
@@ -1006,7 +1010,6 @@
       worldEnemies.push(eg);
     }
 
-    // ДИНАМИЧЕСКИЙ RAYCAST ПРЯМОЙ ВИДИМОСТИ (2 ШАГА НА БЛОК)
     function hasLineOfSight(x1, y1, x2, y2) {
       const dist = Math.hypot(x2 - x1, y2 - y1);
       const steps = Math.max(4, Math.ceil(dist * 2.2));
@@ -1050,7 +1053,6 @@
     arenaBarrier.position.y = 2.5;
     bossGroup.add(arenaBarrier);
 
-    // 3D МОДЕЛЬ БОССА
     const bossRig = new THREE.Group();
     bossGroup.add(bossRig);
 
@@ -1075,7 +1077,6 @@
     const projectiles = [];
     let bossAttackTimer = 0;
 
-    // КООРДИНАТЫ И ВВОД
     let pX = 0, pY = 4, pZ = 0;
     let pVy = 0;
     let isGrounded = false;
@@ -1086,7 +1087,6 @@
       document.querySelectorAll('.touch-btn, .act-btn').forEach(b => b.classList.remove('active-touch'));
     }
 
-    // ПОЛНАЯ ОЧИСТКА ПУЛА СНАРЯДОВ ПРИ СМЕНЕ РЕЖИМА
     function clearAllProjectiles() {
       for (let i = projectiles.length - 1; i >= 0; i--) {
         bossGroup.remove(projectiles[i].mesh);
@@ -1119,9 +1119,8 @@
         worldGroup.visible = true;
         bossGroup.visible = false;
 
-        // СПАВН СТРОГО НА ПОВЕРХНОСТИ МИРА БЕЗ ЗАСТРЕВАНИЯ
         const surfY = getSurfaceY(Math.round(pX));
-        pY = surfY + 0.5; // Стопы ровно на поверхности блока
+        pY = surfY + 0.5;
         pZ = 0;
         pVy = 0;
 
@@ -1151,7 +1150,6 @@
     document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
     document.getElementById('btn-mode-boss').addEventListener('click', () => switchMode('boss'));
 
-    // АТАКА В МИРЕ
     function doWorldAttack() {
       if (mode !== 'world') return;
       AudioEngine.slash();
@@ -1186,9 +1184,6 @@
     }
     document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
 
-    // ==========================================
-    // КОПАНИЕ БЛОКОВ
-    // ==========================================
     let miningTarget = null;
     let miningProgress = 0;
     const raycaster = new THREE.Raycaster();
@@ -1269,9 +1264,6 @@
       showToast(`Хайзенберг: 'Чистейший продукт!' (+${reward} 🪙)`, '#00ffcc');
     };
 
-    // ==========================================
-    // ТАЧ-КНОПКИ С ИЗОЛЯЦИЕЙ
-    // ==========================================
     function setupTouchButton(id, onDown, onUp) {
       const el = document.getElementById(id);
       el.addEventListener('touchstart', (e) => {
@@ -1301,7 +1293,6 @@
 
     setupTouchButton('btn-action', () => { doMainAction(); }, () => {});
 
-    // КЛАВИАТУРА
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
       if (k === 'w' || k === 'arrowup') inputState.up = true;
@@ -1332,7 +1323,6 @@
           haptic('light');
         }
       } else {
-        // АВТО-ПРИЦЕЛ СТРОГО В ЦЕНТР ЯДРА БОССА
         AudioEngine.laser();
         haptic('light');
 
@@ -1350,7 +1340,6 @@
       }
     }
 
-    // ТЕЛЕМЕТРИЯ
     document.getElementById('btn-sync').addEventListener('click', () => {
       if (tg) {
         tg.sendData(JSON.stringify({
@@ -1390,17 +1379,19 @@
         if (inputState.right) { moveX += 0.12; isMoving = true; playerGroup.rotation.y = Math.PI / 2; }
         if (!inputState.left && !inputState.right) playerGroup.rotation.y = 0;
 
-        // ПЛАВНЫЙ ВОКСЕЛЬНЫЙ BOX CAST С АВТО-СТУПЕНЬКОЙ
+        // ПОЛНАЯ ПРОВЕРКА СТЕН ОТ СТОП ДО ГОЛОВЫ (БЕЗ НОУКЛИПА НОГ)
         if (moveX !== 0) {
           const skin = 0.28;
           const targetX = pX + moveX;
           const checkGX = Math.round(targetX + (moveX > 0 ? skin : -skin));
-          const footGY = Math.round(pY); // Центр блока на уровне стоп
-          const headGY = Math.round(pY + 1.4);
 
+          // Проверяем 5 контрольных точек по высоте от пяток до макушки
+          const testYPoints = [pY - 0.48, pY, pY + 0.5, pY + 1.0, pY + 1.55];
           let blocked = false;
-          for (let gy = footGY; gy <= headGY; gy++) {
-            if (blockMap.has(`${checkGX},${gy}`)) {
+
+          for (let i = 0; i < testYPoints.length; i++) {
+            const checkGY = Math.round(testYPoints[i]);
+            if (blockMap.has(`${checkGX},${checkGY}`)) {
               blocked = true;
               break;
             }
@@ -1409,9 +1400,10 @@
           if (!blocked) {
             pX = targetX;
           } else {
-            // STEP UP НА 1 БЛОК СТРОГО ЕСЛИ СВЕРХУ СВОБОДНО
-            const stepGY = footGY + 1;
-            if (!blockMap.has(`${checkGX},${stepGY}`) && !blockMap.has(`${Math.round(pX)},${headGY + 1}`)) {
+            // STEP UP (ПРОВЕРКА СВОБОДЫ НАД СТУПЕНЬКОЙ)
+            const stepGY = Math.round(pY + 0.5);
+            const headRoomGY = Math.round(pY + 1.6);
+            if (!blockMap.has(`${checkGX},${stepGY}`) && !blockMap.has(`${Math.round(pX)},${headRoomGY}`)) {
               pY += 0.22;
               pX = targetX;
             }
@@ -1423,13 +1415,12 @@
         let nextY = pY + pVy;
 
         if (pVy < 0) {
-          // Проверяем блок ровно под стопами (foot level)
-          const targetFootGY = Math.round(nextY - 0.45);
+          const targetFootGY = Math.round(nextY - 0.5);
           const curGX = Math.round(pX);
           const bUnder = blockMap.get(`${curGX},${targetFootGY}`);
 
-          if (bUnder && pY >= targetFootGY + 0.4) {
-            pY = targetFootGY + 0.5; // Стопы строго на поверхности блока
+          if (bUnder && pY >= targetFootGY + 0.45) {
+            pY = targetFootGY + 0.5; // Стопы строго на грани блока
             pVy = 0;
             isGrounded = true;
           } else {
@@ -1437,7 +1428,6 @@
             isGrounded = false;
           }
         } else {
-          // Проверка потолка
           const headGY = Math.round(nextY + 1.6);
           const curGX = Math.round(pX);
           if (blockMap.has(`${curGX},${headGY}`)) {
@@ -1462,7 +1452,6 @@
           const dist = playerGroup.position.distanceTo(e.position);
           const hasVision = hasLineOfSight(e.position.x, e.position.y, playerGroup.position.x, playerGroup.position.y);
 
-          // Сканер земли под мобом: держимся строго в воздухе
           const groundUnderEnemy = getSurfaceY(Math.round(e.position.x)) + 0.5;
           const minSafeY = groundUnderEnemy + 1.6;
 
@@ -1470,7 +1459,6 @@
             if (e.position.x < pX) e.position.x += e.userData.speed;
             else e.position.x -= e.userData.speed;
 
-            // Плавное следование за игроком без погружения в твердь
             const targetY = Math.max(minSafeY, playerGroup.position.y + 0.5);
             e.position.y += (targetY - e.position.y) * 0.05;
 
@@ -1481,7 +1469,6 @@
               }
             }
           } else {
-            // Патрулирование строго над землей
             const patTargetY = minSafeY + Math.sin(t * 3 + e.position.x) * 0.3;
             e.position.y += (patTargetY - e.position.y) * 0.05;
           }
@@ -1508,20 +1495,23 @@
         document.getElementById('interact-prompt').style.display = hDist < 4.2 ? 'block' : 'none';
       }
       else if (mode === 'boss') {
-        // ПОЛНОЦЕННОЕ 3D ДВИЖЕНИЕ
+        // НОРМАЛИЗОВАННЫЙ 3D БЕГ БЕЗ ДИАГОНАЛЬНОГО УСКОРЕНИЯ
         let mX = 0, mZ = 0;
         let isRunning3D = false;
 
-        if (inputState.up) { mZ -= 0.15; isRunning3D = true; }
-        if (inputState.down) { mZ += 0.15; isRunning3D = true; }
-        if (inputState.left) { mX -= 0.15; isRunning3D = true; }
-        if (inputState.right) { mX += 0.15; isRunning3D = true; }
+        if (inputState.up) mZ -= 1;
+        if (inputState.down) mZ += 1;
+        if (inputState.left) mX -= 1;
+        if (inputState.right) mX += 1;
 
-        pX += mX;
-        pZ += mZ;
+        if (mX !== 0 || mZ !== 0) {
+          isRunning3D = true;
+          const len = Math.hypot(mX, mZ);
+          pX += (mX / len) * 0.15;
+          pZ += (mZ / len) * 0.15;
+        }
 
-        // БАРЬЕР АРЕНЫ
-        const distToCenter = Math.sqrt(pX * pX + pZ * pZ);
+        const distToCenter = Math.hypot(pX, pZ);
         if (distToCenter > ARENA_RADIUS - 1.2) {
           const angle = Math.atan2(pZ, pX);
           pX = Math.cos(angle) * (ARENA_RADIUS - 1.2);
@@ -1569,7 +1559,6 @@
           p.mesh.position.add(p.vel);
 
           if (p.isPlayer) {
-            // ТОЧНАЯ ПРОВЕРКА ПОПАДАНИЯ В РЕАКТОР БОССА
             const targetCorePos = new THREE.Vector3(bossRig.position.x, 3.2, bossRig.position.z);
             if (p.mesh.position.distanceTo(targetCorePos) < 2.5) {
               AudioEngine.hit();
