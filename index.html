@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBERCORE: TITAN TRUE 3D & TERRARIA</title>
+  <title>CYBERCORE: TITAN FIXED PROTOCOL</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -47,6 +47,27 @@
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
       background-size: 100% 3px, 3px 100%;
       opacity: 0.45;
+    }
+
+    /* TOAST NOTIFICATION (REPLACES BLOCKING ALERTS) */
+    #toast-banner {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8, 14, 30, 0.95);
+      border: 2px solid #00ffcc;
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      z-index: 3000;
+      display: none;
+      box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
+      pointer-events: none;
+      max-width: 90vw;
     }
 
     #mining-hud {
@@ -329,6 +350,7 @@
   <div id="canvas-container"></div>
   <div id="crt-overlay"></div>
 
+  <div id="toast-banner"></div>
   <div id="mining-hud"><div id="mining-bar"></div></div>
 
   <!-- START MENU -->
@@ -522,6 +544,17 @@
       try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch (e) {}
     }
 
+    // NON-BLOCKING TOAST NOTIFICATIONS
+    let toastTimer = null;
+    function showToast(text, color = '#00ffcc') {
+      const el = document.getElementById('toast-banner');
+      el.innerText = text;
+      el.style.borderColor = color;
+      el.style.display = 'block';
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2600);
+    }
+
     function haptic(type) {
       try {
         if (!tg?.HapticFeedback) return;
@@ -597,7 +630,7 @@
           this.statPoints += 3;
           AudioEngine.lvlUp();
           haptic('success');
-          alert(`🎉 НОВЫЙ КИБЕР-УРОВЕНЬ: ${this.level}!\nПолучено +3 очка развития!`);
+          showToast(`🎉 НОВЫЙ КИБЕР-УРОВЕНЬ: ${this.level}! (+3 очка)`, '#ffcc00');
         }
         updateHeroUI();
       },
@@ -613,6 +646,17 @@
     let mode = 'menu';
     let currentHp = 150;
     let iFrames = 0;
+    let tipClearTimer = null;
+
+    function setTip(text) {
+      const banner = document.getElementById('tip-banner');
+      banner.innerText = text;
+      if (tipClearTimer) clearTimeout(tipClearTimer);
+      tipClearTimer = setTimeout(() => {
+        if (mode === 'world') banner.innerText = "⛏️ ЗАЖИМАЙ БЛОКИ ДЛЯ ДОБЫЧИ, БЕЙ МОБОВ КНОПКОЙ «УДАР»!";
+        else if (mode === 'boss') banner.innerText = "⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!";
+      }, 2000);
+    }
 
     function updateHeroUI() {
       document.getElementById('ui-lvl').innerText = Hero.level;
@@ -652,7 +696,7 @@
     function damagePlayer(rawDmg) {
       if (iFrames > 0) return;
       if (Math.random() * 100 < Hero.getDodgeChance()) {
-        document.getElementById('tip-banner').innerText = "💨 DODGE! УЛОНЕНИЕ ОТ АТАКИ!";
+        setTip("💨 DODGE! УЛОНЕНИЕ ОТ АТАКИ!");
         return;
       }
       const red = Hero.getArmorReduction() / 100;
@@ -662,10 +706,10 @@
       AudioEngine.hit();
       haptic('heavy');
       updatePlayerHpBar();
-      document.getElementById('tip-banner').innerText = `💥 ПОЛУЧЕН УРОН: -${Math.round(finalDmg)} HP!`;
+      setTip(`💥 ПОЛУЧЕН УРОН: -${Math.round(finalDmg)} HP!`);
 
       if (currentHp <= 0) {
-        alert("☠️ ЭКЗОСКЕЛЕТ КРИТИЧЕСКИ ПОВРЕЖДЁН! РЕСПАВН НА БАЗЕ!");
+        showToast("☠️ ЭКЗОСКЕЛЕТ УНИЧТОЖЕН! РЕСПАВН НА БАЗЕ!", '#ff0055');
         respawnPlayer();
       }
     }
@@ -673,8 +717,11 @@
     function respawnPlayer() {
       currentHp = Hero.getMaxHp();
       updatePlayerHpBar();
-      pX = 0; pY = 4; pZ = 0; pVy = 0;
-      playerGroup.position.set(0, 4, 0);
+      pX = 0; pZ = 0; pVy = 0;
+      // Спавним строго над поверхностью мира в точке X=0
+      const surfaceBlockY = getSurfaceY(0);
+      pY = surfaceBlockY + 1.2;
+      playerGroup.position.set(0, pY, 0);
       switchMode('world');
     }
 
@@ -709,30 +756,32 @@
       mode = 'menu';
       document.getElementById('start-menu').style.display = 'flex';
       document.getElementById('boss-hud-group').style.display = 'none';
+      document.getElementById('interact-prompt').style.display = 'none';
+      resetInputs();
       AudioEngine.beep(300, 0.1);
       haptic('medium');
     };
 
     window.craftItem = function(type) {
       if (type === 'sword') {
-        if (ores < 4 || stones < 8) { alert("Не хватает ресурсов! Нужно 4 руды и 8 камня."); return; }
+        if (ores < 4 || stones < 8) { showToast("Не хватает ресурсов! Нужно 4 руды и 8 камня.", '#ff0055'); return; }
         ores -= 4; stones -= 8;
         Hero.equipped.sword = "Неоновый Клинок MK-2";
         Hero.craftBonusDmg = 25;
         swordMesh.material.color.setHex(0x00ffcc);
       } else if (type === 'chest') {
-        if (ores < 8 || chips < 2) { alert("Не хватает ресурсов! Нужно 8 руды и 2 чипа."); return; }
+        if (ores < 8 || chips < 2) { showToast("Не хватает ресурсов! Нужно 8 руды и 2 чипа.", '#ff0055'); return; }
         ores -= 8; chips -= 2;
         Hero.equipped.chest = "Титановый Экзо-Панцирь";
         Hero.craftBonusHp = 80;
         armorPlateMesh.visible = true;
       } else if (type === 'leg') {
-        if (ores < 6 || stones < 12) { alert("Не хватает ресурсов! Нужно 6 руды и 12 камня."); return; }
+        if (ores < 6 || stones < 12) { showToast("Не хватает ресурсов! Нужно 6 руды и 12 камня.", '#ff0055'); return; }
         ores -= 6; stones -= 12;
         Hero.equipped.leg = "Усиленный Гидро-Протез";
         Hero.craftBonusDodge = 15;
       } else if (type === 'visor') {
-        if (ores < 5 || coins < 60) { alert("Не хватает ресурсов! Нужно 5 руды и 60 монет."); return; }
+        if (ores < 5 || coins < 60) { showToast("Не хватает ресурсов! Нужно 5 руды и 60 монет.", '#ff0055'); return; }
         ores -= 5; coins -= 60;
         Hero.equipped.visor = "Визор Снайпер";
         Hero.craftBonusCrit = 15;
@@ -741,11 +790,11 @@
       Hero.addExp(50);
       AudioEngine.craft();
       haptic('success');
-      alert(`⚒️ УСПЕШНО СКРАФЧЕНО!`);
+      showToast(`⚒️ УСПЕШНО СКРАФЧЕНО: ${type.toUpperCase()}!`, '#00ffcc');
       updateHeroUI();
     };
 
-    // --- THREE.JS SCENE ---
+    // --- THREE.JS SCENE SETUP ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x130a2a, 0.018);
@@ -835,7 +884,7 @@
     playerGroup.add(legLeftCyber);
 
     // ==========================================
-    // 2D ЧАНКИ И СЕТКА
+    // 2D ЧАНКИ И ВЫЧИСЛЕНИЕ ПОВЕРХНОСТИ
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
@@ -852,11 +901,15 @@
     const generatedCols = new Set();
     const activeBlocks = [];
 
+    function getSurfaceY(gx) {
+      return Math.floor(Math.sin(gx * 0.25) * 2.2) + 2;
+    }
+
     function generateColumn(gx) {
       if (generatedCols.has(gx)) return;
       generatedCols.add(gx);
 
-      const surfaceY = Math.floor(Math.sin(gx * 0.25) * 2.2) + 2;
+      const surfaceY = getSurfaceY(gx);
 
       for (let gy = -18; gy <= surfaceY; gy++) {
         let mat = matStone;
@@ -867,6 +920,7 @@
         else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
         else if (Math.random() < 0.13) { mat = matOre; type = 'ore'; }
 
+        // Пещеры
         if (gy > -18 && gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
@@ -890,8 +944,14 @@
       }
     }
 
+    // ==========================================
+    // ВРАГИ: СПАВН НАД ЗЕМЛЕЙ + LINE OF SIGHT (LOS)
+    // ==========================================
     const worldEnemies = [];
-    function spawnEnemy(x, y) {
+    function spawnEnemy(x) {
+      const surfaceY = getSurfaceY(Math.round(x));
+      const spawnY = surfaceY + 2.0; // Строго в воздухе над травой
+
       const eg = new THREE.Group();
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: 0xff0055 }));
       eg.add(body);
@@ -899,15 +959,27 @@
       eye.position.set(0, 0, 0.35);
       eg.add(eye);
 
-      eg.position.set(x, y, 0);
+      eg.position.set(x, spawnY, 0);
       eg.userData = {
         hp: 75 + Hero.level * 20,
         maxHp: 75 + Hero.level * 20,
         speed: 0.045,
-        attackCooldown: 0
+        attackCooldown: 0,
+        baseY: spawnY
       };
       worldGroup.add(eg);
       worldEnemies.push(eg);
+    }
+
+    // Проверка прямой видимости (нет блоков между мобом и игроком)
+    function hasLineOfSight(x1, y1, x2, y2) {
+      const steps = 10;
+      for (let i = 1; i < steps; i++) {
+        const cx = Math.round(x1 + (x2 - x1) * (i / steps));
+        const cy = Math.round(y1 + (y2 - y1) * (i / steps));
+        if (blockMap.has(`${cx},${cy}`)) return false;
+      }
+      return true;
     }
 
     const heisenbergGroup = new THREE.Group();
@@ -936,7 +1008,6 @@
     arenaFloor.position.y = -0.4;
     bossGroup.add(arenaFloor);
 
-    // СВЕТЯЩИЙСЯ ФИЗИЧЕСКИЙ БАРЬЕР
     const barrierGeo = new THREE.CylinderGeometry(ARENA_RADIUS, ARENA_RADIUS, 5, 36, 1, true);
     const barrierMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.25 });
     const arenaBarrier = new THREE.Mesh(barrierGeo, barrierMat);
@@ -965,8 +1036,11 @@
     let pVy = 0;
     let isGrounded = false;
 
-    // СОСТОЯНИЕ НАЖАТИЯ КЛАВИШ
     const inputState = { up: false, down: false, left: false, right: false };
+    function resetInputs() {
+      inputState.up = false; inputState.down = false; inputState.left = false; inputState.right = false;
+      document.querySelectorAll('.touch-btn, .act-btn').forEach(b => b.classList.remove('active-touch'));
+    }
 
     window.startGameMode = function(targetMode) {
       document.getElementById('start-menu').style.display = 'none';
@@ -975,8 +1049,12 @@
 
     function switchMode(newMode) {
       mode = newMode;
+      resetInputs();
       AudioEngine.beep(600, 0.1);
       haptic('heavy');
+
+      // Принудительно гасим подсказку Хайзенберга при смене режима
+      document.getElementById('interact-prompt').style.display = 'none';
 
       if (mode === 'world') {
         document.getElementById('btn-mode-world').classList.add('active');
@@ -988,8 +1066,21 @@
 
         worldGroup.visible = true;
         bossGroup.visible = false;
+
+        // ТОЧНЫЙ СПАВН НА ПОВЕРХНОСТИ МИРА БЕЗ ЗАСТРЕВАНИЯ
+        const surfY = getSurfaceY(Math.round(pX));
+        pY = surfY + 1.2;
+        pZ = 0;
+        pVy = 0;
+
         playerGroup.position.set(pX, pY, 0);
         playerGroup.rotation.set(0, 0, 0);
+
+        // Жёстко выравниваем камеру для 2D
+        camera.position.set(pX, pY + 1.4, 10);
+        camera.lookAt(pX, pY + 1.4, 0);
+
+        setTip("⛏️ ТЕРРАРИЯ 2D: КОПАЙ РУДУ И БЕЙ МОБОВ!");
       } else {
         document.getElementById('btn-mode-boss').classList.add('active');
         document.getElementById('btn-mode-world').classList.remove('active');
@@ -1003,7 +1094,7 @@
 
         pX = 0; pY = 0; pZ = 16;
         playerGroup.position.set(pX, pY, pZ);
-        document.getElementById('tip-banner').innerText = "⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!";
+        setTip("⚠️ ПОЛНОЕ 3D: СВОБОДНЫЙ БЕГ И АВТО-ПРИЦЕЛ ПО БОССУ!");
       }
     }
     document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
@@ -1037,7 +1128,7 @@
             Hero.wins++;
             if (Math.random() < 0.4) chips++;
             updateHeroUI();
-            document.getElementById('tip-banner').innerText = `💥 МОНСТР УНИЧТОЖЕН! +40 🪙, +45 EXP!`;
+            setTip(`💥 МОНСТР УНИЧТОЖЕН! +40 🪙, +45 EXP!`);
           }
         }
       }
@@ -1071,7 +1162,6 @@
     }
 
     window.addEventListener('pointerdown', (e) => {
-      // Игнорируем клики по экранным кнопкам UI
       if (e.target.closest('#hud') || e.target.closest('.modal')) return;
       checkMiningStart(e.clientX, e.clientY);
     });
@@ -1117,7 +1207,7 @@
     }
 
     window.sellOreToHeisenberg = function() {
-      if (ores <= 0) { alert("Хайзенберг: 'Где чистая руда? Накопай 99.1% в шахтах!'"); return; }
+      if (ores <= 0) { showToast("Хайзенберг: 'Где чистая руда? Накопай 99.1% в шахтах!'", '#ff0055'); return; }
       const reward = ores * 50;
       coins += reward;
       Hero.addExp(ores * 35);
@@ -1125,7 +1215,7 @@
       ores = 0;
       updateHeroUI();
       closeModal('dialogue-modal');
-      alert(`Хайзенберг: 'Чистейший продукт!' Получено: +${reward} 🪙, опыт и энерго-чипы!`);
+      showToast(`Хайзенберг: 'Чистейший продукт!' (+${reward} 🪙)`, '#00ffcc');
     };
 
     // ==========================================
@@ -1199,7 +1289,7 @@
         shootOrigin.y += 1.0;
 
         const bossTarget = bossRig.position.clone();
-        bossTarget.y += 3.2; // Целимся прямо в реактор босса
+        bossTarget.y += 3.2;
 
         const shootDir = new THREE.Vector3().subVectors(bossTarget, shootOrigin).normalize();
 
@@ -1225,7 +1315,7 @@
           wins: Hero.wins
         }));
       } else {
-        alert(`Синхронизация:\nУровень: ${Hero.level}\nМонеты: ${coins}\nОружие: ${Hero.equipped.sword}`);
+        showToast(`Данные отправлены боту! (LVL: ${Hero.level})`, '#00ffcc');
       }
     });
 
@@ -1311,15 +1401,21 @@
         for (let x = playerGX - 18; x <= playerGX + 18; x++) generateColumn(x);
         if (Math.abs(playerGX) % 8 === 0) cleanFarChunks(playerGX);
 
-        if (worldEnemies.length < 10 && Math.random() < 0.02) {
-          spawnEnemy(pX + (Math.random() > 0.5 ? 14 : -14), pY + 1.5);
+        if (worldEnemies.length < 8 && Math.random() < 0.02) {
+          spawnEnemy(pX + (Math.random() > 0.5 ? 15 : -15));
         }
 
         worldEnemies.forEach(e => {
           const dist = playerGroup.position.distanceTo(e.position);
-          if (dist < 14) {
+          const hasVision = hasLineOfSight(e.position.x, e.position.y, playerGroup.position.x, playerGroup.position.y);
+
+          // Моб преследует ТОЛЬКО если видит персонажа без преград
+          if (dist < 14 && hasVision) {
             if (e.position.x < pX) e.position.x += e.userData.speed;
             else e.position.x -= e.userData.speed;
+
+            // Плавное следование за высотой игрока, если чисто
+            e.position.y += (playerGroup.position.y + 0.5 - e.position.y) * 0.04;
 
             if (dist < 1.2) {
               if (!e.userData.attackCooldown || e.userData.attackCooldown <= 0) {
@@ -1327,9 +1423,12 @@
                 e.userData.attackCooldown = 50;
               }
             }
+          } else {
+            // Патрулирование на высоте спавна
+            e.position.y = e.userData.baseY + Math.sin(t * 3 + e.position.x) * 0.3;
           }
+
           if (e.userData.attackCooldown > 0) e.userData.attackCooldown--;
-          e.position.y = 3.2 + Math.sin(t * 4 + e.position.x) * 0.25;
         });
 
         if (isMoving && isGrounded) {
@@ -1351,9 +1450,6 @@
         document.getElementById('interact-prompt').style.display = hDist < 4.2 ? 'block' : 'none';
       }
       else if (mode === 'boss') {
-        // ==========================================
-        // TRUE 3D СВОБОДНЫЙ БЕГ С ОГРАНИЧЕНИЕМ БАРЬЕРА
-        // ==========================================
         let mX = 0, mZ = 0;
         let isRunning3D = false;
 
@@ -1365,7 +1461,7 @@
         pX += mX;
         pZ += mZ;
 
-        // ФИЗИЧЕСКИЙ БАРЬЕР АРЕНЫ
+        // БАРЬЕР АРЕНЫ
         const distToCenter = Math.sqrt(pX * pX + pZ * pZ);
         if (distToCenter > ARENA_RADIUS - 1.2) {
           const angle = Math.atan2(pZ, pX);
@@ -1375,7 +1471,6 @@
 
         playerGroup.position.set(pX, 0, pZ);
 
-        // ПОВОРОТ ПЕРСОНАЖА ПО ХОДУ ДВИЖЕНИЯ
         if (isRunning3D) {
           const moveAngle = Math.atan2(mX, mZ);
           playerGroup.rotation.y = moveAngle;
@@ -1386,10 +1481,8 @@
           legLeftCyber.rotation.x = 0;
         }
 
-        // БОСС ВСЕГДА СМОТРИТ НА ИГРОКА
         bossRig.lookAt(pX, bossRig.position.y, pZ);
 
-        // ПРИЦЕЛЬНЫЙ ЗАЛП БОССА
         bossAttackTimer += dt;
         if (bossAttackTimer >= 1.6) {
           bossAttackTimer = 0;
@@ -1400,7 +1493,6 @@
           const playerAimTarget = playerGroup.position.clone();
           playerAimTarget.y += 1.0;
 
-          // Точный вектор прямо в игрока
           const bossAimDir = new THREE.Vector3().subVectors(playerAimTarget, bossShootOrigin).normalize();
 
           const bProj = new THREE.Mesh(
@@ -1413,18 +1505,15 @@
           projectiles.push({ mesh: bProj, vel: bossAimDir.multiplyScalar(0.48), isPlayer: false });
         }
 
-        // КИНЕМАТОГРАФИЧНАЯ 3D КАМЕРА
         const camTarget = new THREE.Vector3(pX * 0.5, 8.5, pZ + 14);
         camera.position.lerp(camTarget, 0.08);
         camera.lookAt(pX * 0.4, 2.5, pZ * 0.4);
 
-        // ОБРАБОТКА СНАРЯДОВ
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
           p.mesh.position.add(p.vel);
 
           if (p.isPlayer) {
-            // Попадание по боссу
             if (p.mesh.position.distanceTo(bossRig.position) < 3.2) {
               AudioEngine.hit();
               haptic('light');
@@ -1445,13 +1534,16 @@
 
               if (bossHp <= 0) {
                 coins += 500; Hero.addExp(250); Hero.wins++;
-                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН В TRUE 3D! +500 🪙 и +250 EXP!");
+                showToast("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН В 3D! +500 🪙, +250 EXP!", '#00ffcc');
+                // Сброс щита и HP для нового боя
+                bossHp = bossMaxHp; bossShield = bossMaxShield;
+                document.getElementById('boss-hp').style.width = '100%';
+                document.getElementById('boss-shield').style.width = '100%';
                 switchMode('world');
               }
               continue;
             }
           } else {
-            // Попадание босса по игроку
             if (p.mesh.position.distanceTo(playerGroup.position) < 1.4) {
               damagePlayer(35);
               bossGroup.remove(p.mesh);
