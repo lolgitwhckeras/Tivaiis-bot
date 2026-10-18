@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CYBER-TERRARIA: TITAN ULTRA MONOLITH</title>
+  <title>CYBERCORE: TITAN TERRARIA CRAFT & BOSS</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -21,7 +21,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #020308;
+      background-color: #0b071a;
       color: #00ffcc;
     }
     #canvas-container {
@@ -33,7 +33,7 @@
       z-index: 1;
     }
 
-    /* SCANLINE & CRT CYBER OVERLAY */
+    /* CRT SCANLINE OVERLAY */
     #crt-overlay {
       position: absolute;
       top: 0;
@@ -42,9 +42,9 @@
       height: 100%;
       z-index: 2;
       pointer-events: none;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
       background-size: 100% 3px, 3px 100%;
-      opacity: 0.7;
+      opacity: 0.5;
     }
 
     /* GLOBAL HUD */
@@ -59,265 +59,303 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 12px;
+      padding: 10px;
     }
 
     .hud-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(3, 8, 20, 0.88);
+      background: rgba(8, 14, 30, 0.88);
       border: 1px solid #00ffcc;
       border-radius: 8px;
-      padding: 8px 14px;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.35), inset 0 0 10px rgba(0, 255, 204, 0.1);
+      padding: 8px 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.35);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       pointer-events: auto;
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       width: 100%;
-      gap: 8px;
+      gap: 6px;
     }
 
     .nav-btn {
       background: rgba(0, 255, 204, 0.12);
       border: 1px solid #00ffcc;
       color: #00ffcc;
-      padding: 7px 14px;
+      padding: 6px 10px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: 900;
-      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
+      transition: all 0.15s ease;
     }
     .nav-btn:active { transform: scale(0.95); }
-    .nav-btn.active {
-      background: #00ffcc;
-      color: #000;
-      box-shadow: 0 0 14px #00ffcc;
-    }
-    .nav-btn.boss {
-      border-color: #ff0055;
-      color: #ff0055;
-      background: rgba(255, 0, 85, 0.15);
-    }
-    .nav-btn.boss.active {
-      background: #ff0055;
-      color: #fff;
-      box-shadow: 0 0 16px #ff0055;
-    }
+    .nav-btn.active { background: #00ffcc; color: #000; box-shadow: 0 0 12px #00ffcc; }
+    .nav-btn.boss { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.15); }
+    .nav-btn.boss.active { background: #ff0055; color: #fff; box-shadow: 0 0 14px #ff0055; }
+    .nav-btn.craft { border-color: #ff9900; color: #ff9900; background: rgba(255, 153, 0, 0.15); }
+    .nav-btn.hero { border-color: #ffcc00; color: #ffcc00; background: rgba(255, 204, 0, 0.15); }
 
     /* BOSS HEALTH HUD */
     #boss-bars {
       display: none;
       width: 100%;
-      max-width: 720px;
-      margin: 8px auto 0;
-      background: rgba(4, 7, 18, 0.9);
+      max-width: 760px;
+      margin: 6px auto 0;
+      background: rgba(6, 10, 24, 0.92);
       border: 1px solid #ff0055;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 6px;
-      box-shadow: 0 0 20px rgba(255, 0, 85, 0.35);
-      backdrop-filter: blur(8px);
       pointer-events: auto;
     }
     .bar-bg {
       width: 100%;
-      height: 12px;
-      background: #0a101d;
-      border: 1px solid #202b3d;
+      height: 10px;
+      background: #090e1c;
+      border: 1px solid #1a2942;
       border-radius: 3px;
       overflow: hidden;
-      margin-top: 4px;
-      position: relative;
+      margin-top: 3px;
     }
-    .bar-fill-hp {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #ff0055, #ff6600, #ffcc00);
-      transition: width 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
-      box-shadow: 0 0 10px #ff0055;
-    }
-    .bar-fill-shield {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #0088ff, #00ffff);
-      transition: width 0.15s ease;
-      box-shadow: 0 0 10px #00ffff;
-    }
+    .bar-fill-hp { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0055, #ffcc00); transition: width 0.1s; }
+    .bar-fill-shield { height: 100%; width: 100%; background: linear-gradient(90deg, #0088ff, #00ffff); transition: width 0.1s; }
 
-    /* ALERTS & PROMPTS */
     #tip-banner {
       align-self: center;
       font-size: 11px;
       font-weight: bold;
       background: rgba(0, 255, 204, 0.15);
       border: 1px solid #00ffcc;
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 4px;
       color: #fff;
       text-align: center;
-      box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
     }
+
     #interact-prompt {
       align-self: center;
       background: rgba(255, 204, 0, 0.25);
       border: 1px solid #ffcc00;
       color: #ffcc00;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 6px;
-      font-size: 12px;
-      font-weight: 900;
+      font-size: 11px;
+      font-weight: bold;
       display: none;
       pointer-events: auto;
       cursor: pointer;
       box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
-      animation: pulse-glow 1.2s infinite alternate;
-    }
-    @keyframes pulse-glow {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 204, 0, 0.7); }
     }
 
-    /* CONTROLS */
+    /* BOTTOM CONTROLS */
     .bottom-panel {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       pointer-events: none;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
-    .touch-dpad {
-      pointer-events: auto;
-      display: flex;
-      gap: 10px;
-    }
+    .touch-dpad { pointer-events: auto; display: flex; gap: 8px; }
     .touch-btn {
-      width: 58px;
-      height: 58px;
+      width: 54px;
+      height: 54px;
       background: rgba(0, 255, 204, 0.12);
       border: 1px solid #00ffcc;
-      border-radius: 10px;
+      border-radius: 8px;
       color: #00ffcc;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 12px rgba(0, 255, 204, 0.15);
     }
-    .touch-btn:active {
-      background: #00ffcc;
-      color: #000;
-      box-shadow: 0 0 20px #00ffcc;
-    }
+    .touch-btn:active { background: #00ffcc; color: #000; }
 
-    .touch-actions {
-      pointer-events: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .touch-actions { pointer-events: auto; display: flex; flex-direction: column; gap: 8px; }
     .act-btn {
-      width: 68px;
-      height: 68px;
+      width: 62px;
+      height: 62px;
       border-radius: 50%;
       background: rgba(255, 204, 0, 0.15);
       border: 1px solid #ffcc00;
       color: #ffcc00;
       font-size: 9px;
-      font-weight: 900;
+      font-weight: bold;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
     }
-    .act-btn:active {
-      background: #ffcc00;
-      color: #000;
-      transform: scale(0.92);
-    }
-    .act-btn.armor-toggle {
-      border-color: #00aaff;
-      color: #00aaff;
-      background: rgba(0, 170, 255, 0.15);
-      box-shadow: 0 0 15px rgba(0, 170, 255, 0.25);
-    }
-    .act-btn.armor-toggle.equipped {
-      background: #00aaff;
-      color: #000;
-      box-shadow: 0 0 22px #00aaff;
-    }
-    .act-btn.combat {
-      border-color: #ff0055;
-      color: #ff0055;
-      background: rgba(255, 0, 85, 0.2);
-      box-shadow: 0 0 18px rgba(255, 0, 85, 0.3);
-    }
-    .act-btn.combat:active {
-      background: #ff0055;
-      color: #fff;
-    }
+    .act-btn:active { background: #ffcc00; color: #000; transform: scale(0.92); }
+    .act-btn.combat { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.2); }
+    .act-btn.combat:active { background: #ff0055; color: #fff; }
+    .act-btn.attack-world { border-color: #00ffff; color: #00ffff; background: rgba(0, 255, 255, 0.2); }
+    .act-btn.attack-world:active { background: #00ffff; color: #000; }
 
-    /* MODAL */
+    /* MODALS */
     .modal {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(2, 4, 12, 0.94);
+      background: rgba(3, 5, 14, 0.96);
       z-index: 100;
       display: none;
       justify-content: center;
       align-items: center;
-      padding: 16px;
+      padding: 14px;
       backdrop-filter: blur(10px);
     }
     .modal-box {
-      width: 100%; max-width: 400px;
-      background: #070d1a;
-      border: 2px solid #ffcc00;
+      width: 100%; max-width: 440px;
+      background: #081020;
+      border: 2px solid #00ffcc;
       border-radius: 12px;
-      padding: 20px;
+      padding: 16px;
       position: relative;
-      box-shadow: 0 0 35px rgba(255, 204, 0, 0.35);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.35);
+      max-height: 90vh;
+      overflow-y: auto;
     }
-    .btn-dialogue {
-      background: #ffcc00;
+
+    /* CRAFTING RECIPE CARDS */
+    .recipe-card {
+      background: #0c162b;
+      border: 1px solid #1c2e50;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .recipe-info { display: flex; flex-direction: column; gap: 2px; }
+    .recipe-name { font-size: 12px; font-weight: 900; color: #00ffcc; }
+    .recipe-cost { font-size: 10px; color: #ffcc00; }
+    .recipe-desc { font-size: 9px; color: #8fa5c4; }
+    .btn-craft {
+      background: #ff9900;
       border: none;
       color: #000;
       font-weight: 900;
-      padding: 12px;
-      border-radius: 6px;
-      width: 100%;
+      padding: 8px 14px;
+      border-radius: 5px;
       cursor: pointer;
-      margin-top: 12px;
       font-size: 11px;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
     }
+    .btn-craft:disabled { background: #2a3547; color: #5a6b82; cursor: not-allowed; }
+
+    /* HERO PROFILE */
+    .hero-card {
+      background: #0b1426;
+      border: 1px solid #182845;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .hero-stat-row {
+      display: flex; justify-content: space-between;
+      font-size: 11px; margin: 4px 0; color: #8fa5c4;
+    }
+    .hero-stat-row b { color: #ffe600; }
+    .stat-upgrade-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #091122; border: 1px solid #14223b;
+      border-radius: 6px; padding: 6px 10px; margin: 6px 0;
+    }
+    .btn-plus {
+      background: rgba(255, 204, 0, 0.2);
+      border: 1px solid #ffcc00;
+      color: #ffcc00;
+      font-weight: 900;
+      width: 32px; height: 32px;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .btn-plus.disabled { opacity: 0.3; pointer-events: none; }
+
+    .equip-slot {
+      background: #09101d; border: 1px dashed #203554;
+      border-radius: 6px; padding: 8px 10px; margin: 5px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px;
+    }
+
+    /* START MENU */
+    #start-menu {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at center, #130a2a 0%, #04050e 100%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .menu-btn {
+      width: 100%; max-width: 290px;
+      background: rgba(0, 255, 204, 0.12);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      font-size: 13px; font-weight: 900;
+      padding: 14px; margin: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    }
+    .menu-btn:active { background: #00ffcc; color: #000; transform: scale(0.96); }
+    .menu-btn.boss { border-color: #ff0055; color: #ff0055; background: rgba(255, 0, 85, 0.15); }
+    .menu-btn.boss:active { background: #ff0055; color: #fff; }
   </style>
 </head>
 <body>
   <div id="canvas-container"></div>
   <div id="crt-overlay"></div>
 
+  <!-- ГЛАВНОЕ СТАРТОВОЕ МЕНЮ -->
+  <div id="start-menu">
+    <div style="font-size:26px; font-weight:900; color:#00ffcc; text-shadow:0 0 20px #00ffcc; margin-bottom:4px; text-align:center;">
+      CYBERCORE: TITAN
+    </div>
+    <div style="font-size:11px; color:#ffcc00; margin-bottom:24px; letter-spacing:1px;">
+      TERRARIA CRAFT & BOSS PROTOCOL
+    </div>
+
+    <button class="menu-btn" onclick="startGameMode('world')">
+      <span>🌍</span> <span>ОТКРЫТЫЙ МИР</span>
+    </button>
+    <button class="menu-btn boss" onclick="startGameMode('boss')">
+      <span>⚔️</span> <span>АРЕНА 3D-БОССОВ</span>
+    </button>
+    <button class="menu-btn" style="border-color:#ff9900; color:#ff9900;" onclick="openCraftMenu()">
+      <span>⚒️</span> <span>ВЕРСТАК КРАФТА</span>
+    </button>
+    <button class="menu-btn" style="border-color:#ffcc00; color:#ffcc00;" onclick="openHeroProfile()">
+      <span>👤</span> <span>КИБЕР-ПРОФИЛЬ ГЕРОЯ</span>
+    </button>
+  </div>
+
+  <!-- HUD ВО ВРЕМЯ ИГРЫ -->
   <div id="hud">
     <div class="hud-bar">
-      <button class="nav-btn active" id="btn-mode-world">⛏️ ТЕРРАРИЯ 2D</button>
-      <button class="nav-btn boss" id="btn-mode-boss">⚔️ 3D БОСС</button>
-      <div style="font-size:11px; font-weight:bold; letter-spacing:0.5px;">
-        🪙 <span id="val-coins" style="color:#ffcc00;">80</span> | 
-        💎 <span id="val-ores" style="color:#00ffff;">0</span>
+      <button class="nav-btn active" id="btn-mode-world">🌍 МИР</button>
+      <button class="nav-btn boss" id="btn-mode-boss">⚔️ БОСС</button>
+      <button class="nav-btn craft" onclick="openCraftMenu()">⚒️ КРАФТ</button>
+      <button class="nav-btn hero" onclick="openHeroProfile()">👤 ГЕРОЙ</button>
+      <div style="font-size:10px; font-weight:bold;">
+        🪙 <span id="val-coins" style="color:#ffcc00;">100</span> | 
+        💎 <span id="val-ores" style="color:#00ffff;">0</span> | 
+        🧱 <span id="val-stone" style="color:#aaa;">0</span>
       </div>
       <button class="nav-btn" id="btn-sync" style="background:#00ffcc; color:#000;">💾 БОТ</button>
     </div>
@@ -333,7 +371,7 @@
     </div>
 
     <div id="interact-prompt">⚗️ СВАРИТЬ С ХАЙЗЕНБЕРГОМ [E]</div>
-    <div id="tip-banner">⛏️ ТАПАЙ ПО БЛОКАМ, ЧТОБЫ ДОБЫВАТЬ ЧИСТЕЙШИЙ 99.1% КРИСТАЛЛ!</div>
+    <div id="tip-banner">⛏️ ТАПАЙ ПО БЛОКАМ И БЕЙ МОБОВ КНОПКОЙ «УДАР»!</div>
 
     <div class="bottom-panel">
       <div class="touch-dpad">
@@ -341,9 +379,9 @@
         <button class="touch-btn" id="ctrl-right">▶</button>
       </div>
       <div class="touch-actions">
-        <button class="act-btn armor-toggle" id="btn-armor">
-          <span>🛡️</span>
-          <span id="lbl-armor">БРОНЯ: НЕТ</span>
+        <button class="act-btn attack-world" id="btn-attack-world">
+          <span>🗡️</span>
+          <span>УДАР</span>
         </button>
         <button class="act-btn" id="btn-action">
           <span id="act-icon">▲</span>
@@ -353,26 +391,154 @@
     </div>
   </div>
 
+  <!-- МЕНЮ КРАФТА (КАК В МАЙНКРАФТЕ / ТЕРРАРИИ) -->
+  <div class="modal" id="craft-modal">
+    <div class="modal-box">
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('craft-modal')">✕</button>
+      <h3 style="color:#ff9900; font-size:16px; margin-bottom:6px;">⚒️ КИБЕР-ВЕРСТАК КРАФТА</h3>
+      <p style="font-size:10px; color:#8fa5c4; margin-bottom:12px;">Создавай снаряжение из добытой руды и трофеев:</p>
+
+      <div class="recipe-card">
+        <div class="recipe-info">
+          <span class="recipe-name">🗡️ Неоновый Клинок MK-2</span>
+          <span class="recipe-cost">💎 4 Руды + 🧱 8 Камня</span>
+          <span class="recipe-desc">+25 к урону атаки</span>
+        </div>
+        <button class="btn-craft" id="craft-btn-sword" onclick="craftItem('sword')">КРАФТ</button>
+      </div>
+
+      <div class="recipe-card">
+        <div class="recipe-info">
+          <span class="recipe-name">🛡️ Титановый Экзо-Панцирь</span>
+          <span class="recipe-cost">💎 8 Руды + ⚙️ 2 Чипа</span>
+          <span class="recipe-desc">+80 HP, -35% входящего урона</span>
+        </div>
+        <button class="btn-craft" id="craft-btn-chest" onclick="craftItem('chest')">КРАФТ</button>
+      </div>
+
+      <div class="recipe-card">
+        <div class="recipe-info">
+          <span class="recipe-name">🦿 Усиленный Гидро-Протез</span>
+          <span class="recipe-cost">💎 6 Руды + 🧱 12 Камня</span>
+          <span class="recipe-desc">+20% к скорости бега и уклону</span>
+        </div>
+        <button class="btn-craft" id="craft-btn-leg" onclick="craftItem('leg')">КРАФТ</button>
+      </div>
+
+      <div class="recipe-card">
+        <div class="recipe-info">
+          <span class="recipe-name">🥽 Тактический Визор «Снайпер»</span>
+          <span class="recipe-cost">💎 5 Руды + 🪙 60 Монет</span>
+          <span class="recipe-desc">+15% шанс критического удара</span>
+        </div>
+        <button class="btn-craft" id="craft-btn-visor" onclick="craftItem('visor')">КРАФТ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КИБЕР-ПРОФИЛЬ ГЕРОЯ -->
+  <div class="modal" id="hero-modal">
+    <div class="modal-box">
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('hero-modal')">✕</button>
+      <h3 style="color:#ffcc00; font-size:16px; margin-bottom:10px;">КИБЕР-ПРОФИЛЬ ГЕРОЯ</h3>
+
+      <div class="hero-card">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:54px; height:54px; border:2px solid #00ffcc; border-radius:6px; background:#040810; display:flex; align-items:center; justify-content:center; font-size:26px;">🦾</div>
+          <div style="flex-grow:1;">
+            <div style="font-size:15px; font-weight:900; color:#00ffcc;">Tivaiis [Cyber-Titan]</div>
+            <div style="font-size:11px; color:#8fa5c4;">Уровень <span id="ui-lvl" style="color:#ffcc00; font-weight:bold;">1</span></div>
+            <div class="bar-bg" style="height:6px; margin-top:4px;">
+              <div id="ui-exp-fill" style="height:100%; width:15%; background:#00ffcc;"></div>
+            </div>
+            <div style="font-size:9px; color:#6b829e; text-align:right; margin-top:2px;">
+              <span id="ui-exp-cur">15</span> / <span id="ui-exp-max">100</span> EXP
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+          <div class="hero-stat-row">Здоровье: <b id="stat-hp">150</b></div>
+          <div class="hero-stat-row">Удар: <b id="stat-dmg">55-75</b></div>
+          <div class="hero-stat-row">Крит: <b id="stat-crit">5%</b></div>
+          <div class="hero-stat-row">Уклон: <b id="stat-dodge">0%</b></div>
+          <div class="hero-stat-row">Броня: <b id="stat-armor">-0%</b></div>
+          <div class="hero-stat-row">Победы: <b id="stat-wins">0</b></div>
+        </div>
+      </div>
+
+      <div style="font-size:12px; font-weight:bold; color:#ffcc00; margin-bottom:6px;">
+        Очки развития: <span id="ui-stat-pts" style="font-size:15px; color:#00ffcc;">0</span>
+      </div>
+
+      <div class="stat-upgrade-row">
+        <div>
+          <div style="font-size:12px; font-weight:bold; color:#fff;">Сила • <span id="val-str">0</span></div>
+          <div style="font-size:10px; color:#6b829e;">+8 к урону за очко</div>
+        </div>
+        <button class="btn-plus" onclick="upgradeStat('str')">+1</button>
+      </div>
+
+      <div class="stat-upgrade-row">
+        <div>
+          <div style="font-size:12px; font-weight:bold; color:#fff;">Стойкость • <span id="val-end">0</span></div>
+          <div style="font-size:10px; color:#6b829e;">+25 HP и -2% урона</div>
+        </div>
+        <button class="btn-plus" onclick="upgradeStat('end')">+1</button>
+      </div>
+
+      <div class="stat-upgrade-row">
+        <div>
+          <div style="font-size:12px; font-weight:bold; color:#fff;">Меткость • <span id="val-acc">0</span></div>
+          <div style="font-size:10px; color:#6b829e;">+2% шанс крита</div>
+        </div>
+        <button class="btn-plus" onclick="upgradeStat('acc')">+1</button>
+      </div>
+
+      <div class="stat-upgrade-row">
+        <div>
+          <div style="font-size:12px; font-weight:bold; color:#fff;">Ловкость • <span id="val-agi">0</span></div>
+          <div style="font-size:10px; color:#6b829e;">+2% шанс уклона</div>
+        </div>
+        <button class="btn-plus" onclick="upgradeStat('agi')">+1</button>
+      </div>
+
+      <div style="font-size:12px; font-weight:bold; color:#ffcc00; margin:12px 0 6px;">Экипированное снаряжение</div>
+      <div class="equip-slot">
+        <div><span style="color:#00ffff;">🗡️ Оружие:</span> <b id="slot-weap">Кибер-Клинок MK.1</b></div>
+      </div>
+      <div class="equip-slot">
+        <div><span style="color:#00ffff;">🛡️ Броня:</span> <b id="slot-armor">Обычная одежда</b></div>
+      </div>
+      <div class="equip-slot">
+        <div><span style="color:#00ffff;">🦿 Кибер-нога:</span> <b id="slot-leg">Хромовый протез</b></div>
+      </div>
+      <div class="equip-slot">
+        <div><span style="color:#00ffff;">🥽 Визор:</span> <b id="slot-visor">Нет</b></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ДИАЛОГ С ХАЙЗЕНБЕРГОМ -->
   <div class="modal" id="dialogue-modal">
     <div class="modal-box">
-      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeDialogue()">✕</button>
+      <button style="position:absolute; top:10px; right:14px; background:none; border:none; color:#ff0055; font-size:22px; cursor:pointer;" onclick="closeModal('dialogue-modal')">✕</button>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
         <span style="font-size:36px;">⚗️</span>
         <div>
-          <h3 style="color:#ffcc00; font-size:16px;">УОЛТЕР «ХАЙЗЕНБЕРГ» ВАКАСИ</h3>
+          <h3 style="color:#ffcc00; font-size:15px;">УОЛТЕР «ХАЙЗЕНБЕРГ» ВАКАСИ</h3>
           <span style="font-size:10px; color:#00ffff;">Архитектор Неонового Синтеза</span>
         </div>
       </div>
-      <p style="font-size:12px; line-height:1.6; color:#cbd9ec;" id="heisenberg-text">
-        "Say my name... Ты видишь эту светящуюся бирюзовую руду в шахтах? Это не просто минерал, это чистейший 99.1% неоновый катализатор. Не вздумай продавать его перекупщикам за гроши. Неси его мне — мы очистим кристалл и сварим энергоконденсат для пробития брони Кибер-Титана!"
+      <p style="font-size:12px; line-height:1.6; color:#cbd9ec;">
+        "Say my name... За чистейшую синюю руду 99.1% я плачу кредитами, даю чипы и опыт для крафта. Сварим партию прямо сейчас?"
       </p>
-      <button class="btn-dialogue" onclick="sellOreToHeisenberg()">⚡ СВАРИТЬ СИНЮЮ РУДУ (+50 🪙 ЗА ШТ)</button>
+      <button class="menu-btn" style="width:100%; margin-top:12px;" onclick="sellOreToHeisenberg()">⚡ СВАРИТЬ РУДУ (+50 🪙, +35 EXP, +1 Чип)</button>
     </div>
   </div>
 
   <script>
-    // --- TELEGRAM INIT & HAPTICS ---
+    // --- TELEGRAM SDK ---
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
 
@@ -386,7 +552,7 @@
       } catch (e) {}
     }
 
-    // --- PROCEDURAL AUDIO ENGINE ---
+    // --- PROCEDURAL AUDIO ---
     const AudioEngine = {
       ctx: null,
       init() {
@@ -405,409 +571,362 @@
         o.start(); o.stop(this.ctx.currentTime + dur);
       },
       jump() { this.beep(240, 0.14, 'sine', 520, 0.15); },
-      stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.06); },
+      slash() { this.beep(550, 0.12, 'sawtooth', 120, 0.2); },
+      stepMetal() { this.beep(900, 0.04, 'triangle', 400, 0.05); },
       mine() { this.beep(110, 0.09, 'sawtooth', 40, 0.2); },
       gem() { this.beep(1200, 0.18, 'sine', 1600, 0.2); },
       laser() { this.beep(850, 0.12, 'sawtooth', 180, 0.2); },
       hit() { this.beep(80, 0.25, 'square', 30, 0.35); },
-      equip() { this.beep(440, 0.2, 'triangle', 880, 0.2); },
-      cook() {
-        [523, 659, 783, 1046].forEach((f, i) => {
-          setTimeout(() => this.beep(f, 0.22, 'sine', null, 0.18), i * 90);
+      craft() {
+        [300, 450, 600, 900].forEach((f, i) => {
+          setTimeout(() => this.beep(f, 0.18, 'triangle', null, 0.2), i * 70);
+        });
+      },
+      lvlUp() {
+        [440, 554, 659, 880, 1108].forEach((f, i) => {
+          setTimeout(() => this.beep(f, 0.25, 'sine', null, 0.2), i * 80);
         });
       }
     };
 
-    // --- GAME ENGINE SETUP ---
-    let mode = 'world'; // 'world' | 'boss'
-    let coins = 80;
+    // ==========================================
+    // HERO STATS & CRAFT INVENTORY
+    // ==========================================
+    let coins = 100;
     let ores = 0;
-    let inventory = [];
-    let isArmorEquipped = false;
+    let stones = 0;
+    let chips = 1;
 
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x020308, 0.022);
+    const Hero = {
+      level: 1,
+      exp: 15,
+      expMax: 100,
+      statPoints: 2,
+      str: 0,
+      end: 0,
+      acc: 0,
+      agi: 0,
+      wins: 0,
+      baseHp: 150,
 
-    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); // Четкость без мыла под Snapdragon 8 Elite
-    renderer.setClearColor(0x020308);
-    container.appendChild(renderer.domElement);
+      // Снаряжение
+      equipped: {
+        sword: "Кибер-Клинок MK.1",
+        chest: "Обычная одежда",
+        leg: "Хромовый протез",
+        visor: "Нет"
+      },
+      craftBonusDmg: 0,
+      craftBonusHp: 0,
+      craftBonusCrit: 0,
+      craftBonusDodge: 0,
 
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
-    scene.add(ambLight);
-    const keyLight = new THREE.DirectionalLight(0x00ffcc, 1.2);
-    keyLight.position.set(15, 30, 20);
-    scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xff0055, 0.8);
-    rimLight.position.set(-15, 10, -20);
-    scene.add(rimLight);
+      addExp(val) {
+        this.exp += val;
+        if (this.exp >= this.expMax) {
+          this.exp -= this.expMax;
+          this.level++;
+          this.expMax = Math.floor(this.expMax * 1.5);
+          this.statPoints += 3;
+          AudioEngine.lvlUp();
+          haptic('success');
+          alert(`🎉 НОВЫЙ КИБЕР-УРОВЕНЬ: ${this.level}!\nПолучено +3 очка развития!`);
+        }
+        updateHeroUI();
+      },
 
-    // ==========================================
-    // PROCEDURAL TEXTURE GENERATOR (БЕЗ МЫЛА)
-    // ==========================================
-    function makeGridTexture(baseColor, lineColor, glowColor) {
-      const c = document.createElement('canvas');
-      c.width = 128; c.height = 128;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = baseColor;
-      ctx.fillRect(0, 0, 128, 128);
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 4;
-      ctx.strokeRect(2, 2, 124, 124);
-      if (glowColor) {
-        ctx.fillStyle = glowColor;
-        ctx.fillRect(44, 44, 40, 40);
-      }
-      const tex = new THREE.CanvasTexture(c);
-      tex.magFilter = THREE.NearestFilter;
-      tex.minFilter = THREE.NearestFilter;
-      return tex;
+      getMinDmg() { return 50 + this.str * 8 + this.craftBonusDmg; },
+      getMaxDmg() { return 70 + this.str * 8 + this.craftBonusDmg; },
+      getMaxHp() { return this.baseHp + this.end * 25 + this.craftBonusHp; },
+      getCritChance() { return 5 + this.acc * 2 + this.craftBonusCrit; },
+      getDodgeChance() { return this.agi * 2 + this.craftBonusDodge; },
+      getArmorReduction() { return Math.min(65, this.end * 2 + (this.equipped.chest !== "Обычная одежда" ? 35 : 0)); }
+    };
+
+    let mode = 'menu';
+
+    function updateHeroUI() {
+      document.getElementById('ui-lvl').innerText = Hero.level;
+      document.getElementById('ui-exp-cur').innerText = Hero.exp;
+      document.getElementById('ui-exp-max').innerText = Hero.expMax;
+      document.getElementById('ui-exp-fill').style.width = `${(Hero.exp / Hero.expMax) * 100}%`;
+      document.getElementById('ui-stat-pts').innerText = Hero.statPoints;
+
+      document.getElementById('stat-hp').innerText = Hero.getMaxHp();
+      document.getElementById('stat-dmg').innerText = `${Hero.getMinDmg()}-${Hero.getMaxDmg()}`;
+      document.getElementById('stat-crit').innerText = `${Hero.getCritChance()}%`;
+      document.getElementById('stat-dodge').innerText = `${Hero.getDodgeChance()}%`;
+      document.getElementById('stat-armor').innerText = `-${Hero.getArmorReduction()}%`;
+      document.getElementById('stat-wins').innerText = Hero.wins;
+
+      document.getElementById('val-str').innerText = Hero.str;
+      document.getElementById('val-end').innerText = Hero.end;
+      document.getElementById('val-acc').innerText = Hero.acc;
+      document.getElementById('val-agi').innerText = Hero.agi;
+
+      document.getElementById('val-coins').innerText = coins;
+      document.getElementById('val-ores').innerText = ores;
+      document.getElementById('val-stone').innerText = stones;
+
+      document.getElementById('slot-weap').innerText = Hero.equipped.sword;
+      document.getElementById('slot-armor').innerText = Hero.equipped.chest;
+      document.getElementById('slot-leg').innerText = Hero.equipped.leg;
+      document.getElementById('slot-visor').innerText = Hero.equipped.visor;
+
+      const btns = document.querySelectorAll('.btn-plus');
+      btns.forEach(b => {
+        if (Hero.statPoints > 0) b.classList.remove('disabled');
+        else b.classList.add('disabled');
+      });
     }
 
-    const texDirt = makeGridTexture('#1a120c', '#332215', null);
-    const texGrass = makeGridTexture('#142416', '#00ff66', null);
-    const texStone = makeGridTexture('#0e1522', '#1c2d47', null);
-    const texOre = makeGridTexture('#061f2d', '#00ffff', '#00e1ff');
+    window.upgradeStat = function(stat) {
+      if (Hero.statPoints <= 0) return;
+      Hero.statPoints--;
+      Hero[stat]++;
+      AudioEngine.beep(600, 0.1);
+      haptic('light');
+      updateHeroUI();
+    };
 
-    const matDirt = new THREE.MeshStandardMaterial({ map: texDirt, roughness: 0.8 });
-    const matGrass = new THREE.MeshStandardMaterial({ map: texGrass, roughness: 0.6 });
-    const matStone = new THREE.MeshStandardMaterial({ map: texStone, roughness: 0.7, metalness: 0.2 });
-    const matOre = new THREE.MeshStandardMaterial({ map: texOre, roughness: 0.2, metalness: 0.8, emissive: 0x0088aa, emissiveIntensity: 0.6 });
+    window.openHeroProfile = function() {
+      updateHeroUI();
+      document.getElementById('hero-modal').style.display = 'flex';
+      AudioEngine.beep(400, 0.08);
+      haptic('medium');
+    };
+
+    window.openCraftMenu = function() {
+      updateHeroUI();
+      document.getElementById('craft-modal').style.display = 'flex';
+      AudioEngine.beep(450, 0.08);
+      haptic('medium');
+    };
+
+    window.closeModal = function(id) {
+      document.getElementById(id).style.display = 'none';
+    };
 
     // ==========================================
-    // КИБЕРПАНК ГОРОД НА ФОНЕ (PARALLAX CITY)
+    // ЛОГИКА КРАФТА (CRAFTING SYSTEM)
     // ==========================================
-    const cityGroup = new THREE.Group();
-    scene.add(cityGroup);
+    window.craftItem = function(type) {
+      if (type === 'sword') {
+        if (ores < 4 || stones < 8) { alert("Недостаточно ресурсов! Нужно 4 руды и 8 камня."); return; }
+        ores -= 4; stones -= 8;
+        Hero.equipped.sword = "Неоновый Клинок MK-2";
+        Hero.craftBonusDmg = 25;
+        swordMesh.material.color.setHex(0x00ffcc);
+        swordMesh.scale.set(1.2, 1.4, 1.2);
+      }
+      else if (type === 'chest') {
+        if (ores < 8 || chips < 2) { alert("Недостаточно ресурсов! Нужно 8 руды и 2 чипа от Хайзенберга."); return; }
+        ores -= 8; chips -= 2;
+        Hero.equipped.chest = "Титановый Экзо-Панцирь";
+        Hero.craftBonusHp = 80;
+        armorPlateMesh.visible = true;
+      }
+      else if (type === 'leg') {
+        if (ores < 6 || stones < 12) { alert("Недостаточно ресурсов! Нужно 6 руды и 12 камня."); return; }
+        ores -= 6; stones -= 12;
+        Hero.equipped.leg = "Усиленный Гидро-Протез";
+        Hero.craftBonusDodge = 15;
+        cyberShin.material.color.setHex(0x00ffff);
+      }
+      else if (type === 'visor') {
+        if (ores < 5 || coins < 60) { alert("Недостаточно ресурсов! Нужно 5 руды и 60 монет."); return; }
+        ores -= 5; coins -= 60;
+        Hero.equipped.visor = "Визор Снайпер";
+        Hero.craftBonusCrit = 15;
+        helmetVisorMesh.visible = true;
+      }
 
-    const buildings = [];
-    const windowColors = ['#00ffcc', '#ff0055', '#ffe600', '#0088ff'];
+      Hero.addExp(50);
+      AudioEngine.craft();
+      haptic('success');
+      alert(`⚒️ УСПЕШНЫЙ КРАФТ: ${type.toUpperCase()} СОЗДАН!`);
+      updateHeroUI();
+    };
 
-    for (let i = 0; i < 45; i++) {
-      const w = 4 + Math.random() * 6;
-      const h = 18 + Math.random() * 45;
-      const d = 4 + Math.random() * 6;
-      
-      const bGeo = new THREE.BoxGeometry(w, h, d);
+    // ==========================================
+    // THREE.JS SCENE SETUP & VIVID SKYBOX
+    // ==========================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x130a2a, 0.018); // Красивый фиолетовый кибер-туман
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
+    renderer.setClearColor(0x130a2a); // Больше никакого черного фона!
+    container.appendChild(renderer.domElement);
+
+    // ==========================================
+    // ЖИВОЙ КИБЕР-ФОН: НЕОНОВАЯ ЛУНА И ГОРОД
+    // ==========================================
+    const skyGroup = new THREE.Group();
+    scene.add(skyGroup);
+
+    // Гигантская планета/луна с кольцом
+    const moonGeo = new THREE.SphereGeometry(18, 32, 32);
+    const moonMat = new THREE.MeshBasicMaterial({ color: 0x9900ff });
+    const moon = new THREE.Mesh(moonGeo, moonMat);
+    moon.position.set(-25, 22, -65);
+    skyGroup.add(moon);
+
+    const moonRing = new THREE.Mesh(
+      new THREE.RingGeometry(22, 28, 32).rotateX(Math.PI / 2.5),
+      new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide, transparent: true, opacity: 0.6 })
+    );
+    moonRing.position.copy(moon.position);
+    skyGroup.add(moonRing);
+
+    // Кибер-небоскребы с подсветкой
+    const cityBuildings = [];
+    for (let i = 0; i < 55; i++) {
+      const w = 4 + Math.random() * 7;
+      const h = 22 + Math.random() * 50;
+      const bGeo = new THREE.BoxGeometry(w, h, 6);
       const bMat = new THREE.MeshStandardMaterial({
-        color: 0x050a14,
-        roughness: 0.3,
-        metalness: 0.85
+        color: Math.random() > 0.5 ? 0x140d2b : 0x0a1426,
+        metalness: 0.85,
+        roughness: 0.25
       });
       const b = new THREE.Mesh(bGeo, bMat);
-      
-      const bx = (Math.random() - 0.5) * 140;
-      const bz = -18 - Math.random() * 55;
+      const bx = (Math.random() - 0.5) * 220;
+      const bz = -30 - Math.random() * 45;
       b.position.set(bx, h / 2 - 8, bz);
-      cityGroup.add(b);
+      skyGroup.add(b);
 
-      // Неоновые ребра и голо-шпили
       const wire = new THREE.LineSegments(new THREE.EdgesGeometry(bGeo), new THREE.LineBasicMaterial({
         color: Math.random() > 0.4 ? 0x00ffcc : 0xff0055,
         transparent: true,
-        opacity: 0.35
+        opacity: 0.4
       }));
       b.add(wire);
-
-      // Шпили
-      if (Math.random() > 0.5) {
-        const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.4, 6, 6), new THREE.MeshBasicMaterial({ color: 0x00ffcc }));
-        spire.position.set(0, h / 2 + 3, 0);
-        b.add(spire);
-      }
-      buildings.push(b);
+      cityBuildings.push(b);
     }
 
-    // Летающие спидеры (трафик вдали)
-    const trafficCars = [];
-    for (let i = 0; i < 14; i++) {
-      const car = new THREE.Mesh(
-        new THREE.BoxGeometry(1.8, 0.3, 0.8),
+    // Летающий трафик (спидеры)
+    const trafficList = [];
+    for (let i = 0; i < 18; i++) {
+      const sp = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, 0.35, 0.8),
         new THREE.MeshBasicMaterial({ color: Math.random() > 0.5 ? 0x00ffff : 0xff0055 })
       );
-      car.position.set((Math.random() - 0.5) * 120, 4 + Math.random() * 22, -22 - Math.random() * 25);
-      car.userData = { speed: (0.15 + Math.random() * 0.25) * (Math.random() > 0.5 ? 1 : -1) };
-      cityGroup.add(car);
-      trafficCars.push(car);
+      sp.position.set((Math.random() - 0.5) * 160, 8 + Math.random() * 25, -28 - Math.random() * 25);
+      sp.userData = { speed: (0.18 + Math.random() * 0.3) * (Math.random() > 0.5 ? 1 : -1) };
+      skyGroup.add(sp);
+      trafficList.push(sp);
     }
 
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
+    scene.add(ambLight);
+    const sunLight = new THREE.DirectionalLight(0x00ffcc, 1.4);
+    sunLight.position.set(15, 30, 20);
+    scene.add(sunLight);
+
     // ==========================================
-    // 1. ИГРОК: ЧЕЛОВЕК С КИБЕР-НОГОЙ И БРОНЕЙ
+    // ИГРОК: МОДЕЛЬ С КИБЕР-НОГОЙ И СНАРЯЖЕНИЕМ
     // ==========================================
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
 
     const matSkin = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.5 });
-    const matHair = new THREE.MeshStandardMaterial({ color: 0x2b1d14, roughness: 0.9 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x2b1d14 });
     const matJacket = new THREE.MeshStandardMaterial({ color: 0x121824, roughness: 0.7 });
     const matPants = new THREE.MeshStandardMaterial({ color: 0x0b0f17 });
     const matCyberChrome = new THREE.MeshStandardMaterial({ color: 0xb0c0d0, metalness: 0.95, roughness: 0.15 });
     const matNeonJoint = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
 
-    // Голова
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.46, 0.42), matSkin);
     head.position.y = 1.48;
     playerGroup.add(head);
 
-    const hair = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.18, 0.44), matHair);
-    hair.position.set(0, 1.63, 0);
-    playerGroup.add(hair);
+    const helmetVisorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.16, 0.26), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+    helmetVisorMesh.position.set(0, 1.5, 0.16);
+    helmetVisorMesh.visible = false;
+    playerGroup.add(helmetVisorMesh);
 
-    // Торс
     const torso = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.72, 0.34), matJacket);
     torso.position.y = 0.95;
     playerGroup.add(torso);
 
-    // Руки
+    const armorPlateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.68, 0.44), new THREE.MeshStandardMaterial({ color: 0x081324, metalness: 0.9 }));
+    armorPlateMesh.position.y = 0.96;
+    armorPlateMesh.visible = false;
+    playerGroup.add(armorPlateMesh);
+
     const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matJacket);
     armL.position.set(-0.39, 0.95, 0);
     playerGroup.add(armL);
+
     const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), matJacket);
     armR.position.set(0.39, 0.95, 0);
     playerGroup.add(armR);
 
-    // Правая нога (человеческая)
+    // Меч
+    const swordMesh = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+    swordMesh.position.set(0, -0.4, 0.2);
+    armR.add(swordMesh);
+
+    // Правая человеческая нога
     const legRight = new THREE.Group();
     const legRPant = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.62, 0.22), matPants);
     legRPant.position.y = -0.31;
     legRight.add(legRPant);
-    const bootR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.32), new THREE.MeshStandardMaterial({ color: 0x05070a }));
-    bootR.position.set(0, -0.58, 0.05);
-    legRight.add(bootR);
     legRight.position.set(0.16, 0.6, 0);
     playerGroup.add(legRight);
 
-    // Левая нога (ПРОДВИНУТЫЙ КИБЕР-ПРОТЕЗ С ХРОМОМ И НЕОНОМ)
+    // Левая нога (КИБЕР-ПРОТЕЗ)
     const legLeftCyber = new THREE.Group();
     const cyberThigh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.16), matCyberChrome);
     cyberThigh.position.y = -0.15;
     legLeftCyber.add(cyberThigh);
-
-    const piston = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 10), matCyberChrome);
-    piston.position.set(0.06, -0.15, -0.04);
-    legLeftCyber.add(piston);
-
-    const cyberKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 12), matNeonJoint);
+    const cyberKnee = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), matNeonJoint);
     cyberKnee.position.set(0, -0.32, 0);
     legLeftCyber.add(cyberKnee);
-
     const cyberShin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.28, 0.14), matCyberChrome);
     cyberShin.position.set(0, -0.48, 0);
     legLeftCyber.add(cyberShin);
-
     const cyberFoot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.34), matCyberChrome);
     cyberFoot.position.set(0, -0.62, 0.06);
     legLeftCyber.add(cyberFoot);
-    const cyberSole = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.32), matNeonJoint);
-    cyberSole.position.set(0, -0.66, 0.06);
-    legLeftCyber.add(cyberSole);
     legLeftCyber.position.set(-0.16, 0.6, 0);
     playerGroup.add(legLeftCyber);
 
-    // Съемная Титановая Броня
-    const armorGroup = new THREE.Group();
-    armorGroup.visible = false;
-    playerGroup.add(armorGroup);
-
-    const matArmorPlate = new THREE.MeshStandardMaterial({ color: 0x081324, metalness: 0.95, roughness: 0.15 });
-    const matVisor = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-
-    const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.68, 0.44), matArmorPlate);
-    chestPlate.position.y = 0.96;
-    armorGroup.add(chestPlate);
-    const arcReactor = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16).rotateX(Math.PI / 2), matVisor);
-    arcReactor.position.set(0, 1.05, 0.23);
-    armorGroup.add(arcReactor);
-    const shoulderL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.3), matArmorPlate);
-    shoulderL.position.set(-0.43, 1.25, 0);
-    armorGroup.add(shoulderL);
-    const shoulderR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.3), matArmorPlate);
-    shoulderR.position.set(0.43, 1.25, 0);
-    armorGroup.add(shoulderR);
-    const helmetVisor = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.16, 0.26), matVisor);
-    helmetVisor.position.set(0, 1.5, 0.16);
-    armorGroup.add(helmetVisor);
-
-    function toggleArmor() {
-      isArmorEquipped = !isArmorEquipped;
-      armorGroup.visible = isArmorEquipped;
-      AudioEngine.equip();
-      haptic('medium');
-      const btn = document.getElementById('btn-armor');
-      const lbl = document.getElementById('lbl-armor');
-      if (isArmorEquipped) {
-        btn.classList.add('equipped');
-        lbl.innerText = "БРОНЯ: ТИТАН";
-        document.getElementById('tip-banner').innerText = "🛡️ ЭКЗОСКЕЛЕТ ТИТАН АКТИВИРОВАН (-50% УРОНА)!";
-      } else {
-        btn.classList.remove('equipped');
-        lbl.innerText = "БРОНЯ: НЕТ";
-        document.getElementById('tip-banner').innerText = "БРОНЯ СНЯТА.";
-      }
-    }
-    document.getElementById('btn-armor').addEventListener('click', toggleArmor);
-
     // ==========================================
-    // 2. ХАЙЗЕНБЕРГ (NPC В 2D МИРЕ)
+    // 2D БЕСКОНЕЧНЫЙ МИР (ЧАНКИ)
     // ==========================================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    const heisenbergGroup = new THREE.Group();
-    worldGroup.add(heisenbergGroup);
-    heisenbergGroup.position.set(5.5, 3.2, 0);
-
-    const matHazmat = new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.45 });
-    const matHat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-    const matGlasses = new THREE.MeshBasicMaterial({ color: 0x050505 });
-    const matFlaskFluid = new THREE.MeshBasicMaterial({ color: 0x00e1ff });
-
-    const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.76, 0.36), matHazmat);
-    hBody.position.y = 0.95;
-    heisenbergGroup.add(hBody);
-
-    const hLegL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.22), matHazmat);
-    hLegL.position.set(-0.16, 0.3, 0);
-    heisenbergGroup.add(hLegL);
-    const hLegR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.22), matHazmat);
-    hLegR.position.set(0.16, 0.3, 0);
-    heisenbergGroup.add(hLegR);
-
-    const hHead = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.4, 0.36), matSkin);
-    hHead.position.y = 1.48;
-    heisenbergGroup.add(hHead);
-
-    const hBeard = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a321d }));
-    hBeard.position.set(0, 1.35, 0.18);
-    heisenbergGroup.add(hBeard);
-
-    const hGlasses = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.08), matGlasses);
-    hGlasses.position.set(0, 1.52, 0.18);
-    heisenbergGroup.add(hGlasses);
-
-    // Шляпа Pork Pie
-    const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.04, 16), matHat);
-    hatBrim.position.set(0, 1.68, 0);
-    heisenbergGroup.add(hatBrim);
-    const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.22, 16), matHat);
-    hatTop.position.set(0, 1.8, 0);
-    heisenbergGroup.add(hatTop);
-
-    // Колба в руке
-    const flaskGroup = new THREE.Group();
-    const flaskGlass = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.34, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }));
-    flaskGlass.position.y = 0.17;
-    flaskGroup.add(flaskGlass);
-    const flaskLiquid = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.24, 12), matFlaskFluid);
-    flaskLiquid.position.y = 0.13;
-    flaskGroup.add(flaskLiquid);
-    flaskGroup.position.set(0.42, 0.95, 0.2);
-    heisenbergGroup.add(flaskGroup);
-
-    // Парящие кристаллы Blue Sky
-    const orbitCrystals = [];
-    for (let i = 0; i < 3; i++) {
-      const oc = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), matFlaskFluid);
-      heisenbergGroup.add(oc);
-      orbitCrystals.push(oc);
-    }
-
-    // ==========================================
-    // 3. 3D БОССФАЙТ: ЦЕНТУРИОН MK-X
-    // ==========================================
-    const bossGroup = new THREE.Group();
-    bossGroup.visible = false;
-    scene.add(bossGroup);
-
-    const bossFloor = new THREE.GridHelper(60, 30, 0xff0055, 0x22000d);
-    bossFloor.position.y = -0.5;
-    bossGroup.add(bossFloor);
-
-    const bossRig = new THREE.Group();
-    bossRig.position.set(0, 0, -13);
-    bossGroup.add(bossRig);
-
-    const matBossArmor = new THREE.MeshStandardMaterial({ color: 0x0d121c, metalness: 0.9, roughness: 0.2 });
-    const matBossRedGlow = new THREE.MeshBasicMaterial({ color: 0xff0055 });
-    const matGoldTrim = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.85 });
-
-    // Торс босса
-    const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.8, 3.6, 2.4), matBossArmor);
-    bTorso.position.y = 3.2;
-    bossRig.add(bTorso);
-
-    const bCoreGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.4, 16).rotateX(Math.PI / 2), matBossRedGlow);
-    bCoreGlow.position.set(0, 3.5, 1.25);
-    bossRig.add(bCoreGlow);
-
-    // Голова
-    const bHead = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.4, 1.4), matBossArmor);
-    bHead.position.set(0, 5.3, 0.2);
-    bossRig.add(bHead);
-
-    const bVisor = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 0.4), matBossRedGlow);
-    bVisor.position.set(0, 5.3, 0.85);
-    bossRig.add(bVisor);
-
-    // Рога
-    [-0.9, 0.9].forEach(hx => {
-      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.3, 6).rotateZ(hx > 0 ? -0.4 : 0.4), matGoldTrim);
-      horn.position.set(hx, 6.1, 0);
-      bossRig.add(horn);
-    });
-
-    // Наплечники
-    [-2.4, 2.4].forEach(sx => {
-      const sp = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.1, 1.6), matBossArmor);
-      sp.position.set(sx, 4.5, 0);
-      bossRig.add(sp);
-    });
-
-    // Оружие: Гидравлический молот
-    const hammerArm = new THREE.Group();
-    hammerArm.position.set(2.6, 3.5, 0.5);
-    const hShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 4.4, 8), matBossArmor);
-    hammerArm.add(hShaft);
-    const hHeadBox = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 2.4), matBossArmor);
-    hHeadBox.position.set(0, 1.8, 0);
-    hammerArm.add(hHeadBox);
-    const hBlade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.9, 2.6), matBossRedGlow);
-    hBlade.position.set(0, 1.8, 0);
-    hammerArm.add(hBlade);
-    bossRig.add(hammerArm);
-
-    // Оружие: Шестиствольная плазмопушка
-    const cannonArm = new THREE.Group();
-    cannonArm.position.set(-2.6, 3.0, 0.8);
-    const cBase = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 1.8, 12).rotateX(Math.PI / 2), matBossArmor);
-    cannonArm.add(cBase);
-    const cBarrels = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 2.0, 6).rotateX(Math.PI / 2), matBossRedGlow);
-    cBarrels.position.z = 1.1;
-    cannonArm.add(cBarrels);
-    bossRig.add(cannonArm);
-
-    let bossHp = 1400, bossMaxHp = 1400;
-    let bossShield = 400, bossMaxShield = 400;
-
-    // ==========================================
-    // 4. ТЕРРАРИЯ: ПРОЦЕДУРНЫЕ 2D БЛОКИ
-    // ==========================================
     const BLOCK_SIZE = 1.0;
-    const GRID_W = 42;
-    const GRID_H = 22;
-    const blocks = [];
     const blockGeo = new THREE.BoxGeometry(BLOCK_SIZE * 0.98, BLOCK_SIZE * 0.98, 0.6);
+    const matDirt = new THREE.MeshStandardMaterial({ color: 0x241812, roughness: 0.8 });
+    const matGrass = new THREE.MeshStandardMaterial({ color: 0x00cc66, roughness: 0.6 });
+    const matStone = new THREE.MeshStandardMaterial({ color: 0x141e30, roughness: 0.7 });
+    const matOre = new THREE.MeshStandardMaterial({ color: 0x00e1ff, emissive: 0x00aacc, emissiveIntensity: 0.8 });
 
-    for (let gx = -GRID_W / 2; gx < GRID_W / 2; gx++) {
-      for (let gy = -GRID_H; gy < 3; gy++) {
+    const generatedCols = new Set();
+    const blocks = [];
+
+    function generateColumn(gx) {
+      if (generatedCols.has(gx)) return;
+      generatedCols.add(gx);
+
+      const surfaceY = Math.floor(Math.sin(gx * 0.22) * 2.2) + 2;
+
+      for (let gy = -16; gy <= surfaceY; gy++) {
         let mat = matStone;
         let type = 'stone';
-        if (gy === 2) { mat = matGrass; type = 'grass'; }
-        else if (gy >= 0) { mat = matDirt; type = 'dirt'; }
+
+        if (gy === surfaceY) { mat = matGrass; type = 'grass'; }
+        else if (gy >= surfaceY - 2) { mat = matDirt; type = 'dirt'; }
         else if (Math.random() < 0.14) { mat = matOre; type = 'ore'; }
+
+        if (gy < surfaceY - 3 && Math.sin(gx * 0.5) * Math.cos(gy * 0.5) > 0.45) continue;
 
         const b = new THREE.Mesh(blockGeo, mat);
         b.position.set(gx * BLOCK_SIZE, gy * BLOCK_SIZE, 0);
@@ -818,108 +937,95 @@
     }
 
     // ==========================================
-    // СИСТЕМА ЧАСТИЦ (РАЗРУШЕНИЕ БЛОКОВ И ИСКРЫ)
+    // ОРДА ВРАГОВ: ДРОНЫ И КИБЕР-ПАУКИ
     // ==========================================
-    const particles = [];
-    const partGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+    const worldEnemies = [];
+    const matDronBody = new THREE.MeshStandardMaterial({ color: 0xff0055, roughness: 0.3 });
+    const matSpiderBody = new THREE.MeshStandardMaterial({ color: 0x220033, roughness: 0.4 });
 
-    function spawnDebris(pos, colorHex, count = 8) {
-      const mat = new THREE.MeshBasicMaterial({ color: colorHex });
-      for (let i = 0; i < count; i++) {
-        const p = new THREE.Mesh(partGeo, mat);
-        p.position.copy(pos);
-        const vel = new THREE.Vector3(
-          (Math.random() - 0.5) * 0.35,
-          Math.random() * 0.3 + 0.1,
-          (Math.random() - 0.5) * 0.35
-        );
-        scene.add(p);
-        particles.push({ mesh: p, vel: vel, life: 30 });
+    function spawnEnemy(x, y, type = 'drone') {
+      const eg = new THREE.Group();
+      if (type === 'drone') {
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), matDronBody);
+        eg.add(body);
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffcc00 }));
+        eye.position.set(0, 0, 0.35);
+        eg.add(eye);
+      } else {
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), matSpiderBody);
+        eg.add(body);
+        [-0.3, 0.3].forEach(lx => {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.6, 0.1), matDronBody);
+          leg.position.set(lx, -0.3, 0);
+          eg.add(leg);
+        });
       }
+
+      eg.position.set(x, y, 0);
+      eg.userData = {
+        type: type,
+        hp: 80 + Hero.level * 22,
+        maxHp: 80 + Hero.level * 22,
+        speed: type === 'drone' ? 0.05 : 0.08
+      };
+      worldGroup.add(eg);
+      worldEnemies.push(eg);
     }
 
     // ==========================================
-    // ФИЗИКА, УПРАВЛЕНИЕ И СНАРЯДЫ
+    // NPC ХАЙЗЕНБЕРГ
     // ==========================================
-    let pX = 0, pY = 4, pVx = 0, pVy = 0;
+    const heisenbergGroup = new THREE.Group();
+    worldGroup.add(heisenbergGroup);
+    heisenbergGroup.position.set(5.5, 3.2, 0);
+    const hBody = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.76, 0.36), new THREE.MeshStandardMaterial({ color: 0xffcc00 }));
+    hBody.position.y = 0.95;
+    heisenbergGroup.add(hBody);
+    const hHat = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.06, 16), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+    hHat.position.set(0, 1.7, 0);
+    heisenbergGroup.add(hHat);
+
+    // ==========================================
+    // 3D БОССФАЙТ: ЦЕНТУРИОН MK-X
+    // ==========================================
+    const bossGroup = new THREE.Group();
+    bossGroup.visible = false;
+    scene.add(bossGroup);
+
+    const bossFloor = new THREE.GridHelper(60, 30, 0xff0055, 0x330018);
+    bossFloor.position.y = -0.5;
+    bossGroup.add(bossFloor);
+
+    const bossRig = new THREE.Group();
+    bossRig.position.set(0, 0, -13);
+    bossGroup.add(bossRig);
+
+    const bTorso = new THREE.Mesh(new THREE.BoxGeometry(3.8, 3.6, 2.4), new THREE.MeshStandardMaterial({ color: 0x0d121c, metalness: 0.9 }));
+    bTorso.position.y = 3.2;
+    bossRig.add(bTorso);
+
+    const bCore = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.4, 16).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff0055 }));
+    bCore.position.set(0, 3.5, 1.25);
+    bossRig.add(bCore);
+
+    let bossHp = 1500, bossMaxHp = 1500;
+    let bossShield = 500, bossMaxShield = 500;
+
+    // ==========================================
+    // РЕЖИМЫ И УПРАВЛЕНИЕ
+    // ==========================================
+    let pX = 0, pY = 4, pVy = 0;
     let isGrounded = false;
     const LANES_3D = [-4.2, 0, 4.2];
     let laneIdx = 1;
     const projectiles = [];
 
-    // Тап по экрану для добычи
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    function onPointerDown(e) {
-      if (mode !== 'world') return;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      mouse.x = (clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-
-      const hits = raycaster.intersectObjects(blocks);
-      if (hits.length > 0) {
-        const hit = hits[0].object;
-        const dist = playerGroup.position.distanceTo(hit.position);
-        if (dist < 4.5) {
-          AudioEngine.mine();
-          haptic('light');
-
-          const col = hit.userData.type === 'ore' ? 0x00ffff : (hit.userData.type === 'grass' ? 0x00ff66 : 0x885533);
-          spawnDebris(hit.position, col, 10);
-
-          if (hit.userData.type === 'ore') {
-            ores++;
-            coins += 25;
-            AudioEngine.gem();
-            document.getElementById('val-ores').innerText = ores;
-            document.getElementById('val-coins').innerText = coins;
-          }
-          worldGroup.remove(hit);
-          const idx = blocks.indexOf(hit);
-          if (idx !== -1) blocks.splice(idx, 1);
-        }
-      }
-    }
-    window.addEventListener('pointerdown', onPointerDown);
-
-    // Диалог с Хайзенбергом
-    function checkNPCInteraction() {
-      if (mode !== 'world') return;
-      const dist = playerGroup.position.distanceTo(heisenbergGroup.position);
-      document.getElementById('interact-prompt').style.display = dist < 4.2 ? 'block' : 'none';
-    }
-
-    function openDialogue() {
-      document.getElementById('dialogue-modal').style.display = 'flex';
-      AudioEngine.beep(440, 0.1);
-      haptic('medium');
-    }
-    function closeDialogue() {
-      document.getElementById('dialogue-modal').style.display = 'none';
-    }
-    document.getElementById('interact-prompt').addEventListener('click', openDialogue);
-
-    window.sellOreToHeisenberg = function() {
-      if (ores <= 0) {
-        alert("Хайзенберг: 'У тебя нет 99.1% руды. Спустись в шахту и накопай партию!'");
-        return;
-      }
-      const reward = ores * 50;
-      coins += reward;
-      AudioEngine.cook();
-      haptic('success');
-      alert(`Хайзенберг: 'Чистейший продукт!' Получено: +${reward} 🪙 за ${ores} шт. кристаллов.`);
-      ores = 0;
-      document.getElementById('val-ores').innerText = ores;
-      document.getElementById('val-coins').innerText = coins;
-      closeDialogue();
+    window.startGameMode = function(targetMode) {
+      document.getElementById('start-menu').style.display = 'none';
+      switchMode(targetMode);
     };
 
-    // Переключение режимов
-    function setMode(newMode) {
+    function switchMode(newMode) {
       mode = newMode;
       AudioEngine.beep(600, 0.1);
       haptic('heavy');
@@ -928,7 +1034,7 @@
         document.getElementById('btn-mode-world').classList.add('active');
         document.getElementById('btn-mode-boss').classList.remove('active');
         document.getElementById('boss-bars').style.display = 'none';
-        document.getElementById('tip-banner').innerText = "⛏️ ТАПАЙ ПО БЛОКАМ, ЧТОБЫ ДОБЫВАТЬ ЧИСТЕЙШИЙ 99.1% КРИСТАЛЛ!";
+        document.getElementById('btn-attack-world').style.display = 'flex';
         document.getElementById('act-text').innerText = "ПРЫЖОК";
         document.getElementById('btn-action').classList.remove('combat');
 
@@ -939,7 +1045,7 @@
         document.getElementById('btn-mode-boss').classList.add('active');
         document.getElementById('btn-mode-world').classList.remove('active');
         document.getElementById('boss-bars').style.display = 'block';
-        document.getElementById('tip-banner').innerText = "⚔️ УВОРАЧИВАЙСЯ ОТ ЗАЛПОВ ТИТАНА И ВЕДИ ОГОНЬ!";
+        document.getElementById('btn-attack-world').style.display = 'none';
         document.getElementById('act-text').innerText = "ОГОНЬ";
         document.getElementById('btn-action').classList.add('combat');
 
@@ -949,19 +1055,104 @@
         playerGroup.position.set(LANES_3D[laneIdx], 0.2, 3);
       }
     }
-    document.getElementById('btn-mode-world').addEventListener('click', () => setMode('world'));
-    document.getElementById('btn-mode-boss').addEventListener('click', () => setMode('boss'));
+    document.getElementById('btn-mode-world').addEventListener('click', () => switchMode('world'));
+    document.getElementById('btn-mode-boss').addEventListener('click', () => switchMode('boss'));
 
-    // Клавиатура
+    // УДАР ПО ВРАГАМ В МИРЕ
+    function doWorldAttack() {
+      if (mode !== 'world') return;
+      AudioEngine.slash();
+      haptic('light');
+
+      armR.rotation.x = -Math.PI / 2;
+      setTimeout(() => { armR.rotation.x = 0; }, 180);
+
+      for (let i = worldEnemies.length - 1; i >= 0; i--) {
+        const e = worldEnemies[i];
+        if (playerGroup.position.distanceTo(e.position) < 2.6) {
+          const isCrit = Math.random() * 100 < Hero.getCritChance();
+          const dmg = Math.floor((Hero.getMinDmg() + Math.random() * (Hero.getMaxDmg() - Hero.getMinDmg())) * (isCrit ? 2.0 : 1.0));
+          
+          e.userData.hp -= dmg;
+          e.position.x += (e.position.x > playerGroup.position.x ? 0.8 : -0.8);
+          AudioEngine.hit();
+          haptic('medium');
+
+          if (e.userData.hp <= 0) {
+            worldGroup.remove(e);
+            worldEnemies.splice(i, 1);
+            coins += 40;
+            Hero.addExp(45);
+            Hero.wins++;
+            if (Math.random() < 0.4) chips++;
+            updateHeroUI();
+            document.getElementById('tip-banner').innerText = `💥 ВРАГ ПОВЕРЖЕН! +40 🪙, +45 EXP ${isCrit ? '[КРИТ!]' : ''}`;
+          }
+        }
+      }
+    }
+    document.getElementById('btn-attack-world').addEventListener('click', doWorldAttack);
+
+    // КОПАНИЕ БЛОКОВ
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    window.addEventListener('pointerdown', (e) => {
+      if (mode !== 'world') return;
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const hits = raycaster.intersectObjects(blocks);
+      if (hits.length > 0) {
+        const hit = hits[0].object;
+        if (playerGroup.position.distanceTo(hit.position) < 4.5) {
+          AudioEngine.mine();
+          haptic('light');
+
+          if (hit.userData.type === 'ore') {
+            ores++;
+            coins += 25;
+            Hero.addExp(20);
+            AudioEngine.gem();
+          } else {
+            stones++;
+          }
+          updateHeroUI();
+
+          worldGroup.remove(hit);
+          const idx = blocks.indexOf(hit);
+          if (idx !== -1) blocks.splice(idx, 1);
+        }
+      }
+    });
+
+    // ХАЙЗЕНБЕРГ
+    window.sellOreToHeisenberg = function() {
+      if (ores <= 0) { alert("Хайзенберг: 'Где чистая руда? Накопай 99.1% в шахтах!'"); return; }
+      const reward = ores * 50;
+      coins += reward;
+      Hero.addExp(ores * 35);
+      chips += Math.max(1, Math.floor(ores / 2));
+      ores = 0;
+      updateHeroUI();
+      closeModal('dialogue-modal');
+      alert(`Хайзенберг: 'Чистейший продукт!' Получено: +${reward} 🪙, опыт и энерго-чипы!`);
+    };
+
+    // УПРАВЛЕНИЕ КНОПКАМИ
     let keyLeft = false, keyRight = false;
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
       if (k === 'a' || k === 'arrowleft') { keyLeft = true; if (mode === 'boss') dodge3D(-1); }
       if (k === 'd' || k === 'arrowright') { keyRight = true; if (mode === 'boss') dodge3D(1); }
-      if (k === ' ' || k === 'w') doAction();
-      if (k === 'b') toggleArmor();
+      if (k === ' ' || k === 'w') doMainAction();
+      if (k === 'f') doWorldAttack();
+      if (k === 'c') openCraftMenu();
       if (k === 'e') {
-        if (playerGroup.position.distanceTo(heisenbergGroup.position) < 4.2) openDialogue();
+        if (playerGroup.position.distanceTo(heisenbergGroup.position) < 4.2) {
+          document.getElementById('dialogue-modal').style.display = 'flex';
+        }
       }
     });
     window.addEventListener('keyup', (e) => {
@@ -970,7 +1161,6 @@
       if (k === 'd' || k === 'arrowright') keyRight = false;
     });
 
-    // Тач-кнопки
     function bindTouch(id, onDown, onUp) {
       const el = document.getElementById(id);
       el.addEventListener('touchstart', (e) => { e.preventDefault(); onDown(); });
@@ -986,7 +1176,7 @@
       haptic('light');
     }
 
-    function doAction() {
+    function doMainAction() {
       if (mode === 'world') {
         if (isGrounded) {
           pVy = 0.29;
@@ -1006,7 +1196,7 @@
         projectiles.push({ mesh: p, vz: -0.95, isPlayer: true });
       }
     }
-    document.getElementById('btn-action').addEventListener('click', doAction);
+    document.getElementById('btn-action').addEventListener('click', doMainAction);
 
     // Залпы босса
     setInterval(() => {
@@ -1021,26 +1211,27 @@
       projectiles.push({ mesh: bProj, vz: 0.52, lane: targetLane, isPlayer: false });
     }, 1900);
 
-    // Синхронизация с ботом в Termux
+    // СИНХРОНИЗАЦИЯ С PYTHON БОТОМ
     document.getElementById('btn-sync').addEventListener('click', () => {
       if (tg) {
         tg.sendData(JSON.stringify({
           action: "open_world_sync",
+          level: Hero.level,
           coins: coins,
-          inventory: [
-            `Кристаллы 99.1%: ${ores} шт.`,
-            isArmorEquipped ? "Титановый экзоскелет" : "Без брони",
-            ...inventory
-          ],
+          ores: ores,
+          stones: stones,
+          stats: { str: Hero.str, end: Hero.end, acc: Hero.acc, agi: Hero.agi },
+          equipped: Hero.equipped,
+          wins: Hero.wins,
           quest_status: 2
         }));
       } else {
-        alert(`Синхронизация:\nМонеты: ${coins}\nКристаллы: ${ores}`);
+        alert(`Синхронизация:\nУровень: ${Hero.level}\nМонеты: ${coins}\nОружие: ${Hero.equipped.sword}`);
       }
     });
 
     // ==========================================
-    // ОСНОВНОЙ ЦИКЛ ОБНОВЛЕНИЯ И ФИЗИКИ
+    // ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (ANIMATE / LOOP)
     // ==========================================
     const clock = new THREE.Clock();
 
@@ -1048,24 +1239,12 @@
       requestAnimationFrame(loop);
       const t = clock.getElapsedTime();
 
-      // Движение летающих спидеров в городе
-      trafficCars.forEach(car => {
-        car.position.x += car.userData.speed;
-        if (car.position.x > 75) car.position.x = -75;
-        if (car.position.x < -75) car.position.x = 75;
+      // Движение спидеров на фоне
+      trafficList.forEach(sp => {
+        sp.position.x += sp.userData.speed;
+        if (sp.position.x > 80) sp.position.x = -80;
+        if (sp.position.x < -80) sp.position.x = 80;
       });
-
-      // Частицы
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const pt = particles[i];
-        pt.mesh.position.add(pt.vel);
-        pt.vel.y -= 0.015;
-        pt.life--;
-        if (pt.life <= 0) {
-          scene.remove(pt.mesh);
-          particles.splice(i, 1);
-        }
-      }
 
       if (mode === 'world') {
         let isMoving = false;
@@ -1076,6 +1255,19 @@
         pVy -= 0.015;
         pY += pVy;
 
+        // Генерация чанков вокруг игрока
+        const curGX = Math.round(pX);
+        for (let x = curGX - 22; x <= curGX + 22; x++) {
+          generateColumn(x);
+        }
+
+        // Спавн мобов
+        if (worldEnemies.length < 14 && Math.random() < 0.025) {
+          const spawnX = pX + (Math.random() > 0.5 ? 15 : -15);
+          spawnEnemy(spawnX, 3.5, Math.random() > 0.5 ? 'drone' : 'spider');
+        }
+
+        // Коллизия с блоками
         const playerFootY = pY;
         const blockUnder = blocks.find(b => 
           Math.abs(b.position.x - pX) < 0.62 && 
@@ -1089,7 +1281,7 @@
           isGrounded = true;
         }
 
-        // Анимация шага кибер-ноги и обычной ноги
+        // Анимация ног
         if (isMoving && isGrounded) {
           legRight.rotation.x = Math.sin(t * 13) * 0.65;
           legLeftCyber.rotation.x = -Math.sin(t * 13) * 0.65;
@@ -1105,40 +1297,33 @@
 
         playerGroup.position.set(pX, pY, 0);
 
-        // Анимация Хайзенберга
-        flaskGroup.rotation.z = Math.sin(t * 3) * 0.18;
-        orbitCrystals.forEach((oc, i) => {
-          const ang = t * 2.2 + (i * (Math.PI * 2 / 3));
-          oc.position.set(Math.cos(ang) * 0.85, 1.2 + Math.sin(t * 3 + i) * 0.22, Math.sin(ang) * 0.85);
+        // Движение мобов
+        worldEnemies.forEach(e => {
+          if (e.position.x < pX) e.position.x += e.userData.speed;
+          else e.position.x -= e.userData.speed;
+          e.position.y = 3.2 + Math.sin(t * 4 + e.position.x) * 0.3;
         });
 
-        checkNPCInteraction();
-
-        // Камера с эффектом глубины параллакса
+        // 2D Камера
         camera.position.x += (pX - camera.position.x) * 0.1;
         camera.position.y += (pY + 1.4 - camera.position.y) * 0.1;
         camera.position.z = 10;
         camera.lookAt(camera.position.x, camera.position.y, 0);
 
-        cityGroup.position.x = -camera.position.x * 0.15; // Параллакс города
+        skyGroup.position.x = -camera.position.x * 0.12; // Параллакс фона
       } 
-      else {
-        // 3D Режим Босса
+      else if (mode === 'boss') {
         const targetX = LANES_3D[laneIdx];
         playerGroup.position.x += (targetX - playerGroup.position.x) * 0.26;
         playerGroup.position.y = 0.2;
         playerGroup.position.z = 3;
         playerGroup.rotation.y = Math.PI;
-        playerGroup.rotation.z = (targetX - playerGroup.position.x) * 0.18;
 
         camera.position.set(0, 4.5, 9.0);
         camera.lookAt(0, 2.3, -6);
 
         bossRig.position.x = Math.sin(t * 2.2) * 3.8;
-        hammerArm.rotation.z = Math.sin(t * 3) * 0.38;
-        cannonArm.rotation.x = t * 7; // Вращение 6-стволки
 
-        // Снаряды
         for (let i = projectiles.length - 1; i >= 0; i--) {
           const p = projectiles[i];
           p.mesh.position.z += p.vz;
@@ -1147,37 +1332,40 @@
             if (p.mesh.position.z <= bossRig.position.z + 1.8) {
               AudioEngine.hit();
               haptic('light');
-              spawnDebris(p.mesh.position, 0x00ffff, 8);
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
 
+              const isCrit = Math.random() * 100 < Hero.getCritChance();
+              const dmg = Math.floor(Hero.getMinDmg() * (isCrit ? 2.0 : 1.0));
+
               if (bossShield > 0) {
-                bossShield = Math.max(0, bossShield - 100);
+                bossShield = Math.max(0, bossShield - dmg);
                 document.getElementById('boss-shield').style.width = `${(bossShield / bossMaxShield) * 100}%`;
                 if (bossShield === 0) document.getElementById('boss-stage').innerText = "ЩИТ СБИТ!";
               } else {
-                bossHp = Math.max(0, bossHp - 140);
+                bossHp = Math.max(0, bossHp - dmg);
                 document.getElementById('boss-hp').style.width = `${(bossHp / bossMaxHp) * 100}%`;
               }
 
               if (bossHp <= 0) {
-                coins += 400;
-                inventory.push("Трофей: Ядро Титана MK-X");
-                document.getElementById('val-coins').innerText = coins;
-                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН! +400 🪙 получено!");
-                setMode('world');
+                coins += 500;
+                Hero.addExp(250);
+                Hero.wins++;
+                alert("🏆 КИБЕР-ТИТАН ПОВЕРЖЕН! +500 🪙 и +250 EXP!");
+                switchMode('world');
               }
               continue;
             }
           } else {
             if (p.mesh.position.z >= 2.4 && p.mesh.position.z <= 3.8) {
               if (p.lane === laneIdx) {
-                AudioEngine.hit();
-                haptic('heavy');
-                spawnDebris(playerGroup.position, 0xff0055, 12);
-                const dmgText = isArmorEquipped ? "💥 ПОГЛОЩЕНО ТИТАНОВОЙ БРОНЕЙ (-50%)!" : "💥 КРИТИЧЕСКОЕ ПОПАДАНИЕ ПО КОРПУСУ!";
-                document.getElementById('tip-banner').innerText = dmgText;
-                setTimeout(() => { document.getElementById('tip-banner').innerText = "⚔️ УВОРАЧИВАЙСЯ ОТ ЗАЛПОВ ТИТАНА И ВЕДИ ОГОНЬ!"; }, 650);
+                if (Math.random() * 100 < Hero.getDodgeChance()) {
+                  document.getElementById('tip-banner').innerText = "💨 DODGE! УЛОНЕНИЕ ОТ ЗАЛПА!";
+                } else {
+                  AudioEngine.hit();
+                  haptic('heavy');
+                  document.getElementById('tip-banner').innerText = "💥 ПОПАДАНИЕ ПО КОРПУСУ!";
+                }
               }
               bossGroup.remove(p.mesh);
               projectiles.splice(i, 1);
